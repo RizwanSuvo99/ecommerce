@@ -1,0 +1,15 @@
+{
+  "name": "@ecommerce/root",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "description": "E-commerce monorepo — full-stack application with Next.js storefront and NestJS API",
+  "license": "UNLICENSED",
+  "author": {
+    "name": "Rizwan"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rizwan/ecommerce.git"
+  }
+}
