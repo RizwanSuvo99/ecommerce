@@ -1,0 +1,28 @@
+{
+  "name": "@ecommerce/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Shared ESLint configurations for the ecommerce monorepo",
+  "main": "base.js",
+  "files": [
+    "base.js",
+    "next.js",
+    "nest.js"
+  ],
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.1.0"
+  },
+  "peerDependencies": {
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.0"
+  }
+}
