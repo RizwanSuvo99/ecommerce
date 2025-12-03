@@ -43,11 +43,11 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix --no-warn-ignored",
+      "eslint --fix",
       "prettier --write"
     ],
     "*.{js,jsx,cjs,mjs}": [
-      "eslint --fix --no-warn-ignored",
+      "eslint --fix",
       "prettier --write"
     ],
     "*.{json,md,mdx,css,scss,yaml,yml}": [
