@@ -1,0 +1,49 @@
+{
+  "recommendations": [
+    // Core
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+
+    // TypeScript & JavaScript
+    "ms-vscode.vscode-typescript-next",
+    "yoavbls.pretty-ts-errors",
+
+    // React & Next.js
+    "dsznajder.es7-react-js-snippets",
+    "burkeholland.simple-react-snippets",
+
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+    "heybourn.headwind",
+
+    // Prisma
+    "Prisma.prisma",
+
+    // Docker
+    "ms-azuretools.vscode-docker",
+
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    // Testing
+    "Orta.vscode-jest",
+
+    // API Development
+    "humao.rest-client",
+    "42Crunch.vscode-openapi",
+
+    // Utilities
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+    "christian-kohler.path-intellisense",
+    "mikestead.dotenv",
+    "foxundermoon.shell-format",
+
+    // Monorepo
+    "gruntfuggly.todo-tree",
+    "wayou.vscode-todo-highlight"
+  ],
+  "unwantedRecommendations": []
+}
