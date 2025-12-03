@@ -1,0 +1,76 @@
+# Auto-detect text files and normalize line endings
+* text=auto eol=lf
+
+# Source code
+*.ts    text diff=typescript
+*.tsx   text diff=typescript
+*.js    text diff=javascript
+*.jsx   text diff=javascript
+*.json  text
+*.css   text diff=css
+*.scss  text diff=css
+*.html  text diff=html
+*.md    text diff=markdown
+*.mdx   text diff=markdown
+*.yaml  text
+*.yml   text
+*.xml   text
+*.sql   text
+*.graphql text
+
+# Config files
+*.env         text
+*.ini         text
+*.cfg         text
+*.conf        text
+.editorconfig text
+.gitattributes text
+.gitignore    text
+.npmrc        text
+.nvmrc        text
+Dockerfile    text
+docker-compose*.yml text
+
+# Shell scripts — always LF
+*.sh    text eol=lf
+*.bash  text eol=lf
+
+# Windows scripts — always CRLF
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Binary files — do not diff
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   text
+*.webp  binary
+*.avif  binary
+
+# Fonts
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+
+# Archives
+*.zip   binary
+*.tar   binary
+*.gz    binary
+*.7z    binary
+
+# Documents
+*.pdf   binary
+*.doc   binary
+*.docx  binary
+*.xls   binary
+*.xlsx  binary
+
+# Lock files — do not diff; generated
+pnpm-lock.yaml  -diff linguist-generated=true
+package-lock.json -diff linguist-generated=true
+yarn.lock       -diff linguist-generated=true
