@@ -24,7 +24,8 @@ export class AdminUsersService {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
       ];
     }
@@ -41,10 +42,12 @@ export class AdminUsersService {
         take: limit,
         select: {
           id: true,
-          name: true,
+          firstName: true,
+          lastName: true,
           email: true,
+          phone: true,
           role: true,
-          isActive: true,
+          status: true,
           createdAt: true,
           lastLoginAt: true,
           _count: { select: { orders: true } },
@@ -64,11 +67,12 @@ export class AdminUsersService {
       where: { id },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         phone: true,
         role: true,
-        isActive: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
         lastLoginAt: true,
@@ -103,34 +107,44 @@ export class AdminUsersService {
 
     return this.prisma.user.create({
       data: {
-        name: dto.name,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
         email: dto.email,
         password: hashedPassword,
         role: dto.role,
         phone: dto.phone,
-        isActive: true,
+        status: 'ACTIVE',
       },
-      select: { id: true, name: true, email: true, role: true },
+      select: { id: true, firstName: true, lastName: true, email: true, role: true },
     });
   }
 
   async update(id: string, dto: UpdateAdminUserDto) {
     await this.findById(id);
 
+    const data: Record<string, unknown> = {};
+    if (dto.firstName !== undefined) data.firstName = dto.firstName;
+    if (dto.lastName !== undefined) data.lastName = dto.lastName;
+    if (dto.email !== undefined) data.email = dto.email;
+    if (dto.role !== undefined) data.role = dto.role;
+    if (dto.status !== undefined) data.status = dto.status;
+    if (dto.phone !== undefined) data.phone = dto.phone;
+
     return this.prisma.user.update({
       where: { id },
-      data: dto,
-      select: { id: true, name: true, email: true, role: true, isActive: true },
+      data,
+      select: { id: true, firstName: true, lastName: true, email: true, role: true, status: true },
     });
   }
 
   async toggleActive(id: string) {
     const user = await this.findById(id);
+    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
     return this.prisma.user.update({
       where: { id },
-      data: { isActive: !user.isActive },
-      select: { id: true, isActive: true },
+      data: { status: newStatus },
+      select: { id: true, status: true },
     });
   }
 

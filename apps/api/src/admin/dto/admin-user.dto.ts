@@ -1,5 +1,4 @@
 import {
-  IsBoolean,
   IsEmail,
   IsEnum,
   IsOptional,
@@ -11,12 +10,22 @@ export enum UserRole {
   CUSTOMER = 'CUSTOMER',
   ADMIN = 'ADMIN',
   SUPER_ADMIN = 'SUPER_ADMIN',
-  EDITOR = 'EDITOR',
+  VENDOR = 'VENDOR',
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  BANNED = 'BANNED',
 }
 
 export class CreateAdminUserDto {
   @IsString()
-  name: string;
+  firstName: string;
+
+  @IsString()
+  lastName: string;
 
   @IsEmail()
   email: string;
@@ -36,7 +45,11 @@ export class CreateAdminUserDto {
 export class UpdateAdminUserDto {
   @IsOptional()
   @IsString()
-  name?: string;
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 
   @IsOptional()
   @IsEmail()
@@ -47,8 +60,8 @@ export class UpdateAdminUserDto {
   role?: UserRole;
 
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 
   @IsOptional()
   @IsString()
