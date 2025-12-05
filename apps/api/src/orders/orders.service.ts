@@ -1,9 +1,5 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto, PaymentMethod } from './dto/checkout.dto';
 import {
@@ -49,10 +45,7 @@ interface PaginationOptions {
 /**
  * Statuses that allow cancellation by the customer.
  */
-const CUSTOMER_CANCELLABLE_STATUSES = [
-  OrderStatus.PENDING,
-  OrderStatus.CONFIRMED,
-];
+const CUSTOMER_CANCELLABLE_STATUSES = [OrderStatus.PENDING, OrderStatus.CONFIRMED];
 
 /**
  * Statuses that allow cancellation by an admin.
@@ -110,11 +103,7 @@ export class OrdersService {
     const isGuest = !userId;
 
     // Look up cart by userId or sessionId
-    const cartWhere: any = userId
-      ? { userId }
-      : sessionId
-        ? { sessionId, userId: null }
-        : null;
+    const cartWhere: any = userId ? { userId } : sessionId ? { sessionId, userId: null } : null;
 
     if (!cartWhere) {
       throw new BadRequestException('No cart found. Please add items to your cart first.');
@@ -165,13 +154,27 @@ export class OrdersService {
 
     // Address validation: authenticated users use addressId, guests provide inline
     if (isGuest) {
-      if (!dto.guestEmail) errors.push('Guest email is required');
-      if (!dto.guestFullName) errors.push('Guest name is required');
-      if (!dto.guestPhone) errors.push('Guest phone is required');
-      if (!dto.shippingAddressLine1) errors.push('Shipping address is required');
-      if (!dto.shippingDivision) errors.push('Shipping division is required');
-      if (!dto.shippingDistrict) errors.push('Shipping district is required');
-      if (!dto.shippingPostalCode) errors.push('Shipping postal code is required');
+      if (!dto.guestEmail) {
+        errors.push('Guest email is required');
+      }
+      if (!dto.guestFullName) {
+        errors.push('Guest name is required');
+      }
+      if (!dto.guestPhone) {
+        errors.push('Guest phone is required');
+      }
+      if (!dto.shippingAddressLine1) {
+        errors.push('Shipping address is required');
+      }
+      if (!dto.shippingDivision) {
+        errors.push('Shipping division is required');
+      }
+      if (!dto.shippingDistrict) {
+        errors.push('Shipping district is required');
+      }
+      if (!dto.shippingPostalCode) {
+        errors.push('Shipping postal code is required');
+      }
     } else {
       if (!dto.addressId) {
         errors.push('Shipping address is required');
@@ -201,9 +204,7 @@ export class OrdersService {
       } else if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
         errors.push('This coupon has reached its usage limit');
       } else if (coupon.minOrderAmount && subtotal < Number(coupon.minOrderAmount)) {
-        errors.push(
-          `Minimum order of ৳${coupon.minOrderAmount} required for this coupon`,
-        );
+        errors.push(`Minimum order of ৳${String(coupon.minOrderAmount)} required for this coupon`);
       } else {
         if (coupon.type === 'PERCENTAGE') {
           discount = (subtotal * Number(coupon.value)) / 100;
@@ -245,9 +246,7 @@ export class OrdersService {
     }
 
     // Look up cart
-    const cartWhere: any = userId
-      ? { userId }
-      : { sessionId, userId: null };
+    const cartWhere: any = userId ? { userId } : { sessionId, userId: null };
 
     const cart = await this.prisma.cart.findFirst({
       where: cartWhere,
@@ -301,9 +300,7 @@ export class OrdersService {
         });
 
         if (product.stock < 0) {
-          throw new BadRequestException(
-            `"${item.product.name}" went out of stock during checkout`,
-          );
+          throw new BadRequestException(`"${item.product.name}" went out of stock during checkout`);
         }
       }
 
@@ -427,6 +424,12 @@ export class OrdersService {
             lastName: true,
           },
         },
+        shippingAddress: true,
+        payments: {
+          select: { method: true, status: true },
+          orderBy: { createdAt: 'desc' as const },
+          take: 1,
+        },
       },
     });
 
@@ -446,7 +449,9 @@ export class OrdersService {
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
-    if (status) where.status = status;
+    if (status) {
+      where.status = status;
+    }
 
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
@@ -605,7 +610,9 @@ export class OrdersService {
         ? {
             name: order.shippingAddress.fullName,
             phone: order.shippingAddress.phone,
-            address: [order.shippingAddress.addressLine1, order.shippingAddress.addressLine2].filter(Boolean).join(', '),
+            address: [order.shippingAddress.addressLine1, order.shippingAddress.addressLine2]
+              .filter(Boolean)
+              .join(', '),
             city: order.shippingAddress.district,
             area: order.shippingAddress.area ?? order.shippingAddress.division,
             postalCode: order.shippingAddress.postalCode,
@@ -615,7 +622,9 @@ export class OrdersService {
         ? {
             name: order.billingAddress.fullName,
             phone: order.billingAddress.phone,
-            address: [order.billingAddress.addressLine1, order.billingAddress.addressLine2].filter(Boolean).join(', '),
+            address: [order.billingAddress.addressLine1, order.billingAddress.addressLine2]
+              .filter(Boolean)
+              .join(', '),
             city: order.billingAddress.district,
             area: order.billingAddress.area ?? order.billingAddress.division,
             postalCode: order.billingAddress.postalCode,
@@ -713,7 +722,7 @@ export class OrdersService {
     if (!allowedTransitions.includes(dto.status)) {
       throw new BadRequestException(
         `Cannot transition order from "${order.status}" to "${dto.status}". ` +
-        `Allowed transitions: ${allowedTransitions.length > 0 ? allowedTransitions.join(', ') : 'none (terminal state)'}`,
+          `Allowed transitions: ${allowedTransitions.length > 0 ? allowedTransitions.join(', ') : 'none (terminal state)'}`,
       );
     }
 
@@ -721,14 +730,14 @@ export class OrdersService {
       status: dto.status,
     };
 
-    if (dto.status === 'CONFIRMED') {
+    if (dto.status === OrderStatus.CONFIRMED) {
       updateData.confirmedAt = new Date();
-    } else if (dto.status === 'SHIPPED') {
+    } else if (dto.status === OrderStatus.SHIPPED) {
       updateData.shippedAt = new Date();
-    } else if (dto.status === 'DELIVERED') {
+    } else if (dto.status === OrderStatus.DELIVERED) {
       updateData.deliveredAt = new Date();
       updateData.paymentStatus = 'PAID';
-    } else if (dto.status === 'CANCELLED') {
+    } else if (dto.status === OrderStatus.CANCELLED) {
       updateData.cancelledAt = new Date();
     }
 
@@ -742,9 +751,7 @@ export class OrdersService {
       include: { items: true },
     });
 
-    this.logger.log(
-      `Order ${order.orderNumber} status updated: ${order.status} → ${dto.status}`,
-    );
+    this.logger.log(`Order ${order.orderNumber} status updated: ${order.status} → ${dto.status}`);
 
     return updatedOrder;
   }
@@ -780,7 +787,7 @@ export class OrdersService {
     if (!CUSTOMER_CANCELLABLE_STATUSES.includes(order.status as OrderStatus)) {
       throw new BadRequestException(
         `Order cannot be cancelled. Current status: ${order.status}. ` +
-        `Cancellation is only allowed for orders in ${CUSTOMER_CANCELLABLE_STATUSES.join(' or ')} status.`,
+          `Cancellation is only allowed for orders in ${CUSTOMER_CANCELLABLE_STATUSES.join(' or ')} status.`,
       );
     }
 
@@ -810,7 +817,7 @@ export class OrdersService {
     if (!ADMIN_CANCELLABLE_STATUSES.includes(order.status as OrderStatus)) {
       throw new BadRequestException(
         `Order cannot be cancelled. Current status: ${order.status}. ` +
-        `Admin cancellation is allowed for: ${ADMIN_CANCELLABLE_STATUSES.join(', ')}`,
+          `Admin cancellation is allowed for: ${ADMIN_CANCELLABLE_STATUSES.join(', ')}`,
       );
     }
 
@@ -865,7 +872,7 @@ export class OrdersService {
 
     this.logger.log(
       `Order ${order.orderNumber} cancelled by ${cancelledBy}. ` +
-      `${order.items.length} items restored to inventory.`,
+        `${order.items.length} items restored to inventory.`,
     );
 
     return cancelledOrder;
