@@ -51,11 +51,16 @@ export class SocialAuthService {
     const privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY', '')?.replace(/\\n/g, '\n');
 
     if (projectId && clientEmail && privateKey && !admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
-      });
-      this.firebaseInitialized = true;
-      this.logger.log('Firebase Admin SDK initialized');
+      try {
+        admin.initializeApp({
+          credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
+        });
+        this.firebaseInitialized = true;
+        this.logger.log('Firebase Admin SDK initialized');
+      } catch (error) {
+        this.logger.warn('Firebase Admin SDK initialization failed — phone OTP login disabled');
+        this.logger.debug(error);
+      }
     }
   }
 
