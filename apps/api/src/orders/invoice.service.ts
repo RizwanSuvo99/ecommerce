@@ -63,6 +63,7 @@ export class InvoiceService {
         user: true,
         shippingAddress: true,
         billingAddress: true,
+        payments: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
     });
 
@@ -75,17 +76,18 @@ export class InvoiceService {
   }
 
   private mapOrderToInvoiceData(order: any): InvoiceData {
+    const payment = order.payments?.[0];
     return {
       orderNumber: order.orderNumber,
       invoiceNumber: `INV-${order.orderNumber}`,
       invoiceDate: order.createdAt,
       customer: {
-        name: order.user.name,
-        email: order.user.email,
-        phone: order.user.phone || '',
+        name: order.user?.name || order.guestFullName || 'Guest',
+        email: order.user?.email || order.guestEmail || '',
+        phone: order.user?.phone || order.guestPhone || '',
       },
       shippingAddress: {
-        name: order.shippingAddress?.name || order.user.name,
+        name: order.shippingAddress?.name || order.user?.name || order.guestFullName || 'Guest',
         address: order.shippingAddress?.address || '',
         city: order.shippingAddress?.city || '',
         area: order.shippingAddress?.area || '',
@@ -93,7 +95,7 @@ export class InvoiceService {
         phone: order.shippingAddress?.phone || '',
       },
       billingAddress: {
-        name: order.billingAddress?.name || order.shippingAddress?.name || order.user.name,
+        name: order.billingAddress?.name || order.shippingAddress?.name || order.user?.name || order.guestFullName || 'Guest',
         address: order.billingAddress?.address || order.shippingAddress?.address || '',
         city: order.billingAddress?.city || order.shippingAddress?.city || '',
         area: order.billingAddress?.area || order.shippingAddress?.area || '',
@@ -111,12 +113,12 @@ export class InvoiceService {
       })),
       subtotal: Number(order.subtotal),
       shippingCost: Number(order.shippingCost),
-      tax: Number(order.tax),
-      discount: Number(order.discount),
-      couponCode: order.couponCode,
+      tax: Number(order.taxAmount),
+      discount: Number(order.discountAmount),
+      couponCode: order.couponCode || null,
       totalAmount: Number(order.totalAmount),
-      paymentMethod: order.paymentMethod,
-      paymentStatus: order.paymentStatus,
+      paymentMethod: payment?.method || 'CASH_ON_DELIVERY',
+      paymentStatus: payment?.status || 'PENDING',
     };
   }
 
@@ -283,6 +285,7 @@ export class InvoiceService {
         user: true,
         shippingAddress: true,
         billingAddress: true,
+        payments: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
     });
 
