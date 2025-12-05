@@ -314,6 +314,14 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
+    // Log search term for analytics (fire-and-forget)
+    if (search?.trim()) {
+      this.prisma.searchLog.create({
+        data: { term: search.trim().toLowerCase(), resultsCount: total },
+      })// eslint-disable-next-line @typescript-eslint/no-empty-function
+        .catch(() => {});
+    }
+
     const totalPages = Math.ceil(total / limit);
 
     return {
