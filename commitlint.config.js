@@ -70,7 +70,7 @@ module.exports = {
   // ─────────────────────────────────────────────────────────
   parserPreset: {
     parserOpts: {
-      headerPattern: /^(?:\p{Emoji_Presentation}\s)?(\w+)(?:\(([^)]*)\))?!?:\s(.+)$/u,
+      headerPattern: /^(?:[\p{Extended_Pictographic}]\ufe0f?\s)?(\w+)(?:\(([^)]*)\))?!?:\s(.+)$/u,
       headerCorrespondence: ["type", "scope", "subject"],
     },
   },
