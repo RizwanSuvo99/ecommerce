@@ -91,3 +91,28 @@ model Account {
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  label        String   @default("Home")
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  division     String
+  district     String
+  area         String?
+  postalCode   String
+  country      String   @default("Bangladesh")
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shippingOrders Order[]       @relation("ShippingAddress")
+  billingOrders  Order[]       @relation("BillingAddress")
+
+  @@index([userId])
+  @@map("addresses")
+}
