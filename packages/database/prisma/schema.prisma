@@ -18,3 +18,76 @@ datasource db {
 // - Order & payment models
 // - Cart & wishlist models
 // - Review & rating models
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+  VENDOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
+}
+
+model User {
+  id             String     @id @default(cuid())
+  email          String     @unique
+  password       String
+  firstName      String
+  lastName       String
+  phone          String?
+  avatar         String?
+  role           UserRole   @default(CUSTOMER)
+  status         UserStatus @default(ACTIVE)
+  emailVerified  Boolean    @default(false)
+  phoneVerified  Boolean    @default(false)
+  dateOfBirth    DateTime?
+  gender         String?
+  lastLoginAt    DateTime?
+  lastLoginIp    String?
+  refreshToken   String?
+  resetToken     String?
+  resetTokenExp  DateTime?
+  verifyToken    String?
+  verifyTokenExp DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  accounts      Account[]
+  addresses     Address[]
+  carts         Cart[]
+  orders        Order[]
+  reviews       Review[]
+  wishlists     Wishlist[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
