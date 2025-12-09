@@ -166,6 +166,13 @@ export class AuthService {
       );
     }
 
+    // Social/phone users don't have a password — they must use their provider
+    if (!user.password) {
+      throw new UnauthorizedException(
+        'This account uses social login. Please sign in with Google, Facebook, or Phone.',
+      );
+    }
+
     // Compare the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -466,12 +473,14 @@ export class AuthService {
       );
     }
 
-    // Ensure the new password is different from the current one
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
-    if (isSamePassword) {
-      throw new BadRequestException(
-        'New password must be different from the current password.',
-      );
+    // Ensure the new password is different from the current one (if they have one)
+    if (user.password) {
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        throw new BadRequestException(
+          'New password must be different from the current password.',
+        );
+      }
     }
 
     // Hash the new password
@@ -512,6 +521,13 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    // Social/phone users without a password cannot use this flow
+    if (!user.password) {
+      throw new BadRequestException(
+        'Your account uses social login and does not have a password set. Use the "Forgot Password" flow to create one.',
+      );
     }
 
     // Verify the current password
