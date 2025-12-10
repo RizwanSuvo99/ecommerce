@@ -159,3 +159,62 @@ model Brand {
   @@index([slug])
   @@map("brands")
 }
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  OUT_OF_STOCK
+}
+
+model Product {
+  id               String        @id @default(cuid())
+  name             String
+  nameBn           String?
+  slug             String        @unique
+  description      String
+  descriptionBn    String?
+  shortDescription String?
+  sku              String        @unique
+  price            Decimal       @db.Decimal(10, 2)
+  compareAtPrice   Decimal?      @db.Decimal(10, 2)
+  costPrice        Decimal?      @db.Decimal(10, 2)
+  quantity         Int           @default(0)
+  status           ProductStatus @default(DRAFT)
+  categoryId       String
+  brandId          String?
+  tags             String[]      @default([])
+  weight           Decimal?      @db.Decimal(8, 2)
+  weightUnit       String?       @default("kg")
+  length           Decimal?      @db.Decimal(8, 2)
+  width            Decimal?      @db.Decimal(8, 2)
+  height           Decimal?      @db.Decimal(8, 2)
+  isFeatured       Boolean       @default(false)
+  isDigital        Boolean       @default(false)
+  viewCount        Int           @default(0)
+  averageRating    Decimal       @default(0) @db.Decimal(3, 2)
+  totalReviews     Int           @default(0)
+  metaTitle        String?
+  metaDescription  String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  category   Category         @relation(fields: [categoryId], references: [id])
+  brand      Brand?           @relation(fields: [brandId], references: [id])
+  variants   ProductVariant[]
+  attributes ProductAttribute[]
+  images     ProductImage[]
+  inventory  Inventory?
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  wishlists  Wishlist[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status])
+  @@index([price])
+  @@index([createdAt])
+  @@map("products")
+}
