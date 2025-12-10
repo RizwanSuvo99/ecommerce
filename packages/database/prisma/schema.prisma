@@ -142,3 +142,20 @@ model Category {
   @@index([parentId])
   @@map("categories")
 }
+
+model Brand {
+  id        String   @id @default(cuid())
+  name      String
+  nameBn    String?
+  slug      String   @unique
+  logo      String?
+  website   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@index([slug])
+  @@map("brands")
+}
