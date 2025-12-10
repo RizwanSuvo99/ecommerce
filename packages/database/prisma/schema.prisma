@@ -116,3 +116,29 @@ model Address {
   @@index([userId])
   @@map("addresses")
 }
+
+model Category {
+  id              String     @id @default(cuid())
+  name            String
+  nameBn          String?
+  slug            String     @unique
+  description     String?
+  descriptionBn   String?
+  image           String?
+  icon            String?
+  parentId        String?
+  sortOrder       Int        @default(0)
+  isActive        Boolean    @default(true)
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
