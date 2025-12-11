@@ -281,3 +281,25 @@ model ProductVariantAttributeValue {
   @@unique([variantId, attributeId])
   @@map("product_variant_attribute_values")
 }
+
+model ProductImage {
+  id         String   @id @default(cuid())
+  productId  String
+  variantId  String?
+  url        String
+  thumbnailUrl String?
+  alt        String?
+  width      Int?
+  height     Int?
+  isPrimary  Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  blurHash   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@map("product_images")
+}
