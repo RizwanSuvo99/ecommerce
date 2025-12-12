@@ -22,6 +22,7 @@ import {
 import { apiClient } from '@/lib/api/client';
 import { formatBDT } from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -131,12 +132,13 @@ export default function AdminProductsPage() {
       params.set('sortOrder', sortOrder);
 
       const { data } = await apiClient.get<{ data: ProductsResponse }>(
-        `/admin/products?${params.toString()}`,
+        `/products?${params.toString()}`,
       );
       setProducts(data.data.data);
       setMeta(data.data.meta);
     } catch (err) {
       console.error('Failed to load products:', err);
+      toast.error('Failed to load products');
     } finally {
       setIsLoading(false);
     }
@@ -171,13 +173,15 @@ export default function AdminProductsPage() {
   const handleBulkDelete = async () => {
     if (!confirm(`Delete ${selectedIds.size} selected products?`)) return;
     try {
-      await apiClient.post('/admin/products/bulk-delete', {
+      await apiClient.post('/products/bulk/delete', {
         ids: Array.from(selectedIds),
       });
       setSelectedIds(new Set());
       fetchProducts();
+      toast.success('Products deleted');
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      toast.error('Failed to delete products');
     }
   };
 

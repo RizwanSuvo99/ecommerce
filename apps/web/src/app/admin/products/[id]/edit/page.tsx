@@ -15,6 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
+import { toast } from 'sonner';
 import { apiClient } from '@/lib/api/client';
 import { PricingForm } from '@/components/admin/products/pricing-form';
 import { MediaForm } from '@/components/admin/products/media-form';
@@ -147,7 +148,7 @@ export default function AdminProductEditPage() {
     async function loadProduct() {
       try {
         setIsLoading(true);
-        const { data } = await apiClient.get(`/admin/products/${productId}`);
+        const { data } = await apiClient.get(`/products/${productId}`);
         const product = data.data;
 
         setFormData({
@@ -221,10 +222,12 @@ export default function AdminProductEditPage() {
 
     try {
       setIsSaving(true);
-      await apiClient.patch(`/admin/products/${productId}`, formData);
+      await apiClient.patch(`/products/${productId}`, formData);
       setLastSaved(new Date());
+      toast.success('Product saved');
     } catch (err) {
       console.error('Failed to save product:', err);
+      toast.error('Failed to save product');
     } finally {
       setIsSaving(false);
     }
@@ -239,10 +242,12 @@ export default function AdminProductEditPage() {
 
     try {
       setIsDeleting(true);
-      await apiClient.delete(`/admin/products/${productId}`);
+      await apiClient.delete(`/products/${productId}`);
+      toast.success('Product deleted');
       router.push('/admin/products');
     } catch (err) {
       console.error('Failed to delete product:', err);
+      toast.error('Failed to delete product');
     } finally {
       setIsDeleting(false);
     }
