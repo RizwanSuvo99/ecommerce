@@ -59,9 +59,15 @@ export async function getOrderHistory(params?: {
 }): Promise<{ orders: Order[]; pagination: OrderPagination }> {
   const searchParams = new URLSearchParams();
 
-  if (params?.page) searchParams.set('page', params.page.toString());
-  if (params?.limit) searchParams.set('limit', params.limit.toString());
-  if (params?.status) searchParams.set('status', params.status);
+  if (params?.page) {
+    searchParams.set('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.set('limit', params.limit.toString());
+  }
+  if (params?.status) {
+    searchParams.set('status', params.status);
+  }
 
   const response = await apiClient.get<{
     success: boolean;
@@ -105,6 +111,69 @@ export function getStatusLabel(status: string): string {
   };
 
   return labels[status] || status;
+}
+
+// ──────────────────────────────────────────────────────────
+// Single Order Detail
+// ──────────────────────────────────────────────────────────
+
+export interface OrderDetailItem {
+  id: string;
+  productName: string;
+  productSlug: string;
+  productImage: string | null;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface OrderShippingAddress {
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  division: string;
+  district: string;
+  area: string | null;
+  postalCode: string;
+}
+
+export interface OrderDetail {
+  id: string;
+  orderNumber: string;
+  status: string;
+  subtotal: number;
+  shippingCost: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  couponCode: string | null;
+  notes: string | null;
+  cancellationReason: string | null;
+  deliveredAt: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  shippingAddress: OrderShippingAddress;
+  payments: Array<{ method: string; status: string }>;
+  items: OrderDetailItem[];
+}
+
+/**
+ * Get a single order by order number (authenticated user).
+ */
+export async function getOrderByNumber(orderNumber: string): Promise<OrderDetail> {
+  const response = await apiClient.get<OrderDetail>(`/orders/${encodeURIComponent(orderNumber)}`);
+  return response.data;
+}
+
+/**
+ * Cancel an order (customer-initiated).
+ */
+export async function cancelOrder(orderId: string, reason?: string): Promise<OrderDetail> {
+  const response = await apiClient.post<OrderDetail>(`/orders/${orderId}/cancel`, { reason });
+  return response.data;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -182,14 +251,13 @@ export async function validateCheckout(
 /**
  * Look up a guest order by order number and email.
  */
-export async function trackGuestOrder(
-  orderNumber: string,
-  email: string,
-): Promise<Order> {
+export async function trackGuestOrder(orderNumber: string, email: string): Promise<Order> {
   const response = await apiClient.get<{
     success: boolean;
     data: Order;
-  }>(`/orders/guest?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`);
+  }>(
+    `/orders/guest?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`,
+  );
 
   return response.data.data;
 }
@@ -223,8 +291,12 @@ export async function calculateShipping(params: {
   division?: string;
 }): Promise<ShippingCalculation> {
   const searchParams = new URLSearchParams();
-  if (params.addressId) searchParams.set('addressId', params.addressId);
-  if (params.division) searchParams.set('division', params.division);
+  if (params.addressId) {
+    searchParams.set('addressId', params.addressId);
+  }
+  if (params.division) {
+    searchParams.set('division', params.division);
+  }
 
   const response = await apiClient.get<{
     success: boolean;
