@@ -18,6 +18,7 @@ import {
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -221,6 +222,7 @@ export default function AdminCategoriesPage() {
       setCategories(data.data);
     } catch (err) {
       console.error('Failed to load categories:', err);
+      toast.error('Failed to load categories');
     } finally {
       setIsLoading(false);
     }
@@ -248,10 +250,12 @@ export default function AdminCategoriesPage() {
       return;
     }
     try {
-      await apiClient.delete(`/admin/categories/${id}`);
+      await apiClient.delete(`/categories/${id}`);
       fetchCategories();
+      toast.success('Category deleted');
     } catch (err) {
       console.error('Failed to delete category:', err);
+      toast.error('Failed to delete category');
     }
   };
 
@@ -272,12 +276,13 @@ export default function AdminCategoriesPage() {
     }
 
     try {
-      await apiClient.patch(`/admin/categories/${draggedId}/reorder`, {
+      await apiClient.patch(`/categories/${draggedId}/reorder`, {
         targetId,
       });
       fetchCategories();
     } catch (err) {
       console.error('Failed to reorder categories:', err);
+      toast.error('Failed to reorder categories');
     } finally {
       setDraggedId(null);
     }

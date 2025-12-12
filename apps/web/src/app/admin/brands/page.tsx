@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -288,6 +289,7 @@ function BrandFormDialog({
       setFormData((prev) => ({ ...prev, logo: data.data.url }));
     } catch (err) {
       console.error('Logo upload failed:', err);
+      toast.error('Failed to upload logo');
     } finally {
       setIsUploading(false);
     }
@@ -308,15 +310,17 @@ function BrandFormDialog({
       };
 
       if (isEditing) {
-        await apiClient.patch(`/admin/brands/${editBrand!.id}`, payload);
+        await apiClient.patch(`/brands/${editBrand!.id}`, payload);
       } else {
-        await apiClient.post('/admin/brands', payload);
+        await apiClient.post('/brands', payload);
       }
 
+      toast.success(isEditing ? 'Brand updated' : 'Brand created');
       onSuccess();
       onClose();
     } catch (err) {
       console.error('Failed to save brand:', err);
+      toast.error('Failed to save brand');
     } finally {
       setIsSaving(false);
     }
@@ -483,10 +487,11 @@ export default function AdminBrandsPage() {
   const fetchBrands = useCallback(async () => {
     try {
       setIsLoading(true);
-      const { data } = await apiClient.get('/admin/brands');
+      const { data } = await apiClient.get('/brands');
       setBrands(data.data);
     } catch (err) {
       console.error('Failed to load brands:', err);
+      toast.error('Failed to load brands');
     } finally {
       setIsLoading(false);
     }
@@ -504,10 +509,12 @@ export default function AdminBrandsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this brand? Products under this brand will be unbranded.')) return;
     try {
-      await apiClient.delete(`/admin/brands/${id}`);
+      await apiClient.delete(`/brands/${id}`);
       fetchBrands();
+      toast.success('Brand deleted');
     } catch (err) {
       console.error('Failed to delete brand:', err);
+      toast.error('Failed to delete brand');
     }
   };
 
