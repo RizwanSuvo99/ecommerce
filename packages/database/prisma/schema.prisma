@@ -523,3 +523,40 @@ model Coupon {
   @@index([code])
   @@map("coupons")
 }
+
+model ShippingMethod {
+  id          String   @id @default(cuid())
+  name        String
+  nameBn      String?
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  freeAbove   Decimal? @db.Decimal(10, 2)
+  estimatedDays String?
+  zones       String[] @default([])
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderShippings OrderShipping[]
+
+  @@map("shipping_methods")
+}
+
+model OrderShipping {
+  id               String   @id @default(cuid())
+  orderId          String   @unique
+  shippingMethodId String
+  trackingNumber   String?
+  carrier          String?
+  estimatedDelivery DateTime?
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shippingMethod ShippingMethod @relation(fields: [shippingMethodId], references: [id])
+
+  @@map("order_shippings")
+}
