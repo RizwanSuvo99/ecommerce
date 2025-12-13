@@ -452,3 +452,46 @@ model OrderItem {
   @@index([orderId])
   @@map("order_items")
 }
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BKASH
+  NAGAD
+  ROCKET
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+  STRIPE
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+  FAILED
+  CANCELLED
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  amount          Decimal       @db.Decimal(10, 2)
+  currency        String        @default("BDT")
+  transactionId   String?
+  providerResponse Json?
+  paidAt          DateTime?
+  refundedAt      DateTime?
+  refundAmount    Decimal?      @db.Decimal(10, 2)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([transactionId])
+  @@map("payments")
+}
