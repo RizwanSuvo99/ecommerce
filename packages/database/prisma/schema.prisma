@@ -495,3 +495,31 @@ model Payment {
   @@index([transactionId])
   @@map("payments")
 }
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+model Coupon {
+  id              String     @id @default(cuid())
+  code            String     @unique
+  type            CouponType
+  value           Decimal    @db.Decimal(10, 2)
+  minOrderAmount  Decimal?   @db.Decimal(10, 2)
+  maxDiscount     Decimal?   @db.Decimal(10, 2)
+  usageLimit      Int?
+  usageCount      Int        @default(0)
+  perUserLimit    Int        @default(1)
+  isActive        Boolean    @default(true)
+  startsAt        DateTime
+  expiresAt       DateTime
+  applicableCategories String[] @default([])
+  applicableProducts   String[] @default([])
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([code])
+  @@map("coupons")
+}
