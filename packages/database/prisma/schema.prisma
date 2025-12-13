@@ -560,3 +560,35 @@ model OrderShipping {
 
   @@map("order_shippings")
 }
+
+// ─── Review ──────────────────────────────────────────────────────────────────
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id         String       @id @default(cuid())
+  productId  String
+  userId     String
+  rating     Int
+  title      String?
+  comment    String?
+  images     String[]     @default([])
+  status     ReviewStatus @default(PENDING)
+  isVerified Boolean      @default(false)
+  adminReply String?
+  repliedAt  DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([productId, userId])
+  @@index([productId])
+  @@index([status])
+  @@map("reviews")
+}
