@@ -607,3 +607,54 @@ model Wishlist {
   @@unique([userId, productId])
   @@map("wishlists")
 }
+
+// ─── CMS: Pages & Banners ───────────────────────────────────────────────────
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Page {
+  id              String     @id @default(cuid())
+  title           String
+  titleBn         String?
+  slug            String     @unique
+  content         String
+  contentBn       String?
+  excerpt         String?
+  featuredImage   String?
+  status          PageStatus @default(DRAFT)
+  metaTitle       String?
+  metaDescription String?
+  sortOrder       Int        @default(0)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("pages")
+}
+
+enum BannerPosition {
+  HERO
+  SIDEBAR
+  FOOTER
+  POPUP
+}
+
+model Banner {
+  id          String         @id @default(cuid())
+  title       String
+  titleBn     String?
+  image       String
+  mobileImage String?
+  link        String?
+  position    BannerPosition @default(HERO)
+  isActive    Boolean        @default(true)
+  sortOrder   Int            @default(0)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("banners")
+}
