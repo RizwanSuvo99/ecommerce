@@ -658,3 +658,25 @@ model Banner {
 
   @@map("banners")
 }
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+
+enum MenuLocation {
+  HEADER
+  FOOTER
+  SIDEBAR
+  MOBILE
+}
+
+model NavigationMenu {
+  id        String       @id @default(cuid())
+  name      String
+  nameBn    String?
+  location  MenuLocation
+  items     Json
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("navigation_menus")
+}
