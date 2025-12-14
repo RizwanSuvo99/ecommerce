@@ -680,3 +680,28 @@ model NavigationMenu {
 
   @@map("navigation_menus")
 }
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+enum SettingsGroup {
+  GENERAL
+  EMAIL
+  SHIPPING
+  TAX
+  PAYMENT
+  SEO
+  SOCIAL
+}
+
+model Settings {
+  id        String        @id @default(cuid())
+  group     SettingsGroup
+  key       String
+  value     String
+  type      String        @default("string")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([group, key])
+  @@map("settings")
+}
