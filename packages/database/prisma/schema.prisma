@@ -211,10 +211,11 @@ model Product {
   attributes ProductAttribute[]
   images     ProductImage[]
   inventory  Inventory?
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  reviews    Review[]
-  wishlists  Wishlist[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  reviews     Review[]
+  wishlists   Wishlist[]
+  viewEvents  ProductViewEvent[]
 
   @@index([slug])
   @@index([categoryId])
@@ -872,4 +873,36 @@ model ThemeSettings {
   updatedAt        DateTime @updatedAt
 
   @@map("theme_settings")
+}
+
+// ─── Analytics ──────────────────────────────────────────────────────────────
+
+model ProductViewEvent {
+  id        String   @id @default(cuid())
+  productId String
+  sessionId String?
+  userId    String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([createdAt])
+  @@index([productId, createdAt])
+  @@map("product_view_events")
+}
+
+model SearchLog {
+  id           String   @id @default(cuid())
+  term         String
+  resultsCount Int      @default(0)
+  userId       String?
+  sessionId    String?
+  createdAt    DateTime @default(now())
+
+  @@index([term])
+  @@index([createdAt])
+  @@index([term, createdAt])
+  @@map("search_logs")
 }
