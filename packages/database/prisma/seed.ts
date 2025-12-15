@@ -910,6 +910,728 @@ async function seedProducts(brandMap: Record<string, string>) {
   console.log(`  Seeded ${count} products with images, variants & inventory`);
 }
 
+
+// ---------------------------------------------------------------------------
+// Seed: CMS Pages
+// ---------------------------------------------------------------------------
+async function seedPages() {
+  console.log('Seeding CMS pages...');
+
+  const pages = [
+    {
+      title: 'About Us',
+      titleBn: 'আমাদের সম্পর্কে',
+      slug: 'about-us',
+      content: `<h1>About ShopBD</h1>
+<p>ShopBD is Bangladesh's leading e-commerce platform, connecting millions of buyers with trusted sellers across the country. Founded with a mission to make quality products accessible to every Bangladeshi household, we offer an extensive range of products from electronics and fashion to groceries and home essentials.</p>
+<h2>Our Mission</h2>
+<p>To empower Bangladeshi consumers and businesses by providing a reliable, affordable, and convenient online shopping experience with support for both Bengali and English.</p>
+<h2>Why Choose Us?</h2>
+<ul>
+  <li>100% authentic products from verified sellers</li>
+  <li>Cash on Delivery across Bangladesh</li>
+  <li>bKash, Nagad & Rocket payment support</li>
+  <li>Fast delivery inside Dhaka (24-48 hours)</li>
+  <li>Bilingual support in Bengali and English</li>
+  <li>Easy returns within 7 days</li>
+</ul>`,
+      contentBn: `<h1>শপবিডি সম্পর্কে</h1>
+<p>শপবিডি বাংলাদেশের শীর্ষস্থানীয় ই-কমার্স প্ল্যাটফর্ম। লক্ষ লক্ষ ক্রেতাকে বিশ্বস্ত বিক্রেতাদের সাথে সংযুক্ত করে সারাদেশে মানসম্মত পণ্য সহজলভ্য করাই আমাদের লক্ষ্য।</p>`,
+      excerpt: "Bangladesh's leading e-commerce platform for quality products at the best prices.",
+      status: 'PUBLISHED' as const,
+      metaTitle: 'About ShopBD | Trusted E-commerce in Bangladesh',
+      metaDescription: "Learn about ShopBD — Bangladesh's leading e-commerce platform offering authentic products with fast delivery and bilingual support.",
+    },
+    {
+      title: 'Contact Us',
+      titleBn: 'যোগাযোগ করুন',
+      slug: 'contact-us',
+      content: `<h1>Contact Us</h1>
+<p>We'd love to hear from you! Reach out to our customer support team for any queries, feedback, or assistance.</p>
+<h2>Customer Support</h2>
+<ul>
+  <li><strong>Phone:</strong> +880-2-1234-5678 (9 AM - 10 PM, Saturday - Thursday)</li>
+  <li><strong>Email:</strong> support@shopbd.com</li>
+  <li><strong>WhatsApp:</strong> +880-1700-000-000</li>
+</ul>
+<h2>Office Address</h2>
+<p>ShopBD Technologies Ltd.<br>
+Level 12, Rangs Babylon Tower<br>
+246 Bir Uttam Mir Shawkat Road<br>
+Tejgaon, Dhaka 1208, Bangladesh</p>
+<h2>Business Hours</h2>
+<p>Saturday — Thursday: 9:00 AM — 6:00 PM<br>Friday: Closed</p>`,
+      contentBn: `<h1>যোগাযোগ করুন</h1>
+<p>আমরা আপনার কাছ থেকে শুনতে চাই! যেকোনো প্রশ্ন, মতামত বা সহায়তার জন্য আমাদের কাস্টমার সাপোর্ট টিমের সাথে যোগাযোগ করুন।</p>`,
+      excerpt: 'Get in touch with ShopBD customer support team.',
+      status: 'PUBLISHED' as const,
+      metaTitle: 'Contact Us | ShopBD Customer Support',
+      metaDescription: 'Contact ShopBD customer support via phone, email, or WhatsApp. We are here to help with your orders and queries.',
+    },
+    {
+      title: 'Privacy Policy',
+      titleBn: 'গোপনীয়তা নীতি',
+      slug: 'privacy-policy',
+      content: `<h1>Privacy Policy</h1>
+<p>Last updated: December 15, 2025</p>
+<p>ShopBD Technologies Ltd. ("we", "our", or "us") is committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.</p>
+<h2>1. Information We Collect</h2>
+<p>We collect personal information that you voluntarily provide when you register, place an order, subscribe to our newsletter, or contact us. This includes: name, email address, phone number, shipping and billing addresses, payment information, and order history.</p>
+<h2>2. How We Use Your Information</h2>
+<p>We use your information to: process orders, send order updates, provide customer support, personalize your shopping experience, send promotional offers (with your consent), prevent fraud, and comply with legal obligations.</p>
+<h2>3. Data Security</h2>
+<p>We implement industry-standard security measures including SSL encryption, secure payment gateways, and regular security audits to protect your data.</p>
+<h2>4. Third-Party Sharing</h2>
+<p>We do not sell your personal data. We share information only with: payment processors (bKash, Nagad, Stripe), delivery partners, and as required by Bangladeshi law.</p>
+<h2>5. Your Rights</h2>
+<p>You may request access to, correction of, or deletion of your personal data by contacting us at privacy@shopbd.com.</p>`,
+      excerpt: 'How we collect, use, and protect your personal information.',
+      status: 'PUBLISHED' as const,
+      metaTitle: 'Privacy Policy | ShopBD',
+      metaDescription: 'Read the ShopBD Privacy Policy to understand how we collect, use, and protect your personal information.',
+    },
+    {
+      title: 'Terms & Conditions',
+      titleBn: 'শর্তাবলী',
+      slug: 'terms-conditions',
+      content: `<h1>Terms & Conditions</h1>
+<p>Last updated: December 15, 2025</p>
+<p>Welcome to ShopBD. By accessing and using our website and services, you agree to be bound by these Terms & Conditions. Please read them carefully.</p>
+<h2>1. Account Registration</h2>
+<p>You must provide accurate and complete information when creating an account. You are responsible for maintaining the confidentiality of your credentials and for all activities under your account.</p>
+<h2>2. Orders & Payments</h2>
+<p>All prices are displayed in Bangladeshi Taka (BDT) and include applicable taxes unless stated otherwise. We reserve the right to refuse or cancel any order for reasons including pricing errors, stock unavailability, or suspected fraud.</p>
+<h2>3. Shipping & Delivery</h2>
+<p>Delivery timelines are estimates and may vary based on location and circumstances. Inside Dhaka: 24-48 hours. Outside Dhaka: 3-5 business days. Remote areas may take longer.</p>
+<h2>4. Returns & Refunds</h2>
+<p>Products may be returned within 7 days of delivery if they are unused, in original packaging, and accompanied by the invoice. Refunds will be processed within 5-7 business days.</p>
+<h2>5. Limitation of Liability</h2>
+<p>ShopBD shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services.</p>`,
+      excerpt: 'Terms governing the use of ShopBD services.',
+      status: 'PUBLISHED' as const,
+      metaTitle: 'Terms & Conditions | ShopBD',
+      metaDescription: 'Read the Terms & Conditions for using ShopBD e-commerce platform.',
+    },
+    {
+      title: 'Refund Policy',
+      titleBn: 'ফেরত নীতি',
+      slug: 'refund-policy',
+      content: `<h1>Refund & Return Policy</h1>
+<p>Last updated: December 15, 2025</p>
+<p>At ShopBD, we want you to be completely satisfied with your purchase. If you are not happy with your order, we offer a hassle-free return and refund policy.</p>
+<h2>Return Window</h2>
+<p>You may return most items within 7 days of delivery. Some categories (underwear, perishable goods, digital products) are non-returnable.</p>
+<h2>Return Conditions</h2>
+<ul>
+  <li>Item must be unused and in its original packaging</li>
+  <li>All tags and labels must be intact</li>
+  <li>Original invoice or order confirmation must be provided</li>
+  <li>Item must not be damaged by the customer</li>
+</ul>
+<h2>Refund Process</h2>
+<p>Once we receive and inspect the returned item, refunds will be processed to the original payment method within 5-7 business days. For Cash on Delivery orders, refunds will be sent via bKash or bank transfer.</p>
+<h2>Exchange</h2>
+<p>We offer free exchanges for size/color changes subject to availability. Contact our support team to initiate an exchange.</p>`,
+      contentBn: `<h1>ফেরত ও রিটার্ন নীতি</h1>
+<p>শপবিডি-তে আমরা চাই আপনি আপনার ক্রয়ে সম্পূর্ণ সন্তুষ্ট থাকুন। ৭ দিনের মধ্যে বেশিরভাগ পণ্য ফেরত দেওয়া যাবে।</p>`,
+      excerpt: 'Our hassle-free return and refund policy for your peace of mind.',
+      status: 'PUBLISHED' as const,
+      metaTitle: 'Refund & Return Policy | ShopBD',
+      metaDescription: 'Learn about the ShopBD refund and return policy. Easy returns within 7 days with hassle-free refunds.',
+    },
+  ];
+
+  for (let i = 0; i < pages.length; i++) {
+    const page = pages[i];
+    await prisma.page.upsert({
+      where: { slug: page.slug },
+      update: {},
+      create: {
+        ...page,
+        sortOrder: i,
+      },
+    });
+  }
+
+  console.log(`  Seeded ${pages.length} CMS pages`);
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Banners
+// ---------------------------------------------------------------------------
+async function seedBanners() {
+  console.log('Seeding banners...');
+
+  const banners = [
+    {
+      title: 'Eid Collection 2025',
+      titleBn: 'ঈদ কালেকশন ২০২৫',
+      image: 'https://cdn.shopbd.com/banners/eid-collection-2025.jpg',
+      mobileImage: 'https://cdn.shopbd.com/banners/eid-collection-2025-mobile.jpg',
+      link: '/collections/eid-2025',
+      position: 'HERO' as const,
+      isActive: true,
+      sortOrder: 0,
+    },
+    {
+      title: 'Electronics Mega Sale',
+      titleBn: 'ইলেকট্রনিক্স মেগা সেল',
+      image: 'https://cdn.shopbd.com/banners/electronics-mega-sale.jpg',
+      mobileImage: 'https://cdn.shopbd.com/banners/electronics-mega-sale-mobile.jpg',
+      link: '/category/electronics?sale=true',
+      position: 'HERO' as const,
+      isActive: true,
+      sortOrder: 1,
+    },
+    {
+      title: 'Free Delivery Inside Dhaka',
+      titleBn: 'ঢাকায় ফ্রি ডেলিভারি',
+      image: 'https://cdn.shopbd.com/banners/free-delivery-dhaka.jpg',
+      mobileImage: 'https://cdn.shopbd.com/banners/free-delivery-dhaka-mobile.jpg',
+      link: '/offers/free-delivery',
+      position: 'HERO' as const,
+      isActive: true,
+      sortOrder: 2,
+    },
+    {
+      title: 'Smartphone Deals',
+      titleBn: 'স্মার্টফোন অফার',
+      image: 'https://cdn.shopbd.com/banners/smartphone-deals-sidebar.jpg',
+      link: '/category/smartphones',
+      position: 'SIDEBAR' as const,
+      isActive: true,
+      sortOrder: 0,
+    },
+    {
+      title: 'Download Our App',
+      titleBn: 'আমাদের অ্যাপ ডাউনলোড করুন',
+      image: 'https://cdn.shopbd.com/banners/app-download-footer.jpg',
+      link: '/app',
+      position: 'FOOTER' as const,
+      isActive: true,
+      sortOrder: 0,
+    },
+  ];
+
+  for (const banner of banners) {
+    // Use deterministic ID for idempotent seeding
+    const id = `seed-banner-${banner.position.toLowerCase()}-${banner.sortOrder}`;
+    await prisma.banner.upsert({
+      where: { id },
+      update: {},
+      create: { id, ...banner },
+    });
+  }
+
+  console.log(`  Seeded ${banners.length} banners`);
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Navigation Menus
+// ---------------------------------------------------------------------------
+async function seedNavigationMenus() {
+  console.log('Seeding navigation menus...');
+
+  const headerMenuId = 'seed-nav-header';
+  await prisma.navigationMenu.upsert({
+    where: { id: headerMenuId },
+    update: {},
+    create: {
+      id: headerMenuId,
+      name: 'Main Navigation',
+      nameBn: 'প্রধান নেভিগেশন',
+      location: 'HEADER',
+      isActive: true,
+      items: [
+        { label: 'Home', labelBn: 'হোম', href: '/', icon: 'Home' },
+        {
+          label: 'Categories',
+          labelBn: 'ক্যাটেগরি',
+          href: '/categories',
+          icon: 'Grid',
+          children: [
+            { label: 'Electronics', labelBn: 'ইলেকট্রনিক্স', href: '/category/electronics' },
+            { label: 'Fashion', labelBn: 'ফ্যাশন', href: '/category/fashion' },
+            { label: 'Home & Living', labelBn: 'হোম ও লিভিং', href: '/category/home-living' },
+            { label: 'Beauty & Health', labelBn: 'বিউটি ও হেলথ', href: '/category/beauty-health' },
+            { label: 'Groceries', labelBn: 'মুদি দোকান', href: '/category/groceries' },
+          ],
+        },
+        { label: 'Deals', labelBn: 'ডিলস', href: '/deals', icon: 'Percent', highlight: true },
+        { label: 'Brands', labelBn: 'ব্র্যান্ড', href: '/brands', icon: 'Award' },
+        { label: 'New Arrivals', labelBn: 'নতুন পণ্য', href: '/new-arrivals', icon: 'Sparkles' },
+      ],
+    },
+  });
+
+  const footerMenuId = 'seed-nav-footer';
+  await prisma.navigationMenu.upsert({
+    where: { id: footerMenuId },
+    update: {},
+    create: {
+      id: footerMenuId,
+      name: 'Footer Navigation',
+      nameBn: 'ফুটার নেভিগেশন',
+      location: 'FOOTER',
+      isActive: true,
+      items: [
+        {
+          heading: 'Customer Service',
+          headingBn: 'কাস্টমার সার্ভিস',
+          links: [
+            { label: 'Contact Us', labelBn: 'যোগাযোগ', href: '/page/contact-us' },
+            { label: 'FAQs', labelBn: 'প্রশ্নোত্তর', href: '/faqs' },
+            { label: 'Track Order', labelBn: 'অর্ডার ট্র্যাক', href: '/track-order' },
+            { label: 'Returns & Refunds', labelBn: 'ফেরত ও রিফান্ড', href: '/page/refund-policy' },
+          ],
+        },
+        {
+          heading: 'About ShopBD',
+          headingBn: 'শপবিডি সম্পর্কে',
+          links: [
+            { label: 'About Us', labelBn: 'আমাদের সম্পর্কে', href: '/page/about-us' },
+            { label: 'Careers', labelBn: 'ক্যারিয়ার', href: '/careers' },
+            { label: 'Privacy Policy', labelBn: 'গোপনীয়তা নীতি', href: '/page/privacy-policy' },
+            { label: 'Terms & Conditions', labelBn: 'শর্তাবলী', href: '/page/terms-conditions' },
+          ],
+        },
+        {
+          heading: 'Payment Methods',
+          headingBn: 'পেমেন্ট পদ্ধতি',
+          links: [
+            { label: 'bKash', href: '/payment/bkash', icon: 'bkash' },
+            { label: 'Nagad', href: '/payment/nagad', icon: 'nagad' },
+            { label: 'Rocket', href: '/payment/rocket', icon: 'rocket' },
+            { label: 'Visa / Mastercard', href: '/payment/cards', icon: 'credit-card' },
+            { label: 'Cash on Delivery', labelBn: 'ক্যাশ অন ডেলিভারি', href: '/payment/cod' },
+          ],
+        },
+      ],
+    },
+  });
+
+  const mobileMenuId = 'seed-nav-mobile';
+  await prisma.navigationMenu.upsert({
+    where: { id: mobileMenuId },
+    update: {},
+    create: {
+      id: mobileMenuId,
+      name: 'Mobile Navigation',
+      nameBn: 'মোবাইল নেভিগেশন',
+      location: 'MOBILE',
+      isActive: true,
+      items: [
+        { label: 'Home', labelBn: 'হোম', href: '/', icon: 'Home' },
+        { label: 'Categories', labelBn: 'ক্যাটেগরি', href: '/categories', icon: 'Grid' },
+        { label: 'Cart', labelBn: 'কার্ট', href: '/cart', icon: 'ShoppingCart' },
+        { label: 'Wishlist', labelBn: 'পছন্দ', href: '/wishlist', icon: 'Heart' },
+        { label: 'Account', labelBn: 'অ্যাকাউন্ট', href: '/account', icon: 'User' },
+      ],
+    },
+  });
+
+  console.log('  Seeded 3 navigation menus (header, footer, mobile)');
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Shipping Methods
+// ---------------------------------------------------------------------------
+async function seedShippingMethods() {
+  console.log('Seeding shipping methods...');
+
+  const methods = [
+    {
+      id: 'seed-ship-dhaka',
+      name: 'Inside Dhaka',
+      nameBn: 'ঢাকার ভিতরে',
+      description: 'Standard delivery within Dhaka city (24-48 hours)',
+      price: 60,
+      freeAbove: 1000,
+      estimatedDays: '1-2 days',
+      zones: ['Dhaka'],
+      isActive: true,
+      sortOrder: 0,
+    },
+    {
+      id: 'seed-ship-outside',
+      name: 'Outside Dhaka',
+      nameBn: 'ঢাকার বাইরে',
+      description: 'Standard delivery outside Dhaka (3-5 business days)',
+      price: 120,
+      freeAbove: 2000,
+      estimatedDays: '3-5 days',
+      zones: [
+        'Chattogram', 'Rajshahi', 'Khulna', 'Sylhet',
+        'Rangpur', 'Barishal', 'Mymensingh',
+      ],
+      isActive: true,
+      sortOrder: 1,
+    },
+    {
+      id: 'seed-ship-express',
+      name: 'Express Delivery (Dhaka)',
+      nameBn: 'এক্সপ্রেস ডেলিভারি (ঢাকা)',
+      description: 'Same-day or next-day delivery within Dhaka',
+      price: 150,
+      estimatedDays: 'Same day / Next day',
+      zones: ['Dhaka'],
+      isActive: true,
+      sortOrder: 2,
+    },
+  ];
+
+  for (const method of methods) {
+    await prisma.shippingMethod.upsert({
+      where: { id: method.id },
+      update: {},
+      create: method,
+    });
+  }
+
+  console.log(`  Seeded ${methods.length} shipping methods`);
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Default Settings
+// ---------------------------------------------------------------------------
+async function seedSettings() {
+  console.log('Seeding default settings...');
+
+  const settings: Array<{
+    group: 'GENERAL' | 'EMAIL' | 'SHIPPING' | 'TAX' | 'PAYMENT' | 'SEO' | 'SOCIAL';
+    key: string;
+    value: string;
+    type?: string;
+  }> = [
+    // General
+    { group: 'GENERAL', key: 'site_name', value: 'ShopBD' },
+    { group: 'GENERAL', key: 'site_name_bn', value: 'শপবিডি' },
+    { group: 'GENERAL', key: 'site_tagline', value: "Bangladesh's Trusted Online Shop" },
+    { group: 'GENERAL', key: 'site_tagline_bn', value: 'বাংলাদেশের বিশ্বস্ত অনলাইন শপ' },
+    { group: 'GENERAL', key: 'currency', value: 'BDT' },
+    { group: 'GENERAL', key: 'currency_symbol', value: '৳' },
+    { group: 'GENERAL', key: 'currency_position', value: 'before' },
+    { group: 'GENERAL', key: 'default_language', value: 'en' },
+    { group: 'GENERAL', key: 'supported_languages', value: 'en,bn', type: 'array' },
+    { group: 'GENERAL', key: 'timezone', value: 'Asia/Dhaka' },
+    { group: 'GENERAL', key: 'date_format', value: 'DD/MM/YYYY' },
+    { group: 'GENERAL', key: 'phone', value: '+880-2-1234-5678' },
+    { group: 'GENERAL', key: 'support_email', value: 'support@shopbd.com' },
+    { group: 'GENERAL', key: 'address', value: 'Level 12, Rangs Babylon Tower, 246 Bir Uttam Mir Shawkat Road, Tejgaon, Dhaka 1208' },
+
+    // Email
+    { group: 'EMAIL', key: 'from_name', value: 'ShopBD' },
+    { group: 'EMAIL', key: 'from_email', value: 'noreply@shopbd.com' },
+    { group: 'EMAIL', key: 'smtp_host', value: 'smtp.sendgrid.net' },
+    { group: 'EMAIL', key: 'smtp_port', value: '587', type: 'number' },
+    { group: 'EMAIL', key: 'smtp_secure', value: 'true', type: 'boolean' },
+
+    // Shipping
+    { group: 'SHIPPING', key: 'free_shipping_threshold', value: '2000', type: 'number' },
+    { group: 'SHIPPING', key: 'default_weight_unit', value: 'kg' },
+    { group: 'SHIPPING', key: 'enable_free_shipping', value: 'true', type: 'boolean' },
+
+    // Tax
+    { group: 'TAX', key: 'vat_percentage', value: '15', type: 'number' },
+    { group: 'TAX', key: 'vat_included_in_price', value: 'true', type: 'boolean' },
+    { group: 'TAX', key: 'vat_registration_number', value: '' },
+    { group: 'TAX', key: 'enable_tax', value: 'true', type: 'boolean' },
+
+    // Payment
+    { group: 'PAYMENT', key: 'enable_cod', value: 'true', type: 'boolean' },
+    { group: 'PAYMENT', key: 'enable_bkash', value: 'true', type: 'boolean' },
+    { group: 'PAYMENT', key: 'enable_nagad', value: 'true', type: 'boolean' },
+    { group: 'PAYMENT', key: 'enable_rocket', value: 'true', type: 'boolean' },
+    { group: 'PAYMENT', key: 'enable_stripe', value: 'false', type: 'boolean' },
+    { group: 'PAYMENT', key: 'cod_extra_charge', value: '0', type: 'number' },
+    { group: 'PAYMENT', key: 'min_order_amount', value: '100', type: 'number' },
+    { group: 'PAYMENT', key: 'max_cod_amount', value: '50000', type: 'number' },
+
+    // SEO
+    { group: 'SEO', key: 'meta_title', value: "ShopBD — Bangladesh's #1 Online Shopping Destination" },
+    { group: 'SEO', key: 'meta_description', value: 'Shop online at ShopBD for electronics, fashion, groceries & more. Free delivery in Dhaka, Cash on Delivery, bKash & Nagad payment. Trusted by millions.' },
+    { group: 'SEO', key: 'meta_keywords', value: 'online shopping bangladesh, e-commerce bd, buy online dhaka, shopbd', type: 'array' },
+    { group: 'SEO', key: 'google_analytics_id', value: '' },
+    { group: 'SEO', key: 'facebook_pixel_id', value: '' },
+    { group: 'SEO', key: 'og_image', value: 'https://cdn.shopbd.com/og-image.jpg' },
+
+    // Social
+    { group: 'SOCIAL', key: 'facebook_url', value: 'https://facebook.com/shopbd' },
+    { group: 'SOCIAL', key: 'instagram_url', value: 'https://instagram.com/shopbd' },
+    { group: 'SOCIAL', key: 'youtube_url', value: 'https://youtube.com/@shopbd' },
+    { group: 'SOCIAL', key: 'twitter_url', value: '' },
+    { group: 'SOCIAL', key: 'tiktok_url', value: '' },
+    { group: 'SOCIAL', key: 'whatsapp_number', value: '+8801700000000' },
+  ];
+
+  for (const s of settings) {
+    await prisma.settings.upsert({
+      where: {
+        group_key: { group: s.group, key: s.key },
+      },
+      update: {},
+      create: {
+        group: s.group,
+        key: s.key,
+        value: s.value,
+        type: s.type ?? 'string',
+      },
+    });
+  }
+
+  console.log(`  Seeded ${settings.length} settings`);
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Email Templates
+// ---------------------------------------------------------------------------
+async function seedEmailTemplates() {
+  console.log('Seeding email templates...');
+
+  const templates = [
+    {
+      name: 'welcome',
+      subject: 'Welcome to ShopBD! 🎉',
+      subjectBn: 'শপবিডি-তে স্বাগতম! 🎉',
+      body: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: #0f766e; color: #fff; padding: 32px 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 28px;">Welcome to ShopBD!</h1>
+    </div>
+    <div style="padding: 32px 24px;">
+      <p style="font-size: 16px; color: #334155;">Hi {{firstName}},</p>
+      <p style="font-size: 16px; color: #334155;">Thank you for creating your ShopBD account! You are now ready to explore thousands of products at the best prices.</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="{{shopUrl}}" style="background: #0f766e; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Start Shopping</a>
+      </div>
+      <p style="font-size: 14px; color: #64748b;">If you have any questions, reply to this email or contact us at support@shopbd.com.</p>
+    </div>
+    <div style="background: #f1f5f9; padding: 16px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p>&copy; {{year}} ShopBD Technologies Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+      bodyBn: null,
+      variables: ['firstName', 'shopUrl', 'year'],
+    },
+    {
+      name: 'order_confirmation',
+      subject: 'Order Confirmed — #{{orderNumber}}',
+      subjectBn: 'অর্ডার নিশ্চিত হয়েছে — #{{orderNumber}}',
+      body: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: #0f766e; color: #fff; padding: 32px 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">Order Confirmed! ✓</h1>
+      <p style="margin: 8px 0 0; opacity: 0.9;">Order #{{orderNumber}}</p>
+    </div>
+    <div style="padding: 32px 24px;">
+      <p style="font-size: 16px; color: #334155;">Hi {{firstName}},</p>
+      <p style="font-size: 16px; color: #334155;">Your order has been confirmed and is being processed. Here is a summary:</p>
+      <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr><td style="padding: 8px 0; color: #64748b;">Items:</td><td style="text-align: right; font-weight: 600;">{{itemCount}} items</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Subtotal:</td><td style="text-align: right;">৳{{subtotal}}</td></tr>
+          <tr><td style="padding: 8px 0; color: #64748b;">Shipping:</td><td style="text-align: right;">৳{{shippingCost}}</td></tr>
+          <tr style="border-top: 2px solid #e2e8f0;"><td style="padding: 12px 0; font-weight: 700; font-size: 18px;">Total:</td><td style="text-align: right; font-weight: 700; font-size: 18px; color: #0f766e;">৳{{totalAmount}}</td></tr>
+        </table>
+      </div>
+      <p style="font-size: 14px; color: #64748b;"><strong>Delivery Address:</strong> {{shippingAddress}}</p>
+      <p style="font-size: 14px; color: #64748b;"><strong>Payment Method:</strong> {{paymentMethod}}</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="{{trackingUrl}}" style="background: #0f766e; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Track Your Order</a>
+      </div>
+    </div>
+    <div style="background: #f1f5f9; padding: 16px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p>&copy; {{year}} ShopBD Technologies Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+      bodyBn: null,
+      variables: ['firstName', 'orderNumber', 'itemCount', 'subtotal', 'shippingCost', 'totalAmount', 'shippingAddress', 'paymentMethod', 'trackingUrl', 'year'],
+    },
+    {
+      name: 'order_shipped',
+      subject: 'Your Order #{{orderNumber}} Has Been Shipped!',
+      subjectBn: 'আপনার অর্ডার #{{orderNumber}} শিপ করা হয়েছে!',
+      body: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: #0f766e; color: #fff; padding: 32px 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">Your Order is On Its Way! 🚚</h1>
+    </div>
+    <div style="padding: 32px 24px;">
+      <p style="font-size: 16px; color: #334155;">Hi {{firstName}},</p>
+      <p style="font-size: 16px; color: #334155;">Great news! Your order #{{orderNumber}} has been shipped and is on its way to you.</p>
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <p style="margin: 0 0 8px; font-weight: 600; color: #166534;">Tracking Information</p>
+        <p style="margin: 0; color: #334155;">Carrier: {{carrier}}</p>
+        <p style="margin: 4px 0 0; color: #334155;">Tracking Number: {{trackingNumber}}</p>
+        <p style="margin: 4px 0 0; color: #334155;">Estimated Delivery: {{estimatedDelivery}}</p>
+      </div>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="{{trackingUrl}}" style="background: #0f766e; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Track Your Package</a>
+      </div>
+    </div>
+    <div style="background: #f1f5f9; padding: 16px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p>&copy; {{year}} ShopBD Technologies Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+      bodyBn: null,
+      variables: ['firstName', 'orderNumber', 'carrier', 'trackingNumber', 'estimatedDelivery', 'trackingUrl', 'year'],
+    },
+    {
+      name: 'password_reset',
+      subject: 'Reset Your ShopBD Password',
+      subjectBn: 'আপনার শপবিডি পাসওয়ার্ড রিসেট করুন',
+      body: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: #0f766e; color: #fff; padding: 32px 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">Password Reset Request</h1>
+    </div>
+    <div style="padding: 32px 24px;">
+      <p style="font-size: 16px; color: #334155;">Hi {{firstName}},</p>
+      <p style="font-size: 16px; color: #334155;">We received a request to reset your ShopBD password. Click the button below to create a new password:</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="{{resetUrl}}" style="background: #0f766e; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Reset Password</a>
+      </div>
+      <p style="font-size: 14px; color: #64748b;">This link will expire in 1 hour. If you did not request this, please ignore this email.</p>
+    </div>
+    <div style="background: #f1f5f9; padding: 16px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p>&copy; {{year}} ShopBD Technologies Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+      bodyBn: null,
+      variables: ['firstName', 'resetUrl', 'year'],
+    },
+    {
+      name: 'email_verification',
+      subject: 'Verify Your Email Address — ShopBD',
+      subjectBn: 'আপনার ইমেল যাচাই করুন — শপবিডি',
+      body: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: #0f766e; color: #fff; padding: 32px 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">Verify Your Email</h1>
+    </div>
+    <div style="padding: 32px 24px;">
+      <p style="font-size: 16px; color: #334155;">Hi {{firstName}},</p>
+      <p style="font-size: 16px; color: #334155;">Please verify your email address to complete your ShopBD registration:</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="{{verificationUrl}}" style="background: #0f766e; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Verify Email</a>
+      </div>
+      <p style="font-size: 14px; color: #64748b;">This link will expire in 24 hours.</p>
+    </div>
+    <div style="background: #f1f5f9; padding: 16px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p>&copy; {{year}} ShopBD Technologies Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+      bodyBn: null,
+      variables: ['firstName', 'verificationUrl', 'year'],
+    },
+    {
+      name: 'order_delivered',
+      subject: 'Your Order #{{orderNumber}} Has Been Delivered!',
+      subjectBn: 'আপনার অর্ডার #{{orderNumber}} ডেলিভারি হয়েছে!',
+      body: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: #0f766e; color: #fff; padding: 32px 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">Order Delivered! 🎉</h1>
+    </div>
+    <div style="padding: 32px 24px;">
+      <p style="font-size: 16px; color: #334155;">Hi {{firstName}},</p>
+      <p style="font-size: 16px; color: #334155;">Your order #{{orderNumber}} has been delivered. We hope you love your purchase!</p>
+      <p style="font-size: 16px; color: #334155;">Please take a moment to leave a review — your feedback helps other shoppers and our sellers.</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="{{reviewUrl}}" style="background: #f59e0b; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">Write a Review</a>
+      </div>
+    </div>
+    <div style="background: #f1f5f9; padding: 16px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+      <p>&copy; {{year}} ShopBD Technologies Ltd. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+      bodyBn: null,
+      variables: ['firstName', 'orderNumber', 'reviewUrl', 'year'],
+    },
+  ];
+
+  for (const tmpl of templates) {
+    await prisma.emailTemplate.upsert({
+      where: { name: tmpl.name },
+      update: {},
+      create: {
+        name: tmpl.name,
+        subject: tmpl.subject,
+        subjectBn: tmpl.subjectBn,
+        body: tmpl.body,
+        bodyBn: tmpl.bodyBn,
+        variables: tmpl.variables,
+        isActive: true,
+      },
+    });
+  }
+
+  console.log(`  Seeded ${templates.length} email templates`);
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Theme Settings
+// ---------------------------------------------------------------------------
+async function seedThemeSettings() {
+  console.log('Seeding theme settings...');
+
+  const themeId = 'seed-theme-default';
+  await prisma.themeSettings.upsert({
+    where: { id: themeId },
+    update: {},
+    create: {
+      id: themeId,
+      primaryColor: '#0f766e',
+      secondaryColor: '#64748b',
+      accentColor: '#f59e0b',
+      backgroundColor: '#ffffff',
+      textColor: '#0f172a',
+      fontFamily: 'Inter',
+      fontFamilyBn: 'Noto Sans Bengali',
+      borderRadius: '0.5rem',
+      heroStyle: 'carousel',
+      productCardStyle: 'standard',
+      headerStyle: 'sticky-transparent',
+      footerStyle: 'multi-column',
+      customCss: null,
+      logoUrl: 'https://cdn.shopbd.com/logo.svg',
+      faviconUrl: 'https://cdn.shopbd.com/favicon.ico',
+    },
+  });
+
+  console.log('  Seeded default theme settings');
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -920,6 +1642,13 @@ async function main() {
   await seedCategories();
   const brandMap = await seedBrands();
   await seedProducts(brandMap);
+  await seedPages();
+  await seedBanners();
+  await seedNavigationMenus();
+  await seedShippingMethods();
+  await seedSettings();
+  await seedEmailTemplates();
+  await seedThemeSettings();
 
   console.log('\nSeed completed successfully.');
 }
