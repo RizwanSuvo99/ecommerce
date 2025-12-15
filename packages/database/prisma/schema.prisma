@@ -796,3 +796,27 @@ model Notification {
   @@index([isRead])
   @@map("notifications")
 }
+
+// ─── Theme Settings ──────────────────────────────────────────────────────────
+
+model ThemeSettings {
+  id               String  @id @default(cuid())
+  primaryColor     String  @default("#0f766e")
+  secondaryColor   String  @default("#64748b")
+  accentColor      String  @default("#f59e0b")
+  backgroundColor  String  @default("#ffffff")
+  textColor        String  @default("#0f172a")
+  fontFamily       String  @default("Inter")
+  fontFamilyBn     String  @default("Noto Sans Bengali")
+  borderRadius     String  @default("0.5rem")
+  heroStyle        String  @default("carousel")
+  productCardStyle String  @default("standard")
+  headerStyle      String  @default("standard")
+  footerStyle      String  @default("multi-column")
+  customCss        String?
+  logoUrl          String?
+  faviconUrl       String?
+  updatedAt        DateTime @updatedAt
+
+  @@map("theme_settings")
+}
