@@ -147,6 +147,18 @@ export class OrdersController {
   }
 
   /**
+   * Get a single order by ID (admin view).
+   *
+   * GET /admin/orders/:id
+   */
+  @Get('admin/orders/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async findOrderById(@Param('id') id: string) {
+    return this.ordersService.findOrderById(id);
+  }
+
+  /**
    * Update an order's status (admin only).
    *
    * PATCH /admin/orders/:id/status

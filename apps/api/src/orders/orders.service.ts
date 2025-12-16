@@ -329,11 +329,11 @@ export class OrdersService {
           items: {
             select: {
               id: true,
-              name: true,
+              productName: true,
               quantity: true,
-              price: true,
-              total: true,
-              imageUrl: true,
+              unitPrice: true,
+              totalPrice: true,
+              productImage: true,
             },
           },
           _count: { select: { items: true } },
@@ -387,7 +387,8 @@ export class OrdersService {
     const { page, limit, status } = options;
     const skip = (page - 1) * limit;
 
-    const where = status ? { status } : {};
+    const where: Record<string, unknown> = {};
+    if (status) where.status = status;
 
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
@@ -396,10 +397,10 @@ export class OrdersService {
           items: {
             select: {
               id: true,
-              name: true,
+              productName: true,
               quantity: true,
-              price: true,
-              total: true,
+              unitPrice: true,
+              totalPrice: true,
             },
           },
           user: {
@@ -408,6 +409,17 @@ export class OrdersService {
               email: true,
               firstName: true,
               lastName: true,
+              phone: true,
+            },
+          },
+          payments: {
+            select: { method: true, status: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+          shipping: {
+            select: {
+              shippingMethod: { select: { name: true } },
             },
           },
           _count: { select: { items: true } },
@@ -420,13 +432,146 @@ export class OrdersService {
     ]);
 
     return {
-      data: orders,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+      orders: orders.map((o) => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        status: o.status,
+        totalAmount: Number(o.totalAmount),
+        subtotal: Number(o.subtotal),
+        shippingCost: Number(o.shippingCost),
+        discountAmount: Number(o.discountAmount),
+        customer: {
+          name: `${o.user.firstName ?? ''} ${o.user.lastName ?? ''}`.trim() || 'Unknown',
+          email: o.user.email,
+          phone: o.user.phone ?? '',
+        },
+        items: o._count.items,
+        paymentStatus: o.payments[0]?.status ?? 'PENDING',
+        paymentMethod: o.payments[0]?.method ?? '',
+        shippingMethod: o.shipping?.shippingMethod?.name ?? '',
+        notes: o.notes,
+        cancellationReason: o.cancellationReason,
+        createdAt: o.createdAt,
+        updatedAt: o.updatedAt,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findOrderById(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          select: {
+            id: true,
+            productId: true,
+            productName: true,
+            productImage: true,
+            variantName: true,
+            sku: true,
+            quantity: true,
+            unitPrice: true,
+            totalPrice: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            _count: { select: { orders: true } },
+          },
+        },
+        payments: {
+          select: {
+            method: true,
+            status: true,
+            transactionId: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        shipping: {
+          select: {
+            trackingNumber: true,
+            carrier: true,
+            shippingMethod: { select: { name: true } },
+          },
+        },
+        shippingAddress: true,
+        billingAddress: true,
       },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const payment = order.payments[0];
+
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: payment?.status ?? 'PENDING',
+      paymentMethod: payment?.method ?? '',
+      transactionId: payment?.transactionId ?? null,
+      customer: {
+        id: order.user.id,
+        name: `${order.user.firstName ?? ''} ${order.user.lastName ?? ''}`.trim() || 'Unknown',
+        email: order.user.email,
+        phone: order.user.phone ?? '',
+        totalOrders: order.user._count.orders,
+      },
+      shippingAddress: order.shippingAddress
+        ? {
+            name: order.shippingAddress.fullName,
+            phone: order.shippingAddress.phone,
+            address: [order.shippingAddress.addressLine1, order.shippingAddress.addressLine2].filter(Boolean).join(', '),
+            city: order.shippingAddress.district,
+            area: order.shippingAddress.area ?? order.shippingAddress.division,
+            postalCode: order.shippingAddress.postalCode,
+          }
+        : null,
+      billingAddress: order.billingAddress
+        ? {
+            name: order.billingAddress.fullName,
+            phone: order.billingAddress.phone,
+            address: [order.billingAddress.addressLine1, order.billingAddress.addressLine2].filter(Boolean).join(', '),
+            city: order.billingAddress.district,
+            area: order.billingAddress.area ?? order.billingAddress.division,
+            postalCode: order.billingAddress.postalCode,
+          }
+        : null,
+      items: order.items.map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        sku: item.sku,
+        image: item.productImage ?? null,
+        variant: item.variantName ?? null,
+        quantity: item.quantity,
+        unitPrice: Number(item.unitPrice),
+        totalPrice: Number(item.totalPrice),
+      })),
+      subtotal: Number(order.subtotal),
+      shippingCost: Number(order.shippingCost),
+      tax: Number(order.taxAmount),
+      discount: Number(order.discountAmount),
+      couponCode: order.couponCode,
+      totalAmount: Number(order.totalAmount),
+      shippingMethod: order.shipping?.shippingMethod?.name ?? '',
+      trackingNumber: order.shipping?.trackingNumber ?? null,
+      notes: order.notes,
+      timeline: [],
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
     };
   }
 
