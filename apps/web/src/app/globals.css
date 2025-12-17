@@ -1,140 +1,79 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * Web Storefront — Global Styles
+ *
+ * Imports the shared design-system CSS from @ecommerce/ui and adds
+ * any web-app-specific overrides or utilities.
+ */
+@import '../../../../packages/ui/src/styles/globals.css';
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-
-    --radius: 0.5rem;
-
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
-
-    --info: 217 91% 60%;
-    --info-foreground: 0 0% 98%;
+  /* Web-specific base overrides */
+  body {
+    @apply antialiased;
+    min-height: 100dvh;
   }
 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-
-    --success: 142 69% 58%;
-    --success-foreground: 240 10% 3.9%;
-
-    --warning: 48 96% 53%;
-    --warning-foreground: 240 10% 3.9%;
-
-    --info: 217 91% 60%;
-    --info-foreground: 240 10% 3.9%;
+  /* Smooth page transitions */
+  main {
+    @apply min-h-[calc(100dvh-4rem)];
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+@layer components {
+  /* Product card hover effect */
+  .product-card {
+    @apply group relative overflow-hidden rounded-lg border bg-card transition-all duration-250;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  .product-card:hover {
+    @apply border-primary/20 shadow-lg;
   }
 
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
+  .product-card:hover .product-card-image {
+    @apply scale-105;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  .product-card-image {
+    @apply transition-transform duration-350 ease-out;
   }
 
-  ::-webkit-scrollbar-track {
-    @apply bg-muted;
+  /* Category banner */
+  .category-banner {
+    @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 p-6;
   }
 
-  ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-muted-foreground/30;
+  /* Price display */
+  .price-current {
+    @apply text-lg font-bold text-foreground;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+  .price-original {
+    @apply text-sm text-muted-foreground line-through;
   }
 
-  /* Focus ring utility */
-  .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  .price-discount {
+    @apply inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive;
+  }
+
+  /* Navigation link active state */
+  .nav-link-active {
+    @apply relative font-medium text-primary;
+  }
+
+  .nav-link-active::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 h-0.5 w-full rounded-full bg-primary;
   }
 }
 
 @layer utilities {
-  /* Container query utility */
-  .container-prose {
-    @apply mx-auto max-w-prose;
+  /* Sticky header backdrop */
+  .header-blur {
+    @apply glass border-b;
   }
 
-  /* Text balance for headings */
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  /* Gradient text */
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent;
+  /* Cart badge pulse */
+  .cart-badge {
+    @apply absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-2xs font-bold text-destructive-foreground;
   }
 }
