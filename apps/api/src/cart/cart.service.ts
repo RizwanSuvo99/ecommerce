@@ -41,6 +41,7 @@ export interface CartItemWithProduct {
     compareAtPrice: number | null;
     sku: string;
     quantity: number;
+    stock: number;
     images: any[];
     status: string;
   };
@@ -497,7 +498,10 @@ export class CartService {
       quantity: item.quantity,
       price: Number(item.price),
       lineTotal: Number(item.price) * item.quantity,
-      product: item.product,
+      product: {
+        ...item.product,
+        stock: item.product.quantity,
+      },
     }));
 
     const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
