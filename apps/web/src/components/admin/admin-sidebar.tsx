@@ -161,7 +161,7 @@ export function AdminSidebar({
         <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
           {!collapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
                 S
               </div>
               <span className="text-lg font-semibold text-gray-900">
@@ -171,7 +171,7 @@ export function AdminSidebar({
           )}
           {collapsed && (
             <Link href="/admin" className="mx-auto">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
                 S
               </div>
             </Link>
@@ -220,7 +220,7 @@ export function AdminSidebar({
         {/* Mobile header */}
         <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
           <Link href="/admin" className="flex items-center gap-2" onClick={handleLinkClick}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
               S
             </div>
             <span className="text-lg font-semibold text-gray-900">Admin</span>
@@ -285,7 +285,7 @@ function SidebarNav({
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive(item.href)
-                  ? 'bg-indigo-50 text-indigo-700'
+                  ? 'bg-teal-50 text-teal-700'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
                 collapsed && 'justify-center px-2',
               )}
@@ -302,7 +302,7 @@ function SidebarNav({
                 className={cn(
                   'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   item.children?.some((child) => isActive(child.href))
-                    ? 'bg-indigo-50 text-indigo-700'
+                    ? 'bg-teal-50 text-teal-700'
                     : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
                   collapsed && 'justify-center px-2',
                 )}
@@ -336,7 +336,7 @@ function SidebarNav({
                           className={cn(
                             'block rounded-lg px-3 py-1.5 text-sm transition-colors',
                             isActive(child.href)
-                              ? 'font-medium text-indigo-700'
+                              ? 'font-medium text-teal-700'
                               : 'text-gray-600 hover:text-gray-900',
                           )}
                         >

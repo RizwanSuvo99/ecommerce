@@ -83,7 +83,7 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle, onDesktopToggle }:
             placeholder="Search orders, products, customers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 lg:w-80"
+            className="w-64 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 lg:w-80"
           />
         </div>
       </div>
@@ -115,7 +115,7 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle, onDesktopToggle }:
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-gray-100"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-medium text-indigo-700">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-teal-700">
               {user?.fullName?.charAt(0)?.toUpperCase() ?? 'A'}
             </div>
             <div className="hidden text-left md:block">
