@@ -351,6 +351,7 @@ model Cart {
   userId     String?
   sessionId  String?
   couponCode String?
+  discount   Decimal   @default(0) @db.Decimal(10, 2)
   expiresAt  DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
