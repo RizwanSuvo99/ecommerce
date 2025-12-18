@@ -17,3 +17,22 @@ export type { TextareaProps } from './components/textarea';
 
 export { Label, labelVariants } from './components/label';
 export type { LabelProps } from './components/label';
+
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+} from './components/select';
+
+export { Checkbox } from './components/checkbox';
+
+export { RadioGroup, RadioGroupItem } from './components/radio-group';
+
+export { Switch } from './components/switch';
