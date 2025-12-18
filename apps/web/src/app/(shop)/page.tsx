@@ -289,7 +289,7 @@ export default function HomePage() {
           {product.stock > 0 ? (
             <button
               onClick={() => handleAddToCart(product)}
-              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white opacity-0 transition-all group-hover:opacity-100 hover:bg-teal-700"
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-teal-700"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               Add to Cart
