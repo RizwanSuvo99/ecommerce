@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
+
+import { apiClient } from '@/lib/api/client';
 
 interface Order {
   id: string;
@@ -122,18 +125,17 @@ export default function AdminOrdersPage() {
       if (filters.minAmount) params.set('minAmount', filters.minAmount);
       if (filters.maxAmount) params.set('maxAmount', filters.maxAmount);
 
-      const response = await fetch(`/api/admin/orders?${params.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch orders');
-
-      const data = await response.json();
-      setOrders(data.orders);
+      const { data } = await apiClient.get(`/admin/orders?${params.toString()}`);
+      const result = data.data ?? data;
+      setOrders(result.orders ?? result.data ?? []);
       setPagination((prev) => ({
         ...prev,
-        total: data.total,
-        totalPages: data.totalPages,
+        total: result.total ?? result.meta?.total ?? 0,
+        totalPages: result.totalPages ?? result.meta?.totalPages ?? 0,
       }));
     } catch (error) {
       console.error('Error fetching orders:', error);
+      toast.error('Failed to load orders');
     } finally {
       setLoading(false);
     }
@@ -169,18 +171,20 @@ export default function AdminOrdersPage() {
       if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
       if (filters.dateTo) params.set('dateTo', filters.dateTo);
 
-      const response = await fetch(`/api/admin/orders/export?${params.toString()}`);
-      if (!response.ok) throw new Error('Export failed');
-
-      const blob = await response.blob();
+      const { data } = await apiClient.get(`/admin/orders/export?${params.toString()}`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([data], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `orders-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+      toast.success('Orders exported');
     } catch (error) {
       console.error('Export error:', error);
+      toast.error('Failed to export orders');
     }
   };
 

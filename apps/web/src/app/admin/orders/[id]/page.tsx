@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
+
+import { apiClient } from '@/lib/api/client';
 
 type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
 type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
@@ -112,12 +115,11 @@ export default function AdminOrderDetailPage() {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const response = await fetch(`/api/admin/orders/${orderId}`);
-        if (!response.ok) throw new Error('Failed to fetch order');
-        const data = await response.json();
-        setOrder(data);
+        const { data } = await apiClient.get(`/admin/orders/${orderId}`);
+        setOrder(data.data ?? data);
       } catch (error) {
         console.error('Error fetching order:', error);
+        toast.error('Failed to load order details');
       } finally {
         setLoading(false);
       }
@@ -131,9 +133,10 @@ export default function AdminOrderDetailPage() {
 
   const handleDownloadInvoice = async () => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}/invoice`);
-      if (!response.ok) throw new Error('Failed to generate invoice');
-      const blob = await response.blob();
+      const { data } = await apiClient.get(`/admin/orders/${orderId}/invoice`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -142,6 +145,7 @@ export default function AdminOrderDetailPage() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Invoice download error:', error);
+      toast.error('Failed to download invoice');
     }
   };
 
