@@ -94,3 +94,19 @@ export {
   TableCell,
   TableCaption,
 } from './components/table';
+
+export {
+  Toaster,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+  ToastAction,
+  toast,
+  useToast,
+  toastVariants,
+} from './components/toast';
+export type { ToastData, ToastOptions, ToastProps } from './components/toast';
+
+export { Alert, AlertTitle, AlertDescription, alertVariants } from './components/alert';
+export type { AlertProps } from './components/alert';
