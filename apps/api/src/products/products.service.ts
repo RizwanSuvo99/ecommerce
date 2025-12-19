@@ -417,8 +417,8 @@ export class ProductsService {
       _count: { rating: true },
     });
 
-    this.incrementViewCount(product.id).catch((err) => {
-      this.logger.warn(`Failed to increment view count for product ${product.id}: ${err.message}`);
+    this.logProductView(product.id).catch((err) => {
+      this.logger.warn(`Failed to log view for product ${product.id}: ${err.message}`);
     });
 
     return {
@@ -437,11 +437,16 @@ export class ProductsService {
     };
   }
 
-  private async incrementViewCount(productId: string): Promise<void> {
-    await this.prisma.product.update({
-      where: { id: productId },
-      data: { viewCount: { increment: 1 } },
-    });
+  private async logProductView(productId: string): Promise<void> {
+    await Promise.all([
+      this.prisma.product.update({
+        where: { id: productId },
+        data: { viewCount: { increment: 1 } },
+      }),
+      this.prisma.productViewEvent.create({
+        data: { productId },
+      }),
+    ]);
   }
 
   async update(id: string, dto: UpdateProductDto) {
