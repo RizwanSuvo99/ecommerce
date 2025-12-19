@@ -1,16 +1,7 @@
 import { cn } from '@/lib/utils';
 
-type PaymentStatus =
-  | 'PENDING'
-  | 'COMPLETED'
-  | 'PAID'
-  | 'FAILED'
-  | 'REFUNDED'
-  | 'PARTIALLY_REFUNDED'
-  | 'CANCELLED';
-
 interface PaymentBadgeProps {
-  status: PaymentStatus | string;
+  status: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
@@ -19,12 +10,38 @@ const statusConfig: Record<
   string,
   { label: string; bg: string; text: string; dot: string }
 > = {
+  // Order statuses
   PENDING: {
     label: 'Pending',
     bg: 'bg-yellow-100',
     text: 'text-yellow-800',
     dot: 'bg-yellow-500',
   },
+  CONFIRMED: {
+    label: 'Confirmed',
+    bg: 'bg-teal-100',
+    text: 'text-teal-800',
+    dot: 'bg-teal-500',
+  },
+  PROCESSING: {
+    label: 'Processing',
+    bg: 'bg-indigo-100',
+    text: 'text-indigo-800',
+    dot: 'bg-indigo-500',
+  },
+  SHIPPED: {
+    label: 'Shipped',
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+    dot: 'bg-purple-500',
+  },
+  DELIVERED: {
+    label: 'Delivered',
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    dot: 'bg-green-500',
+  },
+  // Payment statuses
   COMPLETED: {
     label: 'Paid',
     bg: 'bg-green-100',
