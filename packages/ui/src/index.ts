@@ -83,3 +83,14 @@ export { Badge, badgeVariants } from './components/badge';
 export type { BadgeProps } from './components/badge';
 
 export { Avatar, AvatarImage, AvatarFallback } from './components/avatar';
+
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from './components/table';
