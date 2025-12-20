@@ -179,11 +179,16 @@ export function CartProvider({ children }: CartProviderProps) {
           );
         } else {
           // For optimistic add, we don't have full product details yet
-          // Just increment the item count; the real data comes from the server
+          // Keep items as-is; the real data comes from the server
           updatedItems = [...prev.items];
         }
 
-        return recalculateCart({ ...prev, items: updatedItems });
+        const updated = recalculateCart({ ...prev, items: updatedItems });
+        // Ensure itemCount reflects the pending add even without full product data
+        if (existingIndex < 0) {
+          updated.itemCount = (updated.itemCount || 0) + payload.quantity;
+        }
+        return updated;
       });
 
       try {
