@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface Banner {
   id: string;
@@ -63,12 +65,11 @@ export default function AdminBannersPage() {
 
   const fetchBanners = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/banners');
-      if (!response.ok) throw new Error('Failed to fetch banners');
-      const data = await response.json();
-      setBanners(data.banners);
+      const { data } = await apiClient.get('/admin/banners');
+      setBanners(data.data || data.banners || data);
     } catch (error) {
       console.error('Fetch banners error:', error);
+      toast.error('Failed to load banners');
     } finally {
       setLoading(false);
     }
@@ -110,21 +111,18 @@ export default function AdminBannersPage() {
     setSaving(true);
 
     try {
-      const url = editingId ? `/api/admin/banners/${editingId}` : '/api/admin/banners';
-      const method = editingId ? 'PATCH' : 'POST';
+      if (editingId) {
+        await apiClient.patch(`/admin/banners/${editingId}`, formData);
+      } else {
+        await apiClient.post('/admin/banners', formData);
+      }
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error('Failed to save banner');
-
+      toast.success(editingId ? 'Banner updated' : 'Banner created');
       setShowForm(false);
       fetchBanners();
     } catch (error) {
       console.error('Save banner error:', error);
+      toast.error('Failed to save banner');
     } finally {
       setSaving(false);
     }
@@ -133,25 +131,25 @@ export default function AdminBannersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this banner?')) return;
     try {
-      await fetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
+      await apiClient.delete(`/admin/banners/${id}`);
       setBanners((prev) => prev.filter((b) => b.id !== id));
+      toast.success('Banner deleted');
     } catch (error) {
       console.error('Delete banner error:', error);
+      toast.error('Failed to delete banner');
     }
   };
 
   const handleToggleActive = async (banner: Banner) => {
     try {
-      await fetch(`/api/admin/banners/${banner.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !banner.isActive }),
-      });
+      await apiClient.patch(`/admin/banners/${banner.id}`, { isActive: !banner.isActive });
       setBanners((prev) =>
         prev.map((b) => (b.id === banner.id ? { ...b, isActive: !b.isActive } : b)),
       );
+      toast.success(banner.isActive ? 'Banner deactivated' : 'Banner activated');
     } catch (error) {
       console.error('Toggle active error:', error);
+      toast.error('Failed to update banner');
     }
   };
 
@@ -180,13 +178,10 @@ export default function AdminBannersPage() {
 
     try {
       const positions = banners.map((b, i) => ({ id: b.id, position: i }));
-      await fetch('/api/admin/banners/reorder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ positions }),
-      });
+      await apiClient.post('/admin/banners/reorder', { positions });
     } catch (error) {
       console.error('Reorder error:', error);
+      toast.error('Failed to reorder banners');
       fetchBanners(); // Revert on error
     }
   };
