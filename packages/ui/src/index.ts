@@ -151,3 +151,10 @@ export {
   CommandShortcut,
   CommandSeparator,
 } from './components/command';
+
+export { Skeleton } from './components/skeleton';
+
+export { Spinner, spinnerVariants } from './components/spinner';
+export type { SpinnerProps } from './components/spinner';
+
+export { Progress } from './components/progress';
