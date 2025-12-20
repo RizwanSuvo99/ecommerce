@@ -110,3 +110,14 @@ export type { ToastData, ToastOptions, ToastProps } from './components/toast';
 
 export { Alert, AlertTitle, AlertDescription, alertVariants } from './components/alert';
 export type { AlertProps } from './components/alert';
+
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/tabs';
+
+export {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from './components/accordion';
+
+export { Separator } from './components/separator';
