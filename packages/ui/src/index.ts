@@ -190,3 +190,14 @@ export {
   NavigationMenuIndicator,
   NavigationMenuViewport,
 } from './components/navigation-menu';
+
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+} from './components/form';
