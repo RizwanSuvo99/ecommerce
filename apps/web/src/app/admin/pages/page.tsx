@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface CMSPage {
   id: string;
@@ -26,12 +28,11 @@ export default function AdminPagesPage() {
         if (search) params.set('search', search);
         if (statusFilter) params.set('status', statusFilter);
 
-        const response = await fetch(`/api/admin/pages?${params.toString()}`);
-        if (!response.ok) throw new Error('Failed to fetch pages');
-        const data = await response.json();
-        setPages(data.pages);
+        const { data } = await apiClient.get(`/admin/pages?${params.toString()}`);
+        setPages(data.data || data.pages || data);
       } catch (error) {
         console.error('Error fetching pages:', error);
+        toast.error('Failed to load pages');
       } finally {
         setLoading(false);
       }
@@ -42,26 +43,26 @@ export default function AdminPagesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this page?')) return;
     try {
-      await fetch(`/api/admin/pages/${id}`, { method: 'DELETE' });
+      await apiClient.delete(`/admin/pages/${id}`);
       setPages((prev) => prev.filter((p) => p.id !== id));
+      toast.success('Page deleted');
     } catch (error) {
       console.error('Delete error:', error);
+      toast.error('Failed to delete page');
     }
   };
 
   const handleTogglePublish = async (page: CMSPage) => {
     const newStatus = page.status === 'published' ? 'draft' : 'published';
     try {
-      await fetch(`/api/admin/pages/${page.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      await apiClient.patch(`/admin/pages/${page.id}`, { status: newStatus });
       setPages((prev) =>
         prev.map((p) => (p.id === page.id ? { ...p, status: newStatus } : p)),
       );
+      toast.success(newStatus === 'published' ? 'Page published' : 'Page unpublished');
     } catch (error) {
       console.error('Status toggle error:', error);
+      toast.error('Failed to update page status');
     }
   };
 

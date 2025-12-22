@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 export default function AdminEditPagePage() {
   const params = useParams();
@@ -28,9 +30,8 @@ export default function AdminEditPagePage() {
   useEffect(() => {
     async function fetchPage() {
       try {
-        const response = await fetch(`/api/admin/pages/${pageId}`);
-        if (!response.ok) throw new Error('Failed to fetch page');
-        const data = await response.json();
+        const { data: res } = await apiClient.get(`/admin/pages/${pageId}`);
+        const data = res.data || res;
         setFormData({
           title: data.title || '',
           titleBn: data.titleBn || '',
@@ -47,6 +48,7 @@ export default function AdminEditPagePage() {
         });
       } catch (error) {
         console.error('Fetch page error:', error);
+        toast.error('Failed to load page');
       } finally {
         setLoading(false);
       }
@@ -59,16 +61,11 @@ export default function AdminEditPagePage() {
     setSaving(true);
 
     try {
-      const response = await fetch(`/api/admin/pages/${pageId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error('Failed to update page');
-      alert('Page updated successfully!');
+      await apiClient.patch(`/admin/pages/${pageId}`, formData);
+      toast.success('Page updated');
     } catch (error) {
       console.error('Update page error:', error);
+      toast.error('Failed to update page');
     } finally {
       setSaving(false);
     }

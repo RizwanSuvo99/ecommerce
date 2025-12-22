@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 export default function AdminNewPagePage() {
   const router = useRouter();
@@ -44,17 +46,12 @@ export default function AdminNewPagePage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin/pages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error('Failed to create page');
-      const data = await response.json();
-      router.push(`/admin/pages/${data.id}/edit`);
+      const { data } = await apiClient.post('/admin/pages', formData);
+      toast.success('Page created');
+      router.push(`/admin/pages/${data.data?.id || data.id}/edit`);
     } catch (error) {
       console.error('Create page error:', error);
+      toast.error('Failed to create page');
     } finally {
       setLoading(false);
     }
