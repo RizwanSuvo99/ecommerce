@@ -40,7 +40,7 @@ export interface CartItemWithProduct {
     price: number;
     compareAtPrice: number | null;
     sku: string;
-    stock: number;
+    quantity: number;
     images: any[];
     status: string;
   };
@@ -127,9 +127,9 @@ export class CartService {
       throw new BadRequestException('Product is not available for purchase');
     }
 
-    if (product.stock < dto.quantity) {
+    if (product.quantity < dto.quantity) {
       throw new BadRequestException(
-        `Insufficient stock. Only ${product.stock} items available.`,
+        `Insufficient stock. Only ${product.quantity} items available.`,
       );
     }
 
@@ -146,9 +146,9 @@ export class CartService {
     if (existingItem) {
       const newQuantity = existingItem.quantity + dto.quantity;
 
-      if (product.stock < newQuantity) {
+      if (product.quantity < newQuantity) {
         throw new BadRequestException(
-          `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in cart and only ${product.stock} are available.`,
+          `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in cart and only ${product.quantity} are available.`,
         );
       }
 
@@ -191,9 +191,9 @@ export class CartService {
 
     this.verifyCartOwnership(cartItem.cart, userId, sessionId);
 
-    if (cartItem.product.stock < dto.quantity) {
+    if (cartItem.product.quantity < dto.quantity) {
       throw new BadRequestException(
-        `Insufficient stock. Only ${cartItem.product.stock} items available.`,
+        `Insufficient stock. Only ${cartItem.product.quantity} items available.`,
       );
     }
 
@@ -299,7 +299,7 @@ export class CartService {
     }
 
     // Validate usage limit
-    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
       throw new BadRequestException('This coupon has reached its usage limit');
     }
 
@@ -482,7 +482,7 @@ export class CartService {
         price: true,
         compareAtPrice: true,
         sku: true,
-        stock: true,
+        quantity: true,
         images: true,
         status: true,
       },
