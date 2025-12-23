@@ -146,7 +146,7 @@ export class DashboardService {
         },
       }),
       this.prisma.product.count({
-        where: { isActive: true },
+        where: { status: 'ACTIVE' },
       }),
       this.prisma.product.count({
         where: { createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
@@ -159,8 +159,8 @@ export class DashboardService {
       }),
       this.prisma.product.count({
         where: {
-          isActive: true,
-          stock: { lte: 10 },
+          status: 'ACTIVE',
+          quantity: { lte: 10 },
         },
       }),
     ]);
@@ -245,7 +245,8 @@ export class DashboardService {
         createdAt: true,
         user: {
           select: {
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
           },
         },
@@ -258,7 +259,7 @@ export class DashboardService {
     return orders.map((order) => ({
       id: order.id,
       orderNumber: order.orderNumber,
-      customerName: order.user.name,
+      customerName: `${order.user.firstName} ${order.user.lastName}`,
       customerEmail: order.user.email,
       totalAmount: order.totalAmount.toNumber(),
       status: order.status,
@@ -277,13 +278,19 @@ export class DashboardService {
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         createdAt: true,
       },
     });
 
-    return users;
+    return users.map((user) => ({
+      id: user.id,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      createdAt: user.createdAt,
+    }));
   }
 
   /**
@@ -292,18 +299,24 @@ export class DashboardService {
   private async getLowStockAlerts(): Promise<LowStockAlert[]> {
     const products = await this.prisma.product.findMany({
       where: {
-        isActive: true,
-        stock: { lte: 10 },
+        status: 'ACTIVE',
+        quantity: { lte: 10 },
       },
       take: 20,
-      orderBy: { stock: 'asc' },
+      orderBy: { quantity: 'asc' },
       select: {
         id: true,
         name: true,
         sku: true,
-        stock: true,
-        lowStockThreshold: true,
-        images: true,
+        quantity: true,
+        images: {
+          where: { isPrimary: true },
+          take: 1,
+          select: { url: true },
+        },
+        inventory: {
+          select: { lowStockThreshold: true },
+        },
       },
     });
 
@@ -311,9 +324,9 @@ export class DashboardService {
       id: product.id,
       name: product.name,
       sku: product.sku,
-      stock: product.stock,
-      lowStockThreshold: product.lowStockThreshold,
-      image: product.images?.[0] ?? null,
+      stock: product.quantity,
+      lowStockThreshold: product.inventory?.lowStockThreshold ?? 10,
+      image: product.images?.[0]?.url ?? null,
     }));
   }
 
@@ -374,7 +387,7 @@ export class DashboardService {
       by: ['productId'],
       _sum: {
         quantity: true,
-        subtotal: true,
+        totalPrice: true,
       },
       where: {
         order: {
@@ -400,7 +413,7 @@ export class DashboardService {
       id: item.productId,
       name: productMap.get(item.productId) ?? 'Unknown Product',
       totalSold: item._sum.quantity ?? 0,
-      revenue: item._sum.subtotal?.toNumber() ?? 0,
+      revenue: item._sum.totalPrice?.toNumber() ?? 0,
     }));
   }
 
@@ -416,7 +429,7 @@ export class DashboardService {
         },
       },
       select: {
-        subtotal: true,
+        totalPrice: true,
         product: {
           select: {
             category: {
@@ -432,7 +445,7 @@ export class DashboardService {
 
     for (const item of orderItems) {
       const categoryName = item.product.category?.name ?? 'Uncategorized';
-      const amount = item.subtotal.toNumber();
+      const amount = item.totalPrice.toNumber();
       categoryMap.set(categoryName, (categoryMap.get(categoryName) ?? 0) + amount);
       totalRevenue += amount;
     }

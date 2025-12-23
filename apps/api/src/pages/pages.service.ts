@@ -45,7 +45,7 @@ export class PagesService {
         where,
         include: {
           author: {
-            select: { id: true, name: true },
+            select: { id: true, firstName: true, lastName: true },
           },
         },
         orderBy: { updatedAt: 'desc' },
@@ -58,7 +58,9 @@ export class PagesService {
     return {
       pages: pages.map((p) => ({
         ...p,
-        author: p.author?.name || 'Unknown',
+        author: p.author
+          ? `${p.author.firstName} ${p.author.lastName}`
+          : 'Unknown',
       })),
       total,
       totalPages: Math.ceil(total / limit),
@@ -70,7 +72,7 @@ export class PagesService {
       where: { id },
       include: {
         author: {
-          select: { id: true, name: true },
+          select: { id: true, firstName: true, lastName: true },
         },
       },
     });
@@ -83,8 +85,8 @@ export class PagesService {
   }
 
   async findBySlug(slug: string) {
-    const page = await this.prisma.page.findUnique({
-      where: { slug, status: 'published' },
+    const page = await this.prisma.page.findFirst({
+      where: { slug, status: 'PUBLISHED' },
     });
 
     if (!page) {

@@ -25,15 +25,26 @@ export class ReviewsAdminService {
         skip,
         take: Number(limit),
         include: {
-          user: { select: { id: true, name: true, email: true } },
-          product: { select: { id: true, name: true, slug: true, images: true } },
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+          product: {
+            select: {
+              id: true, name: true, slug: true,
+              images: { select: { url: true }, orderBy: { isPrimary: 'desc' }, take: 3 },
+            },
+          },
         },
       }),
       this.prisma.review.count({ where }),
     ]);
 
     return {
-      reviews,
+      reviews: reviews.map((r) => ({
+        ...r,
+        product: {
+          ...r.product,
+          images: r.product.images.map((img) => img.url),
+        },
+      })),
       pagination: {
         total,
         page: Number(page),
@@ -51,8 +62,7 @@ export class ReviewsAdminService {
       where: { id },
       data: {
         status: dto.status,
-        adminNote: dto.adminNote,
-        moderatedAt: new Date(),
+        adminReply: dto.adminNote,
       },
     });
   }
@@ -63,7 +73,7 @@ export class ReviewsAdminService {
 
     return this.prisma.review.update({
       where: { id },
-      data: { adminResponse: response, adminRespondedAt: new Date() },
+      data: { adminReply: response, repliedAt: new Date() },
     });
   }
 

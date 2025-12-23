@@ -8,24 +8,27 @@ export class BannersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateBannerDto) {
-    const maxPosition = await this.prisma.banner.aggregate({
-      _max: { position: true },
+    const maxSortOrder = await this.prisma.banner.aggregate({
+      _max: { sortOrder: true },
     });
-    const position = (maxPosition._max.position ?? -1) + 1;
+    const sortOrder = (maxSortOrder._max.sortOrder ?? -1) + 1;
+
+    const { imageMobile, startDate, endDate, subtitle, subtitleBn, buttonText, buttonTextBn, backgroundColor, textColor, ...rest } = dto;
 
     return this.prisma.banner.create({
       data: {
-        ...dto,
-        startDate: dto.startDate ? new Date(dto.startDate) : null,
-        endDate: dto.endDate ? new Date(dto.endDate) : null,
-        position,
+        ...rest,
+        mobileImage: imageMobile ?? null,
+        startsAt: startDate ? new Date(startDate) : null,
+        endsAt: endDate ? new Date(endDate) : null,
+        sortOrder,
       },
     });
   }
 
   async findAll() {
     const banners = await this.prisma.banner.findMany({
-      orderBy: { position: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
 
     return { banners };
@@ -38,13 +41,13 @@ export class BannersService {
       where: {
         isActive: true,
         OR: [
-          { startDate: null, endDate: null },
-          { startDate: { lte: now }, endDate: null },
-          { startDate: null, endDate: { gte: now } },
-          { startDate: { lte: now }, endDate: { gte: now } },
+          { startsAt: null, endsAt: null },
+          { startsAt: { lte: now }, endsAt: null },
+          { startsAt: null, endsAt: { gte: now } },
+          { startsAt: { lte: now }, endsAt: { gte: now } },
         ],
       },
-      orderBy: { position: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
 
     return { banners };
@@ -64,9 +67,11 @@ export class BannersService {
       throw new NotFoundException(`Banner with ID ${id} not found`);
     }
 
-    const data: any = { ...dto };
-    if (dto.startDate) data.startDate = new Date(dto.startDate);
-    if (dto.endDate) data.endDate = new Date(dto.endDate);
+    const { imageMobile, startDate, endDate, subtitle, subtitleBn, buttonText, buttonTextBn, backgroundColor, textColor, ...rest } = dto;
+    const data: Record<string, unknown> = { ...rest };
+    if (imageMobile !== undefined) data.mobileImage = imageMobile;
+    if (startDate) data.startsAt = new Date(startDate);
+    if (endDate) data.endsAt = new Date(endDate);
 
     return this.prisma.banner.update({
       where: { id },
@@ -82,11 +87,11 @@ export class BannersService {
     return this.prisma.banner.delete({ where: { id } });
   }
 
-  async reorder(positions: { id: string; position: number }[]) {
+  async reorder(positions: { id: string; sortOrder: number }[]) {
     const updates = positions.map((item) =>
       this.prisma.banner.update({
         where: { id: item.id },
-        data: { position: item.position },
+        data: { sortOrder: item.sortOrder },
       }),
     );
 

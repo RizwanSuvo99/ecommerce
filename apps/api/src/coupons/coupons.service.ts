@@ -45,14 +45,14 @@ export class CouponsService {
       data: {
         code: dto.code.toUpperCase(),
         description: dto.description,
-        discountType: dto.discountType,
-        discountValue: dto.discountValue,
-        minimumOrderAmount: dto.minimumOrderAmount,
-        maximumDiscount: dto.maximumDiscount,
+        type: dto.discountType,
+        value: dto.discountValue,
+        minOrderAmount: dto.minimumOrderAmount,
+        maxDiscount: dto.maximumDiscount,
         usageLimit: dto.usageLimit,
-        usageLimitPerUser: dto.usageLimitPerUser ?? 1,
-        startDate: new Date(dto.startDate),
-        endDate: dto.endDate ? new Date(dto.endDate) : null,
+        perUserLimit: dto.usageLimitPerUser ?? 1,
+        startsAt: new Date(dto.startDate),
+        expiresAt: dto.endDate ? new Date(dto.endDate) : null,
         isActive: dto.isActive ?? true,
       },
     });
@@ -84,11 +84,11 @@ export class CouponsService {
     if (status === 'active') {
       where.isActive = true;
       where.OR = [
-        { endDate: null },
-        { endDate: { gte: new Date() } },
+        { expiresAt: null },
+        { expiresAt: { gte: new Date() } },
       ];
     } else if (status === 'expired') {
-      where.endDate = { lt: new Date() };
+      where.expiresAt = { lt: new Date() };
     } else if (status === 'inactive') {
       where.isActive = false;
     }
@@ -139,7 +139,7 @@ export class CouponsService {
   async update(id: string, dto: UpdateCouponDto) {
     await this.findOne(id);
 
-    const data: Record<string, unknown> = { ...dto };
+    const data: Record<string, unknown> = {};
 
     if (dto.code) {
       data.code = dto.code.toUpperCase();
@@ -153,8 +153,16 @@ export class CouponsService {
       }
     }
 
-    if (dto.startDate) data.startDate = new Date(dto.startDate);
-    if (dto.endDate) data.endDate = new Date(dto.endDate);
+    if (dto.description !== undefined) data.description = dto.description;
+    if (dto.discountType !== undefined) data.type = dto.discountType;
+    if (dto.discountValue !== undefined) data.value = dto.discountValue;
+    if (dto.minimumOrderAmount !== undefined) data.minOrderAmount = dto.minimumOrderAmount;
+    if (dto.maximumDiscount !== undefined) data.maxDiscount = dto.maximumDiscount;
+    if (dto.usageLimit !== undefined) data.usageLimit = dto.usageLimit;
+    if (dto.usageLimitPerUser !== undefined) data.perUserLimit = dto.usageLimitPerUser;
+    if (dto.isActive !== undefined) data.isActive = dto.isActive;
+    if (dto.startDate) data.startsAt = new Date(dto.startDate);
+    if (dto.endDate) data.expiresAt = new Date(dto.endDate);
 
     return this.prisma.coupon.update({
       where: { id },
@@ -199,17 +207,17 @@ export class CouponsService {
 
     // Check expiry
     const now = new Date();
-    if (coupon.startDate > now) {
+    if (coupon.startsAt > now) {
       throw new BadRequestException('This coupon is not yet active');
     }
-    if (coupon.endDate && coupon.endDate < now) {
+    if (coupon.expiresAt && coupon.expiresAt < now) {
       throw new BadRequestException('This coupon has expired');
     }
 
     // Check usage limit
     if (coupon.usageLimit) {
       const totalUsage = await this.prisma.order.count({
-        where: { couponId: coupon.id },
+        where: { couponCode: coupon.code },
       });
       if (totalUsage >= coupon.usageLimit) {
         throw new BadRequestException('This coupon usage limit has been reached');
@@ -217,11 +225,11 @@ export class CouponsService {
     }
 
     // Check per-user usage limit
-    if (coupon.usageLimitPerUser) {
+    if (coupon.perUserLimit) {
       const userUsage = await this.prisma.order.count({
-        where: { couponId: coupon.id, userId },
+        where: { couponCode: coupon.code, userId },
       });
-      if (userUsage >= coupon.usageLimitPerUser) {
+      if (userUsage >= coupon.perUserLimit) {
         throw new BadRequestException(
           'You have already used this coupon the maximum number of times',
         );
@@ -229,22 +237,22 @@ export class CouponsService {
     }
 
     // Check minimum order amount (BDT ৳)
-    if (coupon.minimumOrderAmount && orderAmount < coupon.minimumOrderAmount.toNumber()) {
+    if (coupon.minOrderAmount && orderAmount < coupon.minOrderAmount.toNumber()) {
       throw new BadRequestException(
-        `Minimum order amount is ৳${coupon.minimumOrderAmount} for this coupon`,
+        `Minimum order amount is ৳${coupon.minOrderAmount} for this coupon`,
       );
     }
 
     // Calculate discount
     let discount: number;
-    if (coupon.discountType === 'PERCENTAGE') {
-      discount = (orderAmount * coupon.discountValue.toNumber()) / 100;
+    if (coupon.type === 'PERCENTAGE') {
+      discount = (orderAmount * coupon.value.toNumber()) / 100;
       // Apply maximum discount cap
-      if (coupon.maximumDiscount) {
-        discount = Math.min(discount, coupon.maximumDiscount.toNumber());
+      if (coupon.maxDiscount) {
+        discount = Math.min(discount, coupon.maxDiscount.toNumber());
       }
     } else {
-      discount = coupon.discountValue.toNumber();
+      discount = coupon.value.toNumber();
     }
 
     // Discount cannot exceed order amount
@@ -254,8 +262,8 @@ export class CouponsService {
       coupon: {
         id: coupon.id,
         code: coupon.code,
-        discountType: coupon.discountType,
-        discountValue: coupon.discountValue,
+        discountType: coupon.type,
+        discountValue: coupon.value,
       },
       discount: Math.round(discount * 100) / 100,
       finalAmount: Math.round((orderAmount - discount) * 100) / 100,

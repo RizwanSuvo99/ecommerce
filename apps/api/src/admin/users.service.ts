@@ -83,7 +83,7 @@ export class AdminUsersService {
           select: {
             id: true,
             orderNumber: true,
-            total: true,
+            totalAmount: true,
             status: true,
             createdAt: true,
           },
