@@ -201,3 +201,9 @@ export {
   FormMessage,
   FormField,
 } from './components/form';
+
+export { Calendar } from './components/calendar';
+export type { CalendarProps } from './components/calendar';
+
+export { DatePicker } from './components/date-picker';
+export type { DatePickerProps } from './components/date-picker';
