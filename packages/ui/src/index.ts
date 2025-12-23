@@ -207,3 +207,9 @@ export type { CalendarProps } from './components/calendar';
 
 export { DatePicker } from './components/date-picker';
 export type { DatePickerProps } from './components/date-picker';
+
+export { ImageUpload } from './components/image-upload';
+export type { ImageUploadProps } from './components/image-upload';
+
+export { FileUpload, formatFileSize } from './components/file-upload';
+export type { FileUploadProps, UploadedFile } from './components/file-upload';
