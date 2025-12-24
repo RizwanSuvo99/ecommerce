@@ -24,8 +24,8 @@ const methodConfig: Record<
     label: 'Card Payment',
     description: 'Paid via Stripe',
     icon: CreditCard,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
+    color: 'text-teal-600',
+    bg: 'bg-teal-50',
   },
   COD: {
     label: 'Cash on Delivery',
