@@ -204,6 +204,17 @@ export class SearchService {
   }
 
   /**
+   * Log a search term for analytics.
+   */
+  async logSearch(term: string, resultsCount: number): Promise<void> {
+    const trimmed = term.trim().toLowerCase();
+    if (!trimmed) return;
+    await this.prisma.searchLog.create({
+      data: { term: trimmed, resultsCount },
+    });
+  }
+
+  /**
    * Get popular search terms (based on recent searches).
    */
   async getPopularSearches(limit = 10): Promise<string[]> {

@@ -35,6 +35,11 @@ export class SearchController {
       inStock: inStock === 'true',
     });
 
+    // Log search term for analytics (fire-and-forget)
+    if (q?.trim()) {
+      this.searchService.logSearch(q, result.pagination?.total ?? 0).catch(() => {});
+    }
+
     return { data: result };
   }
 
