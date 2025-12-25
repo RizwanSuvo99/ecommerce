@@ -36,6 +36,7 @@ interface Product {
   categoryName: string | null;
   isFeatured: boolean;
   shortDescription: string | null;
+  stock: number;
 }
 
 interface Category {
@@ -67,6 +68,7 @@ function normalizeProduct(raw: any): Product {
     categoryName: raw.category?.name ?? raw.categoryName ?? null,
     isFeatured: raw.isFeatured ?? false,
     shortDescription: raw.shortDescription ?? null,
+    stock: raw.quantity ?? 0,
   };
 }
 
@@ -284,13 +286,17 @@ export default function HomePage() {
           </div>
 
           {/* Quick add */}
-          <button
-            onClick={() => handleAddToCart(product)}
-            className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white opacity-0 transition-all group-hover:opacity-100 hover:bg-teal-700"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Add to Cart
-          </button>
+          {product.stock > 0 ? (
+            <button
+              onClick={() => handleAddToCart(product)}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white opacity-0 transition-all group-hover:opacity-100 hover:bg-teal-700"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Add to Cart
+            </button>
+          ) : (
+            <p className="mt-2 text-center text-xs font-medium text-red-500">Out of Stock</p>
+          )}
         </div>
       </div>
     );
