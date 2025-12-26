@@ -24,17 +24,23 @@ export function formatBDT(amount: number): string {
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null;
   private readonly webhookSecret: string;
 
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = new Stripe(this.config.get<string>('STRIPE_SECRET_KEY')!, {
-      apiVersion: '2024-04-10',
-    });
-    this.webhookSecret = this.config.get<string>('STRIPE_WEBHOOK_SECRET')!;
+    const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
+    if (stripeKey && stripeKey !== 'sk_test_...') {
+      this.stripe = new Stripe(stripeKey, {
+        apiVersion: '2024-04-10',
+      });
+    } else {
+      this.stripe = null;
+      this.logger.warn('Stripe not configured - payment features disabled');
+    }
+    this.webhookSecret = this.config.get<string>('STRIPE_WEBHOOK_SECRET') ?? '';
   }
 
   getStripeInstance(): Stripe {
