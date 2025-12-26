@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface MenuItem {
   id: string;
@@ -173,15 +175,15 @@ export default function AdminMenusPage() {
 
   const fetchMenus = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/menus');
-      if (!response.ok) throw new Error('Failed to fetch menus');
-      const data = await response.json();
-      setMenus(data.menus);
-      if (data.menus.length > 0 && !activeMenuId) {
-        setActiveMenuId(data.menus[0].id);
+      const { data } = await apiClient.get('/admin/menus');
+      const menus = data.data?.menus ?? data.menus;
+      setMenus(menus);
+      if (menus.length > 0 && !activeMenuId) {
+        setActiveMenuId(menus[0].id);
       }
     } catch (error) {
       console.error('Fetch menus error:', error);
+      toast.error('Failed to load menus');
     } finally {
       setLoading(false);
     }
@@ -218,23 +220,18 @@ export default function AdminMenusPage() {
     setSaving(true);
 
     try {
-      const url = editingItem
-        ? `/api/admin/menus/${activeMenuId}/items/${editingItem.id}`
-        : `/api/admin/menus/${activeMenuId}/items`;
-      const method = editingItem ? 'PATCH' : 'POST';
+      if (editingItem) {
+        await apiClient.patch(`/admin/menus/${activeMenuId}/items/${editingItem.id}`, itemForm);
+      } else {
+        await apiClient.post(`/admin/menus/${activeMenuId}/items`, itemForm);
+      }
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(itemForm),
-      });
-
-      if (!response.ok) throw new Error('Failed to save menu item');
-
+      toast.success('Menu item saved');
       setShowItemForm(false);
       fetchMenus();
     } catch (error) {
       console.error('Save item error:', error);
+      toast.error('Failed to save menu item');
     } finally {
       setSaving(false);
     }
@@ -243,10 +240,12 @@ export default function AdminMenusPage() {
   const handleDeleteItem = async (itemId: string) => {
     if (!confirm('Delete this menu item and all its children?')) return;
     try {
-      await fetch(`/api/admin/menus/${activeMenuId}/items/${itemId}`, { method: 'DELETE' });
+      await apiClient.delete(`/admin/menus/${activeMenuId}/items/${itemId}`);
+      toast.success('Menu item deleted');
       fetchMenus();
     } catch (error) {
       console.error('Delete item error:', error);
+      toast.error('Failed to delete menu item');
     }
   };
 
@@ -264,14 +263,11 @@ export default function AdminMenusPage() {
     }
 
     try {
-      await fetch(`/api/admin/menus/${activeMenuId}/items/${draggedId}/move`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetId, position: 'after' }),
-      });
+      await apiClient.post(`/admin/menus/${activeMenuId}/items/${draggedId}/move`, { targetId, position: 'after' });
       fetchMenus();
     } catch (error) {
       console.error('Move item error:', error);
+      toast.error('Failed to reorder menu');
     }
 
     setDraggedId(null);
@@ -285,18 +281,13 @@ export default function AdminMenusPage() {
     if (!location) return;
 
     try {
-      const response = await fetch('/api/admin/menus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, location }),
-      });
-
-      if (!response.ok) throw new Error('Failed to create menu');
-      const data = await response.json();
+      const { data } = await apiClient.post('/admin/menus', { name, location });
+      toast.success('Menu created');
       fetchMenus();
-      setActiveMenuId(data.id);
+      setActiveMenuId(data.data?.id ?? data.id);
     } catch (error) {
       console.error('Create menu error:', error);
+      toast.error('Failed to create menu');
     }
   };
 
