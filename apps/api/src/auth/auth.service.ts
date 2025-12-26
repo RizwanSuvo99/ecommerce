@@ -3,6 +3,7 @@ import {
   Logger,
   ConflictException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -11,6 +12,7 @@ import { randomBytes } from 'crypto';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -119,6 +121,75 @@ export class AuthService {
 
     return {
       user,
+      ...tokens,
+    };
+  }
+
+  /**
+   * Authenticate a user with email and password.
+   */
+  async login(dto: LoginDto, ipAddress?: string) {
+    const { email, password, rememberMe } = dto;
+
+    // Find the user by email
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Check if the account is active
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException(
+        'Your account has been deactivated. Please contact support.',
+      );
+    }
+
+    // Compare the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Generate tokens (extend refresh token for "remember me")
+    const tokens = rememberMe
+      ? {
+          ...(await this.generateTokens(user.id, user.email, user.role)),
+        }
+      : await this.generateTokens(user.id, user.email, user.role);
+
+    // Store the hashed refresh token and update last login
+    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        refreshToken: hashedRefreshToken,
+        lastLoginAt: new Date(),
+        lastLoginIp: ipAddress || null,
+      },
+    });
+
+    this.logger.log(`User logged in: ${user.email}`);
+
+    // Remove password from the response
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      user: userWithoutPassword,
       ...tokens,
     };
   }
