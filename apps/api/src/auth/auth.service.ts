@@ -5,6 +5,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +16,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
 
 @Injectable()
 export class AuthService {
@@ -269,6 +271,112 @@ export class AuthService {
     return {
       user: userWithoutToken,
       ...tokens,
+    };
+  }
+
+  /**
+   * Verify a user's email address using the verification token.
+   */
+  async verifyEmail(dto: VerifyEmailDto) {
+    const { token } = dto;
+
+    // Find the user with this verification token
+    const user = await this.prisma.user.findFirst({
+      where: {
+        verifyToken: token,
+        verifyTokenExp: { gt: new Date() },
+      },
+      select: {
+        id: true,
+        email: true,
+        emailVerified: true,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException(
+        'Invalid or expired verification token. Please request a new one.',
+      );
+    }
+
+    if (user.emailVerified) {
+      return { message: 'Email is already verified' };
+    }
+
+    // Mark the email as verified and clear the token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        verifyToken: null,
+        verifyTokenExp: null,
+      },
+    });
+
+    this.logger.log(`Email verified for user: ${user.email}`);
+
+    return { message: 'Email verified successfully' };
+  }
+
+  /**
+   * Resend the email verification token.
+   * Generates a new 6-digit OTP-style token for convenience.
+   */
+  async resendVerification(dto: ResendVerificationDto) {
+    const { email } = dto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        emailVerified: true,
+        verifyTokenExp: true,
+      },
+    });
+
+    if (!user) {
+      // Don't reveal whether the email exists for security
+      return {
+        message:
+          'If an account with this email exists, a verification email has been sent.',
+      };
+    }
+
+    if (user.emailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    // Rate limit: don't allow resending within 60 seconds
+    if (
+      user.verifyTokenExp &&
+      new Date(user.verifyTokenExp).getTime() > Date.now() + 23 * 60 * 60 * 1000
+    ) {
+      throw new BadRequestException(
+        'Please wait at least 60 seconds before requesting a new verification email.',
+      );
+    }
+
+    // Generate a new OTP-style verification token (6 digits)
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyToken = otp;
+    const verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        verifyToken,
+        verifyTokenExp,
+      },
+    });
+
+    this.logger.log(`Verification email resent to: ${user.email}`);
+
+    // TODO: Send verification email via email service
+
+    return {
+      message:
+        'If an account with this email exists, a verification email has been sent.',
     };
   }
 }

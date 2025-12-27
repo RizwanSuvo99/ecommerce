@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -81,6 +82,36 @@ export class AuthController {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       },
+    };
+  }
+
+  /**
+   * POST /auth/verify-email
+   * Verify a user's email address using the verification token.
+   */
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    const result = await this.authService.verifyEmail(dto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: result.message,
+    };
+  }
+
+  /**
+   * POST /auth/resend-verification
+   * Resend the email verification token.
+   */
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  async resendVerification(@Body() dto: ResendVerificationDto) {
+    const result = await this.authService.resendVerification(dto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: result.message,
     };
   }
 }
