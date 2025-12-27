@@ -12,6 +12,7 @@ import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -55,6 +56,26 @@ export class AuthController {
     return {
       statusCode: HttpStatus.OK,
       message: 'Login successful',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+    };
+  }
+
+  /**
+   * POST /auth/refresh
+   * Refresh access and refresh tokens using a valid refresh token.
+   */
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refreshTokens(@Body() dto: RefreshTokenDto) {
+    const result = await this.authService.refreshTokens(dto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Tokens refreshed successfully',
       data: {
         user: result.user,
         accessToken: result.accessToken,
