@@ -17,6 +17,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -378,5 +380,114 @@ export class AuthService {
       message:
         'If an account with this email exists, a verification email has been sent.',
     };
+  }
+
+  /**
+   * Initiate the password reset flow by generating a reset token.
+   * Response is intentionally vague to prevent email enumeration.
+   */
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const { email } = dto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        resetTokenExp: true,
+      },
+    });
+
+    // Always return success to prevent email enumeration
+    const successMessage =
+      'If an account with this email exists, a password reset link has been sent.';
+
+    if (!user) {
+      return { message: successMessage };
+    }
+
+    if (user.status !== 'ACTIVE') {
+      return { message: successMessage };
+    }
+
+    // Rate limit: don't allow reset requests within 60 seconds
+    if (
+      user.resetTokenExp &&
+      new Date(user.resetTokenExp).getTime() > Date.now() + 59 * 60 * 1000
+    ) {
+      return { message: successMessage };
+    }
+
+    // Generate a password reset token
+    const resetToken = randomBytes(32).toString('hex');
+    const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken,
+        resetTokenExp,
+      },
+    });
+
+    this.logger.log(`Password reset requested for: ${user.email}`);
+
+    // TODO: Send password reset email via email service
+    // The email should contain a link like: /auth/reset-password?token=${resetToken}
+
+    return { message: successMessage };
+  }
+
+  /**
+   * Reset the user's password using a valid reset token.
+   */
+  async resetPassword(dto: ResetPasswordDto) {
+    const { token, newPassword } = dto;
+
+    // Find the user with this reset token
+    const user = await this.prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExp: { gt: new Date() },
+      },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException(
+        'Invalid or expired reset token. Please request a new password reset.',
+      );
+    }
+
+    // Ensure the new password is different from the current one
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      throw new BadRequestException(
+        'New password must be different from the current password.',
+      );
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, this.bcryptSaltRounds);
+
+    // Update the password and clear reset token, also revoke refresh token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExp: null,
+        refreshToken: null, // Invalidate all existing sessions
+      },
+    });
+
+    this.logger.log(`Password reset completed for: ${user.email}`);
+
+    return { message: 'Password has been reset successfully. Please login with your new password.' };
   }
 }
