@@ -546,4 +546,79 @@ export class AuthService {
 
     return { message: 'Password changed successfully' };
   }
+
+  /**
+   * Logout the current user by revoking their refresh token.
+   */
+  async logout(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: null },
+    });
+
+    this.logger.log(`User logged out: ${userId}`);
+
+    return { message: 'Logged out successfully' };
+  }
+
+  /**
+   * Logout from all devices by revoking all refresh tokens.
+   * This effectively invalidates all sessions for the user.
+   */
+  async logoutAll(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: null },
+    });
+
+    this.logger.log(`All sessions revoked for user: ${user?.email}`);
+
+    return { message: 'Logged out from all devices successfully' };
+  }
+
+  /**
+   * Get active sessions for the current user.
+   * Returns session metadata including last login info.
+   */
+  async getSessions(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        lastLoginAt: true,
+        lastLoginIp: true,
+        refreshToken: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Build session information from available data
+    const sessions = [];
+
+    if (user.refreshToken) {
+      sessions.push({
+        id: user.id,
+        active: true,
+        lastLoginAt: user.lastLoginAt,
+        lastLoginIp: user.lastLoginIp,
+        createdAt: user.createdAt,
+        current: true, // Since we use single refresh token, this is always the current session
+      });
+    }
+
+    return {
+      sessions,
+      totalSessions: sessions.length,
+    };
+  }
 }

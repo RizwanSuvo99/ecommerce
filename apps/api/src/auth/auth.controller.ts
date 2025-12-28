@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Patch,
   Body,
@@ -166,6 +167,58 @@ export class AuthController {
     return {
       statusCode: HttpStatus.OK,
       message: result.message,
+    };
+  }
+
+  /**
+   * POST /auth/logout
+   * Logout the current user by revoking their refresh token.
+   */
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async logout(@Req() req: Request) {
+    const user = req.user as { id: string };
+    const result = await this.authService.logout(user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: result.message,
+    };
+  }
+
+  /**
+   * POST /auth/logout-all
+   * Logout from all devices by revoking all refresh tokens.
+   */
+  @Post('logout-all')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async logoutAll(@Req() req: Request) {
+    const user = req.user as { id: string };
+    const result = await this.authService.logoutAll(user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: result.message,
+    };
+  }
+
+  /**
+   * GET /auth/sessions
+   * Get active sessions for the current user.
+   */
+  @Get('sessions')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getSessions(@Req() req: Request) {
+    const user = req.user as { id: string };
+    const result = await this.authService.getSessions(user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Sessions retrieved successfully',
+      data: result,
     };
   }
 }
