@@ -1,11 +1,13 @@
 import {
   Controller,
   Post,
+  Patch,
   Body,
   HttpCode,
   HttpStatus,
   Logger,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -16,6 +18,8 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -140,6 +144,24 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDto) {
     const result = await this.authService.resetPassword(dto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: result.message,
+    };
+  }
+
+  /**
+   * PATCH /auth/change-password
+   * Change the authenticated user's password.
+   * Requires a valid JWT token.
+   */
+  @Patch('change-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(@Body() dto: ChangePasswordDto, @Req() req: Request) {
+    const user = req.user as { id: string };
+    const result = await this.authService.changePassword(user.id, dto);
 
     return {
       statusCode: HttpStatus.OK,
