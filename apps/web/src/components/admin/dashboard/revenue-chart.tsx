@@ -117,7 +117,7 @@ export function RevenueChart() {
               onClick={() => setActiveView(view)}
               className={`px-3 py-1.5 text-xs font-medium capitalize transition-colors first:rounded-l-lg last:rounded-r-lg ${
                 activeView === view
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-teal-600 text-white'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >

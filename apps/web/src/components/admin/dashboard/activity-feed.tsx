@@ -57,8 +57,8 @@ function mergeAndSortActivities(data: ActivityData): ActivityItem[] {
       description: `${order.customerName} placed an order for ${formatBDT(order.totalAmount)}`,
       time: new Date(order.createdAt),
       icon: ShoppingCart,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
+      iconColor: 'text-teal-600',
+      iconBg: 'bg-teal-100',
     });
   }
 

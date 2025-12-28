@@ -101,7 +101,7 @@ export function LowStockWidget() {
         </div>
         <Link
           href="/admin/products?filter=low-stock"
-          className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+          className="flex items-center gap-1 text-sm font-medium text-teal-600 hover:text-teal-700"
         >
           View All
           <ExternalLink className="h-3.5 w-3.5" />
@@ -140,7 +140,7 @@ export function LowStockWidget() {
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/admin/products/${alert.id}/edit`}
-                  className="truncate text-sm font-medium text-gray-900 hover:text-indigo-600"
+                  className="truncate text-sm font-medium text-gray-900 hover:text-teal-600"
                 >
                   {alert.name}
                 </Link>

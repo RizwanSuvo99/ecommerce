@@ -177,8 +177,8 @@ export default function AdminDashboardPage() {
           title="Total Orders"
           value={stats.totalOrders.toLocaleString()}
           growth={stats.ordersGrowth}
-          icon={<ShoppingCart className="h-6 w-6 text-blue-600" />}
-          iconBg="bg-blue-100"
+          icon={<ShoppingCart className="h-6 w-6 text-teal-600" />}
+          iconBg="bg-teal-100"
         />
         <KpiCard
           title="New Customers"
@@ -208,8 +208,8 @@ export default function AdminDashboardPage() {
         <StatusCard
           title="Processing Orders"
           value={stats.processingOrders}
-          icon={<ShoppingCart className="h-5 w-5 text-blue-600" />}
-          color="bg-blue-100"
+          icon={<ShoppingCart className="h-5 w-5 text-teal-600" />}
+          color="bg-teal-100"
           href="/admin/orders?status=PROCESSING"
         />
         <StatusCard

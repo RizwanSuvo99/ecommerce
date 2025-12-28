@@ -40,8 +40,8 @@ const quickActions: QuickAction[] = [
     description: 'Manage pending orders',
     href: '/admin/orders',
     icon: ShoppingCart,
-    iconColor: 'text-blue-600',
-    iconBg: 'bg-blue-100',
+    iconColor: 'text-teal-600',
+    iconBg: 'bg-teal-100',
   },
   {
     label: 'Products',
@@ -72,8 +72,8 @@ const quickActions: QuickAction[] = [
     description: 'View sales reports',
     href: '/admin/reports',
     icon: BarChart3,
-    iconColor: 'text-indigo-600',
-    iconBg: 'bg-indigo-100',
+    iconColor: 'text-teal-600',
+    iconBg: 'bg-teal-100',
   },
 ];
 
@@ -100,24 +100,24 @@ export function QuickActions() {
           <Link
             key={action.href}
             href={action.href}
-            className="group flex flex-col items-center rounded-lg border border-gray-200 p-4 text-center transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:shadow-sm"
+            className="group flex flex-col items-center rounded-lg border border-gray-200 p-4 text-center transition-all hover:border-teal-200 hover:bg-teal-50 hover:shadow-sm"
           >
             <div
               className={cn(
                 'mb-2 flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
                 action.iconBg,
-                'group-hover:bg-indigo-100',
+                'group-hover:bg-teal-100',
               )}
             >
               <action.icon
                 className={cn(
                   'h-5 w-5 transition-colors',
                   action.iconColor,
-                  'group-hover:text-indigo-600',
+                  'group-hover:text-teal-600',
                 )}
               />
             </div>
-            <p className="text-sm font-medium text-gray-900 group-hover:text-indigo-700">
+            <p className="text-sm font-medium text-gray-900 group-hover:text-teal-700">
               {action.label}
             </p>
             <p className="mt-0.5 text-xs text-gray-500">{action.description}</p>

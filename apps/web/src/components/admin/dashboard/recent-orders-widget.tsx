@@ -35,14 +35,14 @@ const statusConfig: Record<
   },
   CONFIRMED: {
     label: 'Confirmed',
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-100',
+    color: 'text-teal-700',
+    bgColor: 'bg-teal-100',
     icon: CheckCircle,
   },
   PROCESSING: {
     label: 'Processing',
-    color: 'text-indigo-700',
-    bgColor: 'bg-indigo-100',
+    color: 'text-teal-700',
+    bgColor: 'bg-teal-100',
     icon: Package,
   },
   SHIPPED: {
@@ -147,7 +147,7 @@ export function RecentOrdersWidget() {
         </div>
         <Link
           href="/admin/orders"
-          className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+          className="flex items-center gap-1 text-sm font-medium text-teal-600 hover:text-teal-700"
         >
           View All
           <ExternalLink className="h-3.5 w-3.5" />
@@ -170,7 +170,7 @@ export function RecentOrdersWidget() {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/admin/orders/${order.id}`}
-                    className="text-sm font-medium text-gray-900 hover:text-indigo-600"
+                    className="text-sm font-medium text-gray-900 hover:text-teal-600"
                   >
                     #{order.orderNumber}
                   </Link>
