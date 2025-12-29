@@ -20,7 +20,9 @@ import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser, AuthenticatedUser } from './decorators/current-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -160,9 +162,11 @@ export class AuthController {
   @Patch('change-password')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async changePassword(@Body() dto: ChangePasswordDto, @Req() req: Request) {
-    const user = req.user as { id: string };
-    const result = await this.authService.changePassword(user.id, dto);
+  async changePassword(
+    @Body() dto: ChangePasswordDto,
+    @CurrentUser('id') userId: string,
+  ) {
+    const result = await this.authService.changePassword(userId, dto);
 
     return {
       statusCode: HttpStatus.OK,
@@ -177,9 +181,8 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request) {
-    const user = req.user as { id: string };
-    const result = await this.authService.logout(user.id);
+  async logout(@CurrentUser('id') userId: string) {
+    const result = await this.authService.logout(userId);
 
     return {
       statusCode: HttpStatus.OK,
@@ -194,9 +197,8 @@ export class AuthController {
   @Post('logout-all')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async logoutAll(@Req() req: Request) {
-    const user = req.user as { id: string };
-    const result = await this.authService.logoutAll(user.id);
+  async logoutAll(@CurrentUser('id') userId: string) {
+    const result = await this.authService.logoutAll(userId);
 
     return {
       statusCode: HttpStatus.OK,
@@ -211,14 +213,50 @@ export class AuthController {
   @Get('sessions')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getSessions(@Req() req: Request) {
-    const user = req.user as { id: string };
-    const result = await this.authService.getSessions(user.id);
+  async getSessions(@CurrentUser('id') userId: string) {
+    const result = await this.authService.getSessions(userId);
 
     return {
       statusCode: HttpStatus.OK,
       message: 'Sessions retrieved successfully',
       data: result,
+    };
+  }
+
+  /**
+   * GET /auth/me
+   * Get the authenticated user's profile.
+   */
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getProfile(@CurrentUser('id') userId: string) {
+    const user = await this.authService.getProfile(userId);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Profile retrieved successfully',
+      data: user,
+    };
+  }
+
+  /**
+   * PATCH /auth/me
+   * Update the authenticated user's profile.
+   */
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    const user = await this.authService.updateProfile(userId, dto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Profile updated successfully',
+      data: user,
     };
   }
 }

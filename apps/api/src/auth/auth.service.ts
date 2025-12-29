@@ -20,6 +20,7 @@ import { VerifyEmailDto, ResendVerificationDto } from './dto/verify-email.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -620,5 +621,104 @@ export class AuthService {
       sessions,
       totalSessions: sessions.length,
     };
+  }
+
+  /**
+   * Get the authenticated user's profile.
+   */
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        avatar: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        phoneVerified: true,
+        dateOfBirth: true,
+        gender: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  /**
+   * Update the authenticated user's profile.
+   * Only allows updating non-sensitive fields.
+   */
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Build update data from DTO, filtering out undefined values
+    const updateData: Record<string, any> = {};
+
+    if (dto.firstName !== undefined) {
+      updateData.firstName = dto.firstName;
+    }
+    if (dto.lastName !== undefined) {
+      updateData.lastName = dto.lastName;
+    }
+    if (dto.phone !== undefined) {
+      updateData.phone = dto.phone;
+    }
+    if (dto.avatar !== undefined) {
+      updateData.avatar = dto.avatar;
+    }
+    if (dto.dateOfBirth !== undefined) {
+      updateData.dateOfBirth = new Date(dto.dateOfBirth);
+    }
+    if (dto.gender !== undefined) {
+      updateData.gender = dto.gender;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException('No fields to update');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        avatar: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        phoneVerified: true,
+        dateOfBirth: true,
+        gender: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    this.logger.log(`Profile updated for user: ${updatedUser.email}`);
+
+    return updatedUser;
   }
 }
