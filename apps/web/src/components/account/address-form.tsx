@@ -81,7 +81,7 @@ export function AddressForm({
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-blue-600" />
+          <MapPin className="w-5 h-5 text-teal-600" />
           <h3 className="text-lg font-semibold text-gray-900">
             {address ? 'Edit Address' : 'Add New Address'}
           </h3>
@@ -108,7 +108,7 @@ export function AddressForm({
                 onClick={() => updateField('label', label)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   formData.label === label
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                    ? 'bg-teal-100 text-teal-700 border border-teal-300'
                     : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                 }`}
               >
@@ -131,7 +131,7 @@ export function AddressForm({
               placeholder="e.g. Rizwan Ahmed"
               className={`w-full px-3 py-2 border rounded-lg text-sm ${
                 errors.fullName ? 'border-red-300' : 'border-gray-300'
-              } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
             />
             {errors.fullName && (
               <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>
@@ -149,7 +149,7 @@ export function AddressForm({
               placeholder="+8801XXXXXXXXX"
               className={`w-full px-3 py-2 border rounded-lg text-sm ${
                 errors.phone ? 'border-red-300' : 'border-gray-300'
-              } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
             />
             {errors.phone && (
               <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
@@ -169,7 +169,7 @@ export function AddressForm({
             placeholder="House/Flat No., Road, Area"
             className={`w-full px-3 py-2 border rounded-lg text-sm ${
               errors.addressLine1 ? 'border-red-300' : 'border-gray-300'
-            } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+            } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
           />
           {errors.addressLine1 && (
             <p className="text-xs text-red-500 mt-1">{errors.addressLine1}</p>
@@ -185,7 +185,7 @@ export function AddressForm({
             value={formData.addressLine2}
             onChange={(e) => updateField('addressLine2', e.target.value)}
             placeholder="Apartment, Suite, Floor (optional)"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           />
         </div>
 
@@ -202,7 +202,7 @@ export function AddressForm({
               placeholder="e.g. Dhaka"
               className={`w-full px-3 py-2 border rounded-lg text-sm ${
                 errors.city ? 'border-red-300' : 'border-gray-300'
-              } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
             />
             {errors.city && (
               <p className="text-xs text-red-500 mt-1">{errors.city}</p>
@@ -220,7 +220,7 @@ export function AddressForm({
               placeholder="e.g. Dhaka"
               className={`w-full px-3 py-2 border rounded-lg text-sm ${
                 errors.district ? 'border-red-300' : 'border-gray-300'
-              } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              } focus:ring-2 focus:ring-teal-500 focus:border-teal-500`}
             />
             {errors.district && (
               <p className="text-xs text-red-500 mt-1">{errors.district}</p>
@@ -234,7 +234,7 @@ export function AddressForm({
             <select
               value={formData.division}
               onChange={(e) => updateField('division', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             >
               <option value="">Select Division</option>
               {bdDivisions.map((div) => (
@@ -257,7 +257,7 @@ export function AddressForm({
               value={formData.postalCode}
               onChange={(e) => updateField('postalCode', e.target.value)}
               placeholder="e.g. 1205"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
 
@@ -270,7 +270,7 @@ export function AddressForm({
               value={formData.landmark}
               onChange={(e) => updateField('landmark', e.target.value)}
               placeholder="Near mosque, school, etc."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
         </div>
@@ -281,7 +281,7 @@ export function AddressForm({
             type="checkbox"
             checked={formData.isDefault}
             onChange={(e) => updateField('isDefault', e.target.checked)}
-            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            className="w-4 h-4 text-teal-600 rounded border-gray-300 focus:ring-teal-500"
           />
           <span className="text-sm text-gray-700">
             Set as default address
@@ -300,7 +300,7 @@ export function AddressForm({
           <button
             type="submit"
             disabled={isLoading}
-            className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
           >
             <Save className="w-4 h-4" />
             {isLoading
