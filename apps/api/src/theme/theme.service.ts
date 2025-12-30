@@ -57,9 +57,11 @@ const DEFAULT_THEME = {
 export class ThemeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly THEME_WHERE = { group_key: { group: 'THEME' as const, key: 'config' } };
+
   async getTheme() {
-    const settings = await this.prisma.settings.findFirst({
-      where: { key: 'theme' },
+    const settings = await this.prisma.settings.findUnique({
+      where: this.THEME_WHERE,
     });
 
     if (!settings) {
@@ -88,9 +90,10 @@ export class ThemeService {
     };
 
     await this.prisma.settings.upsert({
-      where: { key: 'theme' },
+      where: this.THEME_WHERE,
       create: {
-        key: 'theme',
+        group: 'THEME',
+        key: 'config',
         value: JSON.stringify(updatedTheme),
       },
       update: {
@@ -103,9 +106,10 @@ export class ThemeService {
 
   async resetTheme() {
     await this.prisma.settings.upsert({
-      where: { key: 'theme' },
+      where: this.THEME_WHERE,
       create: {
-        key: 'theme',
+        group: 'THEME',
+        key: 'config',
         value: JSON.stringify(DEFAULT_THEME),
       },
       update: {
