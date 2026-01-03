@@ -1,7 +1,9 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -9,9 +11,11 @@ import {
 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductFilterDto } from './dto/product-filter.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('products')
@@ -31,5 +35,15 @@ export class ProductsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.productsService.create(createProductDto);
+  }
+
+  /**
+   * List products with pagination, sorting, and filtering.
+   * Public endpoint - no authentication required.
+   */
+  @Get()
+  @Public()
+  async findAll(@Query() filters: ProductFilterDto) {
+    return this.productsService.findAll(filters);
   }
 }

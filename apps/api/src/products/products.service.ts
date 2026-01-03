@@ -1,12 +1,13 @@
 import {
   Injectable,
   Logger,
-  ConflictException,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductFilterDto, ProductSortBy, SortOrder } from './dto/product-filter.dto';
 
 @Injectable()
 export class ProductsService {
@@ -84,7 +85,6 @@ export class ProductsService {
         return currentSku;
       }
 
-      // Regenerate with new random suffix
       const random = Math.random().toString(36).substring(2, 5).toUpperCase();
       currentSku = `${sku.split('-')[0]}-${random}${Date.now().toString(36).toUpperCase().slice(-3)}`;
     }
@@ -96,15 +96,12 @@ export class ProductsService {
   async create(dto: CreateProductDto) {
     this.logger.log(`Creating product: ${dto.name}`);
 
-    // Generate and ensure unique slug
     const rawSlug = this.generateSlug(dto.name);
     const slug = await this.ensureUniqueSlug(rawSlug);
 
-    // Generate and ensure unique SKU
     const rawSku = this.generateSku(dto.name);
     const sku = await this.ensureUniqueSku(rawSku);
 
-    // Verify category exists
     const category = await this.prisma.category.findUnique({
       where: { id: dto.categoryId },
       select: { id: true },
@@ -114,7 +111,6 @@ export class ProductsService {
       throw new NotFoundException(`Category with ID "${dto.categoryId}" not found`);
     }
 
-    // Verify brand exists if provided
     if (dto.brandId) {
       const brand = await this.prisma.brand.findUnique({
         where: { id: dto.brandId },
@@ -126,7 +122,6 @@ export class ProductsService {
       }
     }
 
-    // Create the product
     const product = await this.prisma.product.create({
       data: {
         name: dto.name,
@@ -167,5 +162,134 @@ export class ProductsService {
 
     this.logger.log(`Product created: ${product.id} (${product.slug})`);
     return product;
+  }
+
+  /**
+   * Find all products with pagination, sorting, and filtering.
+   */
+  async findAll(filters: ProductFilterDto) {
+    const {
+      page = 1,
+      limit = 20,
+      sortBy = ProductSortBy.CREATED_AT,
+      sortOrder = SortOrder.DESC,
+      categoryId,
+      categorySlug,
+      brandId,
+      brandSlug,
+      priceMin,
+      priceMax,
+      search,
+      status,
+      tag,
+      isFeatured,
+    } = filters;
+
+    const skip = (page - 1) * limit;
+
+    // Build where clause dynamically
+    const where: Prisma.ProductWhereInput = {};
+
+    // Status filter (default to ACTIVE for public queries)
+    if (status) {
+      where.status = status;
+    }
+
+    // Category filters
+    if (categoryId) {
+      where.categoryId = categoryId;
+    } else if (categorySlug) {
+      where.category = { slug: categorySlug };
+    }
+
+    // Brand filters
+    if (brandId) {
+      where.brandId = brandId;
+    } else if (brandSlug) {
+      where.brand = { slug: brandSlug };
+    }
+
+    // Price range filter
+    if (priceMin !== undefined || priceMax !== undefined) {
+      where.price = {};
+      if (priceMin !== undefined) {
+        where.price.gte = priceMin;
+      }
+      if (priceMax !== undefined) {
+        where.price.lte = priceMax;
+      }
+    }
+
+    // Search filter (name, description, tags)
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { shortDescription: { contains: search, mode: 'insensitive' } },
+        { tags: { has: search.toLowerCase() } },
+        { sku: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Tag filter
+    if (tag) {
+      where.tags = { has: tag };
+    }
+
+    // Featured filter
+    if (isFeatured !== undefined) {
+      where.isFeatured = isFeatured;
+    }
+
+    // Build orderBy clause
+    const orderBy: Prisma.ProductOrderByWithRelationInput = {
+      [sortBy]: sortOrder,
+    };
+
+    // Execute queries in parallel
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+        include: {
+          category: {
+            select: { id: true, name: true, slug: true },
+          },
+          brand: {
+            select: { id: true, name: true, slug: true },
+          },
+          images: {
+            where: { isPrimary: true },
+            take: 1,
+            select: {
+              id: true,
+              url: true,
+              thumbnailUrl: true,
+              alt: true,
+            },
+          },
+          _count: {
+            select: { reviews: true, variants: true },
+          },
+        },
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: products,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
   }
 }
