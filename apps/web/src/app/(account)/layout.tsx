@@ -113,7 +113,7 @@ export default function AccountLayout({
                         className={cn(
                           'flex items-center gap-3 px-4 py-3 text-sm font-medium border-b border-gray-100 last:border-0 transition-colors',
                           active
-                            ? 'bg-blue-50 text-blue-700'
+                            ? 'bg-teal-50 text-teal-700'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                         )}
                       >
@@ -144,7 +144,7 @@ export default function AccountLayout({
               {/* User Info */}
               <div className="px-4 py-5 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
                     {user?.avatar ? (
                       <img
                         src={user.avatar}
@@ -152,7 +152,7 @@ export default function AccountLayout({
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
-                      <User className="w-5 h-5 text-blue-600" />
+                      <User className="w-5 h-5 text-teal-600" />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -179,7 +179,7 @@ export default function AccountLayout({
                       className={cn(
                         'flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors',
                         active
-                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                          ? 'bg-teal-50 text-teal-700 border-r-2 border-teal-700'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                       )}
                     >
