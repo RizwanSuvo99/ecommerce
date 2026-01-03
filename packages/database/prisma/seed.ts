@@ -1,17 +1,30 @@
 import { PrismaClient, UserRole, UserStatus } from '@prisma/client';
-import { createHash } from 'crypto';
+import { randomBytes, scryptSync } from 'crypto';
 
 const prisma = new PrismaClient();
 
 // ---------------------------------------------------------------------------
-// Utility: Simple password hashing using SHA-256 (bcrypt would be used in the
-// real auth service, but we avoid the native dependency here for seeding).
-// In production the API layer hashes passwords with bcrypt/argon2 before
-// storing them.  The seed password below is only for initial super-admin
-// access and MUST be changed on first login.
+// Utility: Password hashing compatible with bcrypt.
+//
+// We dynamically load bcrypt (which the API uses) so the seed password can
+// be verified by the auth service.  If the native bcrypt module isn't
+// reachable from the database package we fall back to a compatible hash.
 // ---------------------------------------------------------------------------
-function hashPassword(password: string): string {
-  return createHash('sha256').update(password).digest('hex');
+let hashPassword: (password: string) => Promise<string>;
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const bcrypt = require('bcrypt');
+  hashPassword = (password: string) => bcrypt.hash(password, 10);
+} catch {
+  // Fallback: produce a bcrypt-compatible $2b$ hash is not possible without
+  // the native module, so use a simple scrypt-based hash instead.  This path
+  // should not be hit in the monorepo because bcrypt is hoisted.
+  hashPassword = async (password: string) => {
+    const salt = randomBytes(16).toString('hex');
+    const hash = scryptSync(password, salt, 64).toString('hex');
+    return `${salt}:${hash}`;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -20,12 +33,19 @@ function hashPassword(password: string): string {
 async function seedAdminUser() {
   console.log('Seeding super admin user...');
 
+  const hashedPw = await hashPassword('Admin@ShopBD2025!');
+
   const admin = await prisma.user.upsert({
     where: { email: 'admin@shopbd.com' },
-    update: {},
+    update: {
+      password: hashedPw,
+      role: UserRole.SUPER_ADMIN,
+      status: UserStatus.ACTIVE,
+      emailVerified: true,
+    },
     create: {
       email: 'admin@shopbd.com',
-      password: hashPassword('Admin@ShopBD2025!'),
+      password: hashedPw,
       firstName: 'Super',
       lastName: 'Admin',
       phone: '+8801700000000',
@@ -222,26 +242,6 @@ async function seedCategories() {
 }
 
 // ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-async function main() {
-  console.log('Starting database seed...\n');
-
-  await seedAdminUser();
-  await seedCategories();
-
-  console.log('\nSeed completed successfully.');
-}
-
-main()
-  .catch((e) => {
-    console.error('Seed failed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-
-// ---------------------------------------------------------------------------
 // Seed: Brands
 // ---------------------------------------------------------------------------
 interface BrandSeed {
@@ -273,6 +273,10 @@ const BRANDS: BrandSeed[] = [
   { name: 'Sony', nameBn: 'সনি', slug: 'sony', website: 'https://sony.com.bd' },
   { name: 'Vivo', nameBn: 'ভিভো', slug: 'vivo', website: 'https://vivo.com/bd' },
   { name: 'OPPO', nameBn: 'অপো', slug: 'oppo', website: 'https://oppo.com/bd' },
+  { name: 'Adidas', slug: 'adidas', website: 'https://adidas.com' },
+  { name: 'Huggies', slug: 'huggies', website: 'https://huggies.com' },
+  { name: 'Hatil', nameBn: 'হাতিল', slug: 'hatil', website: 'https://hatil.com' },
+  { name: 'Canon', slug: 'canon', website: 'https://canon.com' },
 ];
 
 async function seedBrands() {
@@ -347,9 +351,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.213,
     images: [
-      'https://cdn.shopbd.com/products/samsung-a55-1.jpg',
-      'https://cdn.shopbd.com/products/samsung-a55-2.jpg',
-      'https://cdn.shopbd.com/products/samsung-a55-3.jpg',
+      'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: '8GB/128GB - Awesome Iceblue', sku: 'SAM-A55-128-ICE', price: 42999, quantity: 50 },
@@ -374,8 +377,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.187,
     images: [
-      'https://cdn.shopbd.com/products/redmi-note13pro-1.jpg',
-      'https://cdn.shopbd.com/products/redmi-note13pro-2.jpg',
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -396,7 +399,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.210,
     images: [
-      'https://cdn.shopbd.com/products/walton-primo-r9-1.jpg',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -416,8 +419,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 1.74,
     images: [
-      'https://cdn.shopbd.com/products/hp-pavilion15-1.jpg',
-      'https://cdn.shopbd.com/products/hp-pavilion15-2.jpg',
+      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: 'i5/8GB/512GB SSD', sku: 'HP-PAV15-I5-8-512', price: 68999, quantity: 25 },
@@ -441,7 +444,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 1.63,
     images: [
-      'https://cdn.shopbd.com/products/lenovo-slim3-1.jpg',
+      'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -461,8 +464,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.250,
     images: [
-      'https://cdn.shopbd.com/products/jbl-tune760nc-1.jpg',
-      'https://cdn.shopbd.com/products/jbl-tune760nc-2.jpg',
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1583394838223-aef6146a7f61?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: 'Black', sku: 'JBL-T760NC-BLK', price: 8999, quantity: 40 },
@@ -488,8 +491,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.450,
     images: [
-      'https://cdn.shopbd.com/products/aarong-saree-1.jpg',
-      'https://cdn.shopbd.com/products/aarong-saree-2.jpg',
+      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -509,7 +512,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 0.800,
     images: [
-      'https://cdn.shopbd.com/products/bata-comfit-1.jpg',
+      'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: 'Size 40 - Black', sku: 'BAT-CMF-40-BLK', price: 4599, quantity: 20 },
@@ -536,8 +539,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.350,
     images: [
-      'https://cdn.shopbd.com/products/yellow-panjabi-1.jpg',
-      'https://cdn.shopbd.com/products/yellow-panjabi-2.jpg',
+      'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: 'M - White', sku: 'YLW-PNJ-M-WHT', price: 2800, quantity: 30 },
@@ -563,7 +566,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 3.5,
     images: [
-      'https://cdn.shopbd.com/products/rfl-dinner-set-1.jpg',
+      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -583,7 +586,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 1.2,
     images: [
-      'https://cdn.shopbd.com/products/apex-bedsheet-king-1.jpg',
+      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -603,7 +606,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 0.950,
     images: [
-      'https://cdn.shopbd.com/products/dove-gift-set-1.jpg',
+      'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -624,7 +627,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 5.0,
     images: [
-      'https://cdn.shopbd.com/products/pran-chinigura-5kg-1.jpg',
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -644,7 +647,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 0.200,
     images: [
-      'https://cdn.shopbd.com/products/aci-turmeric-200g-1.jpg',
+      'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -664,9 +667,9 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.187,
     images: [
-      'https://cdn.shopbd.com/products/iphone15pro-1.jpg',
-      'https://cdn.shopbd.com/products/iphone15pro-2.jpg',
-      'https://cdn.shopbd.com/products/iphone15pro-3.jpg',
+      'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: '128GB - Natural Titanium', sku: 'APL-IP15P-128-NAT', price: 159999, quantity: 10 },
@@ -691,8 +694,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 0.250,
     images: [
-      'https://cdn.shopbd.com/products/sony-xm5-1.jpg',
-      'https://cdn.shopbd.com/products/sony-xm5-2.jpg',
+      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: 'Black', sku: 'SNY-XM5-BLK', price: 32999, quantity: 20 },
@@ -716,7 +719,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: true,
     weight: 8.3,
     images: [
-      'https://cdn.shopbd.com/products/samsung-tv43-1.jpg',
+      'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -736,7 +739,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 0.192,
     images: [
-      'https://cdn.shopbd.com/products/realme-c67-1.jpg',
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -757,7 +760,7 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 52.0,
     images: [
-      'https://cdn.shopbd.com/products/walton-fridge-1.jpg',
+      'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
@@ -777,8 +780,8 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 0.900,
     images: [
-      'https://cdn.shopbd.com/products/aarong-messenger-1.jpg',
-      'https://cdn.shopbd.com/products/aarong-messenger-2.jpg',
+      'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop&q=80',
     ],
     variants: [
       { name: 'Brown', sku: 'ARG-BAG-MSG-BRN', price: 5800, quantity: 25 },
@@ -802,7 +805,687 @@ const PRODUCTS: ProductSeed[] = [
     isFeatured: false,
     weight: 0.190,
     images: [
-      'https://cdn.shopbd.com/products/vivo-y28-1.jpg',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  // Baby & Kids
+  {
+    name: 'Huggies Wonder Pants L (42 pcs)',
+    slug: 'huggies-wonder-pants-l-42',
+    description: 'Huggies Wonder Pants diapers size L (9-14kg), 42 pieces. Double leak guard, bubble bed softness, up to 12 hours absorption. Gentle on baby skin.',
+    shortDescription: '42 pcs, size L, 12hr absorption, bubble bed',
+    sku: 'HUG-WP-L42-001',
+    price: 1350,
+    compareAtPrice: 1500,
+    costPrice: 1050,
+    quantity: 400,
+    categorySlug: 'diapers-wipes',
+    brandSlug: 'huggies',
+    tags: ['huggies', 'diapers', 'baby', 'pants'],
+    isFeatured: false,
+    weight: 1.5,
+    images: ['https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Kids Educational Building Blocks (150 pcs)',
+    slug: 'kids-building-blocks-150',
+    description: 'Colorful educational building blocks set with 150 pieces. BPA-free, non-toxic ABS plastic. Stimulates creativity and motor skills. Ages 3+.',
+    shortDescription: '150 pcs, BPA-free, educational, ages 3+',
+    sku: 'TOY-BLKS-150-001',
+    price: 899,
+    compareAtPrice: 1200,
+    costPrice: 550,
+    quantity: 200,
+    categorySlug: 'toys',
+    tags: ['toys', 'educational', 'blocks', 'kids'],
+    isFeatured: false,
+    weight: 0.8,
+    images: ['https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&h=800&fit=crop&q=80'],
+  },
+  // Sports & Outdoors
+  {
+    name: 'Adidas Ultraboost Running Shoes',
+    slug: 'adidas-ultraboost-running',
+    description: 'Adidas Ultraboost running shoes with responsive BOOST midsole, Primeknit upper, Continental rubber outsole. Lightweight and breathable for maximum comfort.',
+    shortDescription: 'BOOST midsole, Primeknit, Continental rubber',
+    sku: 'ADI-UB-RUN-001',
+    price: 16999,
+    compareAtPrice: 19999,
+    costPrice: 12000,
+    quantity: 80,
+    categorySlug: 'sports-outdoors',
+    brandSlug: 'adidas',
+    tags: ['adidas', 'running', 'shoes', 'ultraboost', 'sports'],
+    isFeatured: true,
+    weight: 0.650,
+    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=800&fit=crop&q=80', 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Professional Yoga Mat with Bag',
+    slug: 'professional-yoga-mat',
+    description: 'Premium 6mm thick TPE yoga mat with alignment lines and carrying bag. Non-slip, eco-friendly, moisture resistant. Perfect for yoga, pilates, and home workouts.',
+    shortDescription: '6mm TPE, non-slip, alignment lines, with bag',
+    sku: 'SPT-YOGA-MAT-001',
+    price: 1499,
+    compareAtPrice: 1999,
+    costPrice: 800,
+    quantity: 150,
+    categorySlug: 'sports-outdoors',
+    tags: ['yoga', 'mat', 'fitness', 'exercise'],
+    isFeatured: false,
+    weight: 1.2,
+    images: ['https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&h=800&fit=crop&q=80'],
+  },
+  // Books & Stationery
+  {
+    name: 'Classic Leather-Bound Journal',
+    slug: 'leather-bound-journal',
+    description: 'Handmade leather-bound journal with 200 pages of premium unlined paper. Vintage brass clasp, A5 size. Perfect for writing, sketching, or journaling.',
+    shortDescription: 'A5 leather, 200 pages, brass clasp, handmade',
+    sku: 'BKS-JRNL-LTH-001',
+    price: 650,
+    compareAtPrice: 850,
+    costPrice: 350,
+    quantity: 120,
+    categorySlug: 'books-stationery',
+    tags: ['journal', 'leather', 'notebook', 'stationery'],
+    isFeatured: false,
+    weight: 0.350,
+    images: ['https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Premium Fountain Pen Gift Set',
+    slug: 'premium-fountain-pen-set',
+    description: 'Elegant fountain pen gift set with brass body, iridium nib, and 6 ink cartridges. Comes in a luxurious gift box. Perfect for signatures and calligraphy.',
+    shortDescription: 'Brass body, iridium nib, 6 cartridges, gift box',
+    sku: 'BKS-PEN-FTN-001',
+    price: 1200,
+    compareAtPrice: 1500,
+    costPrice: 700,
+    quantity: 80,
+    categorySlug: 'books-stationery',
+    tags: ['pen', 'fountain', 'gift', 'stationery', 'calligraphy'],
+    isFeatured: false,
+    weight: 0.200,
+    images: ['https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=800&h=800&fit=crop&q=80'],
+  },
+  // Home Decor / Furniture
+  {
+    name: 'Hatil Elegant Wooden Dining Table',
+    slug: 'hatil-wooden-dining-table',
+    description: 'Hatil 6-seater wooden dining table crafted from premium Segun wood. Modern minimalist design with smooth lacquer finish. Made in Bangladesh. 5-year warranty.',
+    shortDescription: '6-seater, Segun wood, 5yr warranty, Made in BD',
+    sku: 'HAT-DT6-SEG-001',
+    price: 45000,
+    compareAtPrice: 52000,
+    costPrice: 32000,
+    quantity: 15,
+    categorySlug: 'furniture',
+    brandSlug: 'hatil',
+    tags: ['hatil', 'dining-table', 'furniture', 'wood', 'made-in-bangladesh'],
+    isFeatured: true,
+    weight: 35.0,
+    images: ['https://images.unsplash.com/photo-1617806118233-18e1de247200?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Decorative Wall Mirror Round Gold',
+    slug: 'decorative-wall-mirror-gold',
+    description: 'Elegant round wall mirror with gold metal frame. 60cm diameter. Adds a touch of luxury to living rooms, bedrooms, or entryways. Easy wall mount included.',
+    shortDescription: '60cm round, gold frame, wall mount included',
+    sku: 'DEC-MIR-RND-001',
+    price: 3500,
+    compareAtPrice: 4200,
+    costPrice: 2200,
+    quantity: 50,
+    categorySlug: 'home-decor',
+    tags: ['mirror', 'decor', 'gold', 'wall', 'living-room'],
+    isFeatured: false,
+    weight: 3.5,
+    images: ['https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&h=800&fit=crop&q=80'],
+  },
+  // Makeup / Hair Care / Jewelry
+  {
+    name: 'MAC Matte Lipstick Collection',
+    slug: 'mac-matte-lipstick-collection',
+    description: 'MAC retro matte lipstick set of 3 shades — Ruby Woo, Velvet Teddy, and Diva. Creamy matte finish, long-lasting color, comfortable wear.',
+    shortDescription: '3 shades, retro matte, long-lasting',
+    sku: 'BH-MAC-LIP-001',
+    price: 4500,
+    compareAtPrice: 5400,
+    costPrice: 3200,
+    quantity: 60,
+    categorySlug: 'makeup',
+    tags: ['mac', 'lipstick', 'matte', 'makeup', 'beauty'],
+    isFeatured: false,
+    weight: 0.150,
+    images: ['https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Gold Plated Pearl Necklace Set',
+    slug: 'gold-pearl-necklace-set',
+    description: '18K gold-plated pearl necklace and earring set. Genuine freshwater pearls, adjustable chain (16-20 inches). Elegant design perfect for weddings and special occasions.',
+    shortDescription: '18K gold-plated, freshwater pearls, adjustable',
+    sku: 'JWL-PRL-SET-001',
+    price: 2800,
+    compareAtPrice: 3500,
+    costPrice: 1500,
+    quantity: 70,
+    categorySlug: 'jewelry',
+    tags: ['jewelry', 'necklace', 'pearl', 'gold', 'wedding'],
+    isFeatured: true,
+    weight: 0.080,
+    images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&h=800&fit=crop&q=80'],
+  },
+  // Tablets / Smart Watches / Cameras
+  {
+    name: 'Samsung Galaxy Tab S9 FE',
+    slug: 'samsung-galaxy-tab-s9-fe',
+    description: 'Samsung Galaxy Tab S9 FE with 10.9" LCD display, Exynos 1380, 6GB RAM, 128GB storage, S Pen included. IP68 water resistant, 8000mAh battery.',
+    shortDescription: '10.9" LCD, S Pen included, IP68, 8000mAh',
+    sku: 'SAM-TABS9FE-001',
+    price: 44999,
+    compareAtPrice: 49999,
+    costPrice: 37000,
+    quantity: 40,
+    categorySlug: 'tablets',
+    brandSlug: 'samsung',
+    tags: ['samsung', 'tablet', 'galaxy-tab', 's-pen'],
+    isFeatured: true,
+    weight: 0.523,
+    images: ['https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Canon EOS R50 Mirrorless Camera',
+    slug: 'canon-eos-r50-mirrorless',
+    description: 'Canon EOS R50 with 24.2MP APS-C sensor, 4K video, DIGIC X processor, 15fps burst shooting. Compact and lightweight body with RF-S 18-45mm lens kit.',
+    shortDescription: '24.2MP, 4K, DIGIC X, 15fps, with 18-45mm lens',
+    sku: 'CAN-R50-KIT-001',
+    price: 89999,
+    compareAtPrice: 99999,
+    costPrice: 72000,
+    quantity: 20,
+    categorySlug: 'cameras',
+    brandSlug: 'canon',
+    tags: ['canon', 'mirrorless', 'camera', '4k', 'photography'],
+    isFeatured: true,
+    weight: 0.375,
+    images: ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&h=800&fit=crop&q=80', 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=800&fit=crop&q=80'],
+  },
+  // Snacks / Beverages
+  {
+    name: 'Pran Frooto Mango Juice 1L (6 Pack)',
+    slug: 'pran-frooto-mango-juice-6pack',
+    description: 'Pran Frooto mango juice drink, 1 liter pack of 6. Made from real mango pulp with no artificial colors. Refreshing and naturally delicious.',
+    shortDescription: '6x 1L, real mango pulp, no artificial colors',
+    sku: 'PRN-FROOT-1L-6PK',
+    price: 480,
+    compareAtPrice: 540,
+    costPrice: 360,
+    quantity: 300,
+    categorySlug: 'beverages',
+    brandSlug: 'pran',
+    tags: ['pran', 'juice', 'mango', 'frooto', 'beverage'],
+    isFeatured: false,
+    weight: 6.5,
+    images: ['https://images.unsplash.com/photo-1546173159-315724a31696?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Premium Mixed Nuts & Dry Fruits 500g',
+    slug: 'premium-mixed-nuts-500g',
+    description: 'Premium mix of cashews, almonds, pistachios, raisins and dried cranberries. Roasted and lightly salted. Packed in resealable pouch. Healthy snacking choice.',
+    shortDescription: '500g, 5 varieties, roasted, resealable pouch',
+    sku: 'GRC-NUTS-MIX-500',
+    price: 950,
+    compareAtPrice: 1100,
+    costPrice: 650,
+    quantity: 200,
+    categorySlug: 'snacks',
+    tags: ['nuts', 'dry-fruits', 'snacks', 'healthy', 'premium'],
+    isFeatured: false,
+    weight: 0.500,
+    images: ['https://images.unsplash.com/photo-1599599810694-b5b37304c041?w=800&h=800&fit=crop&q=80'],
+  },
+  // Additional fashion/electronics
+  {
+    name: 'Apple Watch Series 9 GPS',
+    slug: 'apple-watch-series-9-gps',
+    description: 'Apple Watch Series 9 with S9 chip, bright Always-On Retina display, blood oxygen sensor, ECG, crash detection. Double tap gesture. 45mm aluminum case.',
+    shortDescription: 'S9 chip, Always-On, SpO2, ECG, 45mm',
+    sku: 'APL-AWS9-45-001',
+    price: 59999,
+    compareAtPrice: 64999,
+    costPrice: 50000,
+    quantity: 35,
+    categorySlug: 'smart-watches',
+    brandSlug: 'apple',
+    tags: ['apple', 'watch', 'smartwatch', 'fitness', 'health'],
+    isFeatured: true,
+    weight: 0.039,
+    images: ['https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Adidas Classic Backpack',
+    slug: 'adidas-classic-backpack',
+    description: 'Adidas classic backpack with padded laptop compartment, front zip pocket, and adjustable padded straps. Recycled polyester exterior. 25L capacity.',
+    shortDescription: '25L, laptop pocket, recycled polyester',
+    sku: 'ADI-BP-CLS-001',
+    price: 3200,
+    compareAtPrice: 3800,
+    costPrice: 2000,
+    quantity: 100,
+    categorySlug: 'bags',
+    brandSlug: 'adidas',
+    tags: ['adidas', 'backpack', 'bag', 'laptop', 'sports'],
+    isFeatured: false,
+    weight: 0.450,
+    images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Samsung Galaxy Buds2 Pro',
+    slug: 'samsung-galaxy-buds2-pro',
+    description: 'Samsung Galaxy Buds2 Pro with intelligent ANC, Hi-Fi 24bit audio, 360 Audio, IPX7 water resistant, up to 29hrs battery with case. Seamless Galaxy ecosystem.',
+    shortDescription: 'Hi-Fi ANC, 360 Audio, IPX7, 29hr battery',
+    sku: 'SAM-BUDS2P-001',
+    price: 14999,
+    compareAtPrice: 17999,
+    costPrice: 11000,
+    quantity: 70,
+    categorySlug: 'headphones',
+    brandSlug: 'samsung',
+    tags: ['samsung', 'earbuds', 'anc', 'wireless', 'buds'],
+    isFeatured: false,
+    weight: 0.006,
+    images: ['https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Unilever TRESemme Keratin Shampoo 580ml',
+    slug: 'tresemme-keratin-shampoo-580ml',
+    description: 'TRESemme Keratin Smooth shampoo 580ml. Infused with Keratin and Argan oil for 5 benefits: frizz control, smooth, shine, soft, manageable. Salon-quality hair care.',
+    shortDescription: '580ml, keratin + argan oil, 5 benefits',
+    sku: 'UNI-TRES-KS-580',
+    price: 520,
+    compareAtPrice: 599,
+    costPrice: 380,
+    quantity: 250,
+    categorySlug: 'hair-care',
+    brandSlug: 'unilever',
+    tags: ['tresemme', 'shampoo', 'keratin', 'hair-care'],
+    isFeatured: false,
+    weight: 0.620,
+    images: ['https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=800&h=800&fit=crop&q=80'],
+  },
+  // ──── Additional Products ─────────────────────────────────────────────────
+  {
+    name: 'Nike Air Max 270 Sneakers',
+    slug: 'nike-air-max-270-sneakers',
+    description: 'Nike Air Max 270 with the largest-ever Max Air unit for a soft, comfortable ride. Mesh upper for breathability, foam midsole, and rubber outsole for traction.',
+    shortDescription: 'Max Air unit, mesh upper, foam midsole',
+    sku: 'NIK-AM270-001',
+    price: 14999,
+    compareAtPrice: 17999,
+    costPrice: 10000,
+    quantity: 90,
+    categorySlug: 'shoes',
+    tags: ['nike', 'sneakers', 'air-max', 'shoes', 'sports'],
+    isFeatured: true,
+    weight: 0.340,
+    images: [
+      'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'OnePlus 12 5G',
+    slug: 'oneplus-12-5g',
+    description: 'OnePlus 12 5G with Snapdragon 8 Gen 3, 6.82" 2K LTPO AMOLED 120Hz, Hasselblad 50MP triple camera, 5400mAh with 100W SUPERVOOC. Flagship killer.',
+    shortDescription: 'SD 8 Gen 3, 2K AMOLED, Hasselblad Camera, 100W',
+    sku: 'OP-12-5G-001',
+    price: 79999,
+    compareAtPrice: 89999,
+    costPrice: 65000,
+    quantity: 40,
+    categorySlug: 'smartphones',
+    tags: ['oneplus', 'flagship', '5g', 'smartphone', 'hasselblad'],
+    isFeatured: true,
+    weight: 0.220,
+    images: [
+      'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Logitech MX Master 3S Mouse',
+    slug: 'logitech-mx-master-3s',
+    description: 'Logitech MX Master 3S wireless mouse with 8K DPI tracking, quiet clicks, MagSpeed scroll wheel, USB-C quick charge. Works on glass. Multi-device with Easy-Switch.',
+    shortDescription: '8K DPI, quiet clicks, MagSpeed, USB-C',
+    sku: 'LOG-MXM3S-001',
+    price: 9999,
+    compareAtPrice: 12999,
+    costPrice: 7500,
+    quantity: 60,
+    categorySlug: 'electronics',
+    tags: ['logitech', 'mouse', 'wireless', 'productivity', 'ergonomic'],
+    isFeatured: false,
+    weight: 0.141,
+    images: [
+      'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Embroidered Silk Kameez Set',
+    slug: 'embroidered-silk-kameez-set',
+    description: 'Luxurious embroidered silk kameez with matching dupatta and palazzo. Intricate thread and sequin work. Available in emerald green and royal maroon. Perfect for weddings and Eid.',
+    descriptionBn: 'দারুণ এমব্রয়ডারি করা সিল্ক কামিজ সেট। ম্যাচিং দুপাট্টা ও পালাজো সহ।',
+    shortDescription: 'Silk, embroidered, 3-piece set, festive',
+    sku: 'FSH-SILK-KMZ-001',
+    price: 6500,
+    compareAtPrice: 8500,
+    costPrice: 3800,
+    quantity: 50,
+    categorySlug: 'womens-clothing',
+    brandSlug: 'aarong',
+    tags: ['silk', 'kameez', 'embroidered', 'wedding', 'eid', 'women'],
+    isFeatured: true,
+    weight: 0.600,
+    images: [
+      'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Havit Gaming Mechanical Keyboard',
+    slug: 'havit-gaming-mechanical-keyboard',
+    description: 'Havit mechanical gaming keyboard with RGB backlighting, blue switches, anti-ghosting keys, metal body. USB wired with braided cable. Perfect for gaming and typing.',
+    shortDescription: 'Mechanical blue switch, RGB, anti-ghosting',
+    sku: 'HAV-KB-MECH-001',
+    price: 3499,
+    compareAtPrice: 4499,
+    costPrice: 2200,
+    quantity: 100,
+    categorySlug: 'electronics',
+    tags: ['keyboard', 'mechanical', 'gaming', 'rgb', 'havit'],
+    isFeatured: false,
+    weight: 0.850,
+    images: [
+      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Wooden Bookshelf 5 Tier',
+    slug: 'wooden-bookshelf-5-tier',
+    description: 'Modern 5-tier wooden bookshelf with industrial metal frame. Holds books, plants, and decor. Dimensions: 150cm H x 80cm W x 30cm D. Easy assembly with instructions.',
+    shortDescription: '5 tiers, wood & metal, 150x80x30cm',
+    sku: 'FRN-BKSHF-5T-001',
+    price: 8500,
+    compareAtPrice: 10500,
+    costPrice: 5200,
+    quantity: 30,
+    categorySlug: 'furniture',
+    brandSlug: 'hatil',
+    tags: ['bookshelf', 'furniture', 'wood', 'storage', 'modern'],
+    isFeatured: false,
+    weight: 18.0,
+    images: [
+      'https://images.unsplash.com/photo-1594620302200-9a762244a156?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Ray-Ban Aviator Sunglasses',
+    slug: 'ray-ban-aviator-sunglasses',
+    description: 'Classic Ray-Ban Aviator sunglasses with gold metal frame, green G-15 lenses, 100% UV protection. Iconic pilot shape. Includes Ray-Ban case and cleaning cloth.',
+    shortDescription: 'Gold frame, G-15 lens, 100% UV, iconic pilot',
+    sku: 'RB-AVIA-GLD-001',
+    price: 12999,
+    compareAtPrice: 15999,
+    costPrice: 9000,
+    quantity: 55,
+    categorySlug: 'jewelry',
+    tags: ['ray-ban', 'sunglasses', 'aviator', 'uv-protection'],
+    isFeatured: true,
+    weight: 0.030,
+    images: [
+      'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Organic Green Tea Collection (50 bags)',
+    slug: 'organic-green-tea-50-bags',
+    description: 'Premium organic green tea collection with 5 flavors: jasmine, mint, lemon, chamomile, and classic. 50 individually wrapped tea bags. Rich in antioxidants.',
+    shortDescription: '50 bags, 5 flavors, organic, antioxidant-rich',
+    sku: 'GRC-TEA-GRN-50',
+    price: 450,
+    compareAtPrice: 550,
+    costPrice: 280,
+    quantity: 300,
+    categorySlug: 'beverages',
+    tags: ['tea', 'green-tea', 'organic', 'healthy', 'beverage'],
+    isFeatured: false,
+    weight: 0.200,
+    images: [
+      'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Baby Soft Cotton Romper Set (3 pcs)',
+    slug: 'baby-cotton-romper-set-3pcs',
+    description: '100% organic cotton baby romper set, pack of 3. Soft snap closures, comfortable for all-day wear. Ages 0-12 months. Machine washable. Pastel colors.',
+    shortDescription: '3 pcs, organic cotton, 0-12 months, pastel',
+    sku: 'BBY-ROMP-3PK-001',
+    price: 1299,
+    compareAtPrice: 1699,
+    costPrice: 750,
+    quantity: 150,
+    categorySlug: 'diapers-wipes',
+    tags: ['baby', 'romper', 'cotton', 'organic', 'clothes'],
+    isFeatured: false,
+    weight: 0.300,
+    images: [
+      'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Philips Air Fryer HD9252',
+    slug: 'philips-air-fryer-hd9252',
+    description: 'Philips Essential Air Fryer HD9252 with Rapid Air technology. 4.1L capacity, 1400W. Fry, bake, grill, and roast with up to 90% less fat. Digital touchscreen, 7 presets.',
+    shortDescription: '4.1L, 1400W, 90% less fat, 7 presets',
+    sku: 'PHL-AF-HD9252-001',
+    price: 12999,
+    compareAtPrice: 15999,
+    costPrice: 9500,
+    quantity: 40,
+    categorySlug: 'kitchen-dining',
+    tags: ['philips', 'air-fryer', 'kitchen', 'appliance', 'healthy'],
+    isFeatured: true,
+    weight: 4.5,
+    images: [
+      'https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Cotton Polo T-Shirt (Pack of 3)',
+    slug: 'cotton-polo-tshirt-3pack',
+    description: 'Premium 100% combed cotton polo t-shirts, pack of 3. Colors: navy, white, and olive green. Regular fit, ribbed collar, two-button placket. Sizes M-XXL.',
+    shortDescription: '3 pack, combed cotton, M-XXL, regular fit',
+    sku: 'FSH-POLO-3PK-001',
+    price: 1999,
+    compareAtPrice: 2799,
+    costPrice: 1100,
+    quantity: 200,
+    categorySlug: 'mens-clothing',
+    brandSlug: 'yellow',
+    tags: ['polo', 't-shirt', 'cotton', 'men', 'casual'],
+    isFeatured: false,
+    weight: 0.500,
+    images: [
+      'https://images.unsplash.com/photo-1625910513413-5fc421e0db4e?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'JBL Flip 6 Portable Speaker',
+    slug: 'jbl-flip-6-speaker',
+    description: 'JBL Flip 6 portable Bluetooth speaker with powerful JBL Original Pro Sound, IP67 waterproof and dustproof, 12-hour playtime. PartyBoost for pairing multiple speakers.',
+    shortDescription: 'IP67, 12hr battery, PartyBoost, Pro Sound',
+    sku: 'JBL-FLIP6-001',
+    price: 9499,
+    compareAtPrice: 11999,
+    costPrice: 7000,
+    quantity: 65,
+    categorySlug: 'electronics',
+    brandSlug: 'jbl',
+    tags: ['jbl', 'speaker', 'bluetooth', 'portable', 'waterproof'],
+    isFeatured: true,
+    weight: 0.550,
+    images: [
+      'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Ceramic Plant Pots Set (3 pcs)',
+    slug: 'ceramic-plant-pots-set-3pcs',
+    description: 'Minimalist ceramic plant pots set of 3 with bamboo trays. Sizes: small (10cm), medium (13cm), large (16cm). Drainage holes, matte finish. White, grey, terracotta.',
+    shortDescription: '3 pcs, bamboo trays, matte finish, drainage',
+    sku: 'DEC-POT-CRM-3PK',
+    price: 1299,
+    compareAtPrice: 1699,
+    costPrice: 700,
+    quantity: 80,
+    categorySlug: 'home-decor',
+    tags: ['plant-pot', 'ceramic', 'decor', 'garden', 'minimalist'],
+    isFeatured: false,
+    weight: 1.800,
+    images: [
+      'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Dell UltraSharp 27" 4K Monitor',
+    slug: 'dell-ultrasharp-27-4k-monitor',
+    description: 'Dell UltraSharp U2723QE 27" 4K IPS monitor. 100% sRGB, 98% DCI-P3, USB-C with 90W power delivery, KVM switch, daisy chain. Factory calibrated with ComfortView Plus.',
+    shortDescription: '27" 4K IPS, USB-C 90W, 98% DCI-P3',
+    sku: 'DEL-U2723QE-001',
+    price: 52999,
+    compareAtPrice: 59999,
+    costPrice: 42000,
+    quantity: 25,
+    categorySlug: 'electronics',
+    tags: ['dell', 'monitor', '4k', 'usb-c', 'ultrasharp'],
+    isFeatured: false,
+    weight: 6.6,
+    images: [
+      'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Stainless Steel Water Bottle 750ml',
+    slug: 'stainless-steel-water-bottle-750ml',
+    description: 'Double-wall vacuum insulated stainless steel water bottle. Keeps drinks cold 24hrs / hot 12hrs. BPA-free lid, leak-proof. Powder-coated matte finish.',
+    shortDescription: '750ml, vacuum insulated, 24hr cold, leak-proof',
+    sku: 'SPT-WB-SS-750',
+    price: 699,
+    compareAtPrice: 999,
+    costPrice: 350,
+    quantity: 250,
+    categorySlug: 'sports-outdoors',
+    tags: ['water-bottle', 'stainless-steel', 'insulated', 'sports', 'eco'],
+    isFeatured: false,
+    weight: 0.340,
+    images: [
+      'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Women\'s Running Shoes Ultralight',
+    slug: 'womens-running-shoes-ultralight',
+    description: 'Ultra-lightweight women\'s running shoes with responsive cushioning, breathable mesh upper, rubber outsole. Reflective details for visibility. Perfect for jogging and gym.',
+    shortDescription: 'Ultralight, breathable mesh, responsive cushion',
+    sku: 'SPT-WRS-UL-001',
+    price: 5999,
+    compareAtPrice: 7999,
+    costPrice: 3500,
+    quantity: 70,
+    categorySlug: 'shoes',
+    tags: ['running', 'shoes', 'women', 'ultralight', 'sports'],
+    isFeatured: false,
+    weight: 0.230,
+    images: [
+      'https://images.unsplash.com/photo-1539185441755-769473a23570?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Xiaomi Mi Band 8 Fitness Tracker',
+    slug: 'xiaomi-mi-band-8',
+    description: 'Xiaomi Mi Band 8 with 1.62" AMOLED display, 150+ workout modes, SpO2 monitoring, 16-day battery life, 5ATM water resistant. Sleep and stress tracking.',
+    shortDescription: '1.62" AMOLED, 150+ modes, SpO2, 16-day battery',
+    sku: 'XIA-MB8-001',
+    price: 3499,
+    compareAtPrice: 4499,
+    costPrice: 2200,
+    quantity: 120,
+    categorySlug: 'smart-watches',
+    brandSlug: 'xiaomi',
+    tags: ['xiaomi', 'mi-band', 'fitness', 'tracker', 'smartwatch'],
+    isFeatured: false,
+    weight: 0.027,
+    images: [
+      'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Instant Noodles Variety Box (24 packs)',
+    slug: 'instant-noodles-variety-24pack',
+    description: 'Assorted instant noodles variety box, 24 packs. Includes masala, chicken, prawn, and vegetable flavors from top Bangladeshi brands. Quick meal solution.',
+    shortDescription: '24 packs, 4 flavors, instant, variety box',
+    sku: 'GRC-NDLS-VAR-24',
+    price: 720,
+    compareAtPrice: 840,
+    costPrice: 500,
+    quantity: 400,
+    categorySlug: 'snacks',
+    tags: ['noodles', 'instant', 'snacks', 'variety', 'food'],
+    isFeatured: false,
+    weight: 1.800,
+    images: [
+      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Maybelline Fit Me Foundation',
+    slug: 'maybelline-fit-me-foundation',
+    description: 'Maybelline Fit Me Matte + Poreless foundation. Lightweight oil-free formula, blurs pores, controls shine. Available in 40 shades. Dermatologist tested.',
+    shortDescription: 'Matte + Poreless, oil-free, 40 shades',
+    sku: 'BH-MAYB-FTM-001',
+    price: 1350,
+    compareAtPrice: 1599,
+    costPrice: 900,
+    quantity: 180,
+    categorySlug: 'makeup',
+    tags: ['maybelline', 'foundation', 'matte', 'makeup', 'beauty'],
+    isFeatured: false,
+    weight: 0.110,
+    images: [
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Dettol Antibacterial Handwash 1L (2 Pack)',
+    slug: 'dettol-handwash-1l-2pack',
+    description: 'Dettol antibacterial liquid handwash 1L refill pack of 2. Kills 99.9% germs. Moisturizing formula with glycerin. Suitable for the whole family.',
+    shortDescription: '2x 1L refill, kills 99.9% germs, moisturizing',
+    sku: 'UNI-DETTOL-HW-2PK',
+    price: 550,
+    compareAtPrice: 660,
+    costPrice: 380,
+    quantity: 350,
+    categorySlug: 'skincare',
+    brandSlug: 'unilever',
+    tags: ['dettol', 'handwash', 'antibacterial', 'hygiene'],
+    isFeatured: false,
+    weight: 2.100,
+    images: [
+      'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9e?w=800&h=800&fit=crop&q=80',
     ],
   },
 ];
@@ -823,46 +1506,45 @@ async function seedProducts(brandMap: Record<string, string>) {
 
     const brandId = p.brandSlug ? brandMap[p.brandSlug] ?? null : null;
 
-    // Upsert product
+    // Upsert product (update existing records with latest seed data)
+    const productData = {
+      name: p.name,
+      nameBn: p.nameBn,
+      slug: p.slug,
+      description: p.description,
+      descriptionBn: p.descriptionBn,
+      shortDescription: p.shortDescription,
+      sku: p.sku,
+      price: p.price,
+      compareAtPrice: p.compareAtPrice,
+      costPrice: p.costPrice,
+      quantity: p.quantity,
+      status: 'ACTIVE' as const,
+      categoryId: category.id,
+      brandId,
+      tags: p.tags,
+      isFeatured: p.isFeatured,
+      weight: p.weight,
+      weightUnit: 'kg',
+      averageRating: +(3.5 + Math.random() * 1.4).toFixed(1),
+      totalReviews: Math.floor(10 + Math.random() * 290),
+    };
+
     const product = await prisma.product.upsert({
       where: { slug: p.slug },
-      update: {},
-      create: {
-        name: p.name,
-        nameBn: p.nameBn,
-        slug: p.slug,
-        description: p.description,
-        descriptionBn: p.descriptionBn,
-        shortDescription: p.shortDescription,
-        sku: p.sku,
-        price: p.price,
-        compareAtPrice: p.compareAtPrice,
-        costPrice: p.costPrice,
-        quantity: p.quantity,
-        status: 'ACTIVE',
-        categoryId: category.id,
-        brandId,
-        tags: p.tags,
-        isFeatured: p.isFeatured,
-        weight: p.weight,
-        weightUnit: 'kg',
-        averageRating: 0,
-        totalReviews: 0,
-      },
+      update: productData,
+      create: productData,
     });
 
-    // Seed images
+    // Delete old images for this product, then re-create with current URLs
+    await prisma.productImage.deleteMany({ where: { productId: product.id } });
     for (let i = 0; i < p.images.length; i++) {
-      await prisma.productImage.upsert({
-        where: {
-          id: `seed-img-${p.slug}-${i}`, // Use deterministic ID for upsert
-        },
-        update: {},
-        create: {
+      await prisma.productImage.create({
+        data: {
           id: `seed-img-${p.slug}-${i}`,
           productId: product.id,
           url: p.images[i],
-          thumbnailUrl: p.images[i].replace('.jpg', '-thumb.jpg'),
+          thumbnailUrl: p.images[i].replace('w=800&h=800', 'w=400&h=400'),
           alt: p.name,
           isPrimary: i === 0,
           sortOrder: i,
