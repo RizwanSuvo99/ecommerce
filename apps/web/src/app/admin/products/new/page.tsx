@@ -10,10 +10,15 @@ import {
   ImageIcon,
   Layers,
   Tag,
-  Search as SearchIcon,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { PricingForm } from '@/components/admin/products/pricing-form';
+import { MediaForm } from '@/components/admin/products/media-form';
+import { VariantsForm } from '@/components/admin/products/variants-form';
+import { CategorizationForm } from '@/components/admin/products/categorization-form';
+import { SeoForm } from '@/components/admin/products/seo-form';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -41,6 +46,23 @@ interface ProductFormData {
   isFeatured: boolean;
   metaTitle: string;
   metaDescription: string;
+  options: OptionType[];
+  variants: Variant[];
+}
+
+interface OptionType {
+  id: string;
+  name: string;
+  values: string[];
+}
+
+interface Variant {
+  id: string;
+  options: Record<string, string>;
+  price: number | null;
+  stock: number;
+  sku: string;
+  isActive: boolean;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -107,6 +129,8 @@ export default function AdminProductCreatePage() {
     isFeatured: false,
     metaTitle: '',
     metaDescription: '',
+    options: [],
+    variants: [],
   });
 
   // ─── Form Handlers ────────────────────────────────────────────────
@@ -164,10 +188,12 @@ export default function AdminProductCreatePage() {
         isActive: publish,
       };
 
-      const { data } = await apiClient.post('/admin/products', payload);
-      router.push(`/admin/products/${data.data.id}/edit`);
+      const { data } = await apiClient.post('/products', payload);
+      toast.success('Product created');
+      router.push(`/admin/products/${data.data?.id || data.id}/edit`);
     } catch (err) {
       console.error('Failed to create product:', err);
+      toast.error('Failed to create product');
     } finally {
       setIsSaving(false);
     }
@@ -377,13 +403,59 @@ export default function AdminProductCreatePage() {
         </div>
       )}
 
-      {/* Placeholder for other tabs */}
-      {activeTab !== 'basic' && (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm">
-          <p className="text-sm text-gray-500">
-            {tabs.find((t) => t.id === activeTab)?.label} section will be
-            implemented in upcoming commits.
-          </p>
+      {activeTab === 'pricing' && (
+        <PricingForm
+          data={{
+            price: formData.price,
+            compareAtPrice: formData.compareAtPrice,
+            costPrice: formData.costPrice,
+            stock: formData.stock,
+            lowStockThreshold: formData.lowStockThreshold,
+            weight: formData.weight,
+          }}
+          onChange={(field, value) => updateField(field as keyof ProductFormData, value as never)}
+          errors={errors}
+        />
+      )}
+
+      {activeTab === 'media' && (
+        <MediaForm
+          images={formData.images}
+          onChange={(images) => updateField('images', images)}
+        />
+      )}
+
+      {activeTab === 'variants' && (
+        <VariantsForm
+          options={formData.options}
+          variants={formData.variants}
+          onOptionsChange={(options) => updateField('options', options)}
+          onVariantsChange={(variants) => updateField('variants', variants)}
+          basePrice={formData.price}
+          baseSku={formData.sku}
+        />
+      )}
+
+      {activeTab === 'categorization' && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <CategorizationForm
+            categoryId={formData.categoryId}
+            brandId={formData.brandId}
+            tags={formData.tags}
+            isFeatured={formData.isFeatured}
+            onCategoryChange={(id) => updateField('categoryId', id)}
+            onBrandChange={(id) => updateField('brandId', id)}
+            onTagsChange={(tags) => updateField('tags', tags)}
+            onFeaturedChange={(featured) => updateField('isFeatured', featured)}
+          />
+          <SeoForm
+            metaTitle={formData.metaTitle}
+            metaDescription={formData.metaDescription}
+            slug={formData.slug}
+            productName={formData.name}
+            onMetaTitleChange={(val) => updateField('metaTitle', val)}
+            onMetaDescriptionChange={(val) => updateField('metaDescription', val)}
+          />
         </div>
       )}
     </div>
