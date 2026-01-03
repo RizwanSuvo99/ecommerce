@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Param,
   Query,
   UseGuards,
   HttpCode,
@@ -45,5 +46,16 @@ export class ProductsController {
   @Public()
   async findAll(@Query() filters: ProductFilterDto) {
     return this.productsService.findAll(filters);
+  }
+
+  /**
+   * Get a single product by slug with full details.
+   * Public endpoint - no authentication required.
+   * Increments view count on each access.
+   */
+  @Get(':slug')
+  @Public()
+  async findBySlug(@Param('slug') slug: string) {
+    return this.productsService.findBySlug(slug);
   }
 }

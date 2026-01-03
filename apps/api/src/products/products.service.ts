@@ -190,26 +190,22 @@ export class ProductsService {
     // Build where clause dynamically
     const where: Prisma.ProductWhereInput = {};
 
-    // Status filter (default to ACTIVE for public queries)
     if (status) {
       where.status = status;
     }
 
-    // Category filters
     if (categoryId) {
       where.categoryId = categoryId;
     } else if (categorySlug) {
       where.category = { slug: categorySlug };
     }
 
-    // Brand filters
     if (brandId) {
       where.brandId = brandId;
     } else if (brandSlug) {
       where.brand = { slug: brandSlug };
     }
 
-    // Price range filter
     if (priceMin !== undefined || priceMax !== undefined) {
       where.price = {};
       if (priceMin !== undefined) {
@@ -220,7 +216,6 @@ export class ProductsService {
       }
     }
 
-    // Search filter (name, description, tags)
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -231,22 +226,18 @@ export class ProductsService {
       ];
     }
 
-    // Tag filter
     if (tag) {
       where.tags = { has: tag };
     }
 
-    // Featured filter
     if (isFeatured !== undefined) {
       where.isFeatured = isFeatured;
     }
 
-    // Build orderBy clause
     const orderBy: Prisma.ProductOrderByWithRelationInput = {
       [sortBy]: sortOrder,
     };
 
-    // Execute queries in parallel
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
@@ -291,5 +282,130 @@ export class ProductsService {
         hasPreviousPage: page > 1,
       },
     };
+  }
+
+  /**
+   * Find a single product by its slug, including full details.
+   * Also increments the view count asynchronously.
+   */
+  async findBySlug(slug: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { slug },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            nameBn: true,
+            slug: true,
+            parent: {
+              select: { id: true, name: true, slug: true },
+            },
+          },
+        },
+        brand: {
+          select: { id: true, name: true, nameBn: true, slug: true, logo: true },
+        },
+        variants: {
+          where: { isActive: true },
+          orderBy: { sortOrder: 'asc' },
+          include: {
+            attributeValues: {
+              include: {
+                attribute: {
+                  select: { id: true, name: true, type: true },
+                },
+              },
+            },
+            images: {
+              orderBy: { sortOrder: 'asc' },
+              select: {
+                id: true,
+                url: true,
+                thumbnailUrl: true,
+                alt: true,
+              },
+            },
+          },
+        },
+        attributes: {
+          orderBy: { name: 'asc' },
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            values: true,
+          },
+        },
+        images: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            url: true,
+            thumbnailUrl: true,
+            alt: true,
+            width: true,
+            height: true,
+            isPrimary: true,
+            sortOrder: true,
+            blurHash: true,
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with slug "${slug}" not found`);
+    }
+
+    // Get review aggregate stats
+    const reviewStats = await this.prisma.review.aggregate({
+      where: {
+        productId: product.id,
+        status: 'APPROVED',
+      },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+
+    // Get review distribution (count per rating value)
+    const ratingDistribution = await this.prisma.review.groupBy({
+      by: ['rating'],
+      where: {
+        productId: product.id,
+        status: 'APPROVED',
+      },
+      _count: { rating: true },
+    });
+
+    // Increment view count asynchronously (fire and forget)
+    this.incrementViewCount(product.id).catch((err) => {
+      this.logger.warn(`Failed to increment view count for product ${product.id}: ${err.message}`);
+    });
+
+    return {
+      ...product,
+      reviewSummary: {
+        averageRating: reviewStats._avg.rating ?? 0,
+        totalReviews: reviewStats._count.rating,
+        ratingDistribution: ratingDistribution.reduce(
+          (acc, item) => {
+            acc[item.rating] = item._count.rating;
+            return acc;
+          },
+          {} as Record<number, number>,
+        ),
+      },
+    };
+  }
+
+  /**
+   * Increment the view count of a product.
+   */
+  private async incrementViewCount(productId: string): Promise<void> {
+    await this.prisma.product.update({
+      where: { id: productId },
+      data: { viewCount: { increment: 1 } },
+    });
   }
 }
