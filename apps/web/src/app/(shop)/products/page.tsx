@@ -35,6 +35,7 @@ interface Product {
   brandName: string | null;
   isFeatured?: boolean;
   shortDescription?: string;
+  stock: number;
 }
 
 interface Pagination {
@@ -62,6 +63,7 @@ function normalizeProduct(raw: any): Product {
     brandName: raw.brand?.name ?? raw.brandName ?? null,
     isFeatured: raw.isFeatured ?? false,
     shortDescription: raw.shortDescription ?? null,
+    stock: raw.quantity ?? 0,
   };
 }
 
@@ -218,6 +220,7 @@ export default function ProductsPage() {
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.stock <= 0) return;
     addItem({ productId: product.id, quantity: 1 });
   };
 
@@ -512,14 +515,20 @@ export default function ProductsPage() {
                   </span>
                 )}
               </div>
-              <button
-                onClick={(e) => handleQuickAdd(e, product)}
-                disabled={isUpdating}
-                className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:opacity-50"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Add to Cart
-              </button>
+              {product.stock > 0 ? (
+                <button
+                  onClick={(e) => handleQuickAdd(e, product)}
+                  disabled={isUpdating}
+                  className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:opacity-50"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Add to Cart
+                </button>
+              ) : (
+                <span className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-red-500">
+                  Out of Stock
+                </span>
+              )}
             </div>
           </div>
         </Link>
@@ -579,16 +588,22 @@ export default function ProductsPage() {
           </button>
 
           {/* Quick add to cart */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-            <button
-              onClick={(e) => handleQuickAdd(e, product)}
-              disabled={isUpdating}
-              className="flex w-full items-center justify-center gap-2 bg-teal-600/95 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-teal-700 disabled:opacity-50"
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Add to Cart
-            </button>
-          </div>
+          {product.stock > 0 ? (
+            <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+              <button
+                onClick={(e) => handleQuickAdd(e, product)}
+                disabled={isUpdating}
+                className="flex w-full items-center justify-center gap-2 bg-teal-600/95 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-teal-700 disabled:opacity-50"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Add to Cart
+              </button>
+            </div>
+          ) : (
+            <div className="absolute inset-x-0 bottom-0 bg-gray-900/80 py-2.5 text-center text-sm font-medium text-white backdrop-blur-sm">
+              Out of Stock
+            </div>
+          )}
         </div>
 
         {/* Info */}
