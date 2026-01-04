@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Query,
@@ -12,6 +13,7 @@ import {
 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/product-filter.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -57,5 +59,19 @@ export class ProductsController {
   @Public()
   async findBySlug(@Param('slug') slug: string) {
     return this.productsService.findBySlug(slug);
+  }
+
+  /**
+   * Update an existing product by ID.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Patch(':id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.update(id, updateProductDto);
   }
 }

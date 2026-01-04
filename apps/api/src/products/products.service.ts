@@ -7,6 +7,7 @@ import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto, ProductSortBy, SortOrder } from './dto/product-filter.dto';
 
 @Injectable()
@@ -50,7 +51,7 @@ export class ProductsService {
   /**
    * Ensures slug uniqueness by appending a counter if necessary.
    */
-  private async ensureUniqueSlug(slug: string): Promise<string> {
+  private async ensureUniqueSlug(slug: string, excludeId?: string): Promise<string> {
     let currentSlug = slug;
     let counter = 0;
 
@@ -60,7 +61,7 @@ export class ProductsService {
         select: { id: true },
       });
 
-      if (!existing) {
+      if (!existing || existing.id === excludeId) {
         return currentSlug;
       }
 
@@ -187,7 +188,6 @@ export class ProductsService {
 
     const skip = (page - 1) * limit;
 
-    // Build where clause dynamically
     const where: Prisma.ProductWhereInput = {};
 
     if (status) {
@@ -358,7 +358,6 @@ export class ProductsService {
       throw new NotFoundException(`Product with slug "${slug}" not found`);
     }
 
-    // Get review aggregate stats
     const reviewStats = await this.prisma.review.aggregate({
       where: {
         productId: product.id,
@@ -368,7 +367,6 @@ export class ProductsService {
       _count: { rating: true },
     });
 
-    // Get review distribution (count per rating value)
     const ratingDistribution = await this.prisma.review.groupBy({
       by: ['rating'],
       where: {
@@ -407,5 +405,111 @@ export class ProductsService {
       where: { id: productId },
       data: { viewCount: { increment: 1 } },
     });
+  }
+
+  /**
+   * Update an existing product by ID.
+   * If the name changes, regenerate the slug.
+   */
+  async update(id: string, dto: UpdateProductDto) {
+    this.logger.log(`Updating product: ${id}`);
+
+    // Verify the product exists
+    const existing = await this.prisma.product.findUnique({
+      where: { id },
+      select: { id: true, name: true, slug: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
+
+    // Build update data
+    const updateData: Prisma.ProductUpdateInput = {};
+
+    if (dto.name !== undefined) {
+      updateData.name = dto.name;
+
+      // Regenerate slug when name changes
+      if (dto.name !== existing.name) {
+        const rawSlug = this.generateSlug(dto.name);
+        updateData.slug = await this.ensureUniqueSlug(rawSlug, id);
+      }
+    }
+
+    if (dto.nameBn !== undefined) updateData.nameBn = dto.nameBn;
+    if (dto.description !== undefined) updateData.description = dto.description;
+    if (dto.descriptionBn !== undefined) updateData.descriptionBn = dto.descriptionBn;
+    if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription;
+    if (dto.price !== undefined) updateData.price = dto.price;
+    if (dto.compareAtPrice !== undefined) updateData.compareAtPrice = dto.compareAtPrice;
+    if (dto.costPrice !== undefined) updateData.costPrice = dto.costPrice;
+    if (dto.quantity !== undefined) updateData.quantity = dto.quantity;
+    if (dto.status !== undefined) updateData.status = dto.status;
+    if (dto.tags !== undefined) updateData.tags = dto.tags;
+    if (dto.weight !== undefined) updateData.weight = dto.weight;
+    if (dto.weightUnit !== undefined) updateData.weightUnit = dto.weightUnit;
+    if (dto.length !== undefined) updateData.length = dto.length;
+    if (dto.width !== undefined) updateData.width = dto.width;
+    if (dto.height !== undefined) updateData.height = dto.height;
+    if (dto.isFeatured !== undefined) updateData.isFeatured = dto.isFeatured;
+    if (dto.isDigital !== undefined) updateData.isDigital = dto.isDigital;
+    if (dto.metaTitle !== undefined) updateData.metaTitle = dto.metaTitle;
+    if (dto.metaDescription !== undefined) updateData.metaDescription = dto.metaDescription;
+
+    // Handle category update
+    if (dto.categoryId !== undefined) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: dto.categoryId },
+        select: { id: true },
+      });
+
+      if (!category) {
+        throw new NotFoundException(`Category with ID "${dto.categoryId}" not found`);
+      }
+
+      updateData.category = { connect: { id: dto.categoryId } };
+    }
+
+    // Handle brand update
+    if (dto.brandId !== undefined) {
+      if (dto.brandId) {
+        const brand = await this.prisma.brand.findUnique({
+          where: { id: dto.brandId },
+          select: { id: true },
+        });
+
+        if (!brand) {
+          throw new NotFoundException(`Brand with ID "${dto.brandId}" not found`);
+        }
+
+        updateData.brand = { connect: { id: dto.brandId } };
+      } else {
+        // Disconnect brand if brandId is explicitly set to null/empty
+        updateData.brand = { disconnect: true };
+      }
+    }
+
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: updateData,
+      include: {
+        category: {
+          select: { id: true, name: true, slug: true },
+        },
+        brand: {
+          select: { id: true, name: true, slug: true },
+        },
+        images: {
+          orderBy: { sortOrder: 'asc' },
+        },
+        _count: {
+          select: { reviews: true, variants: true },
+        },
+      },
+    });
+
+    this.logger.log(`Product updated: ${product.id} (${product.slug})`);
+    return product;
   }
 }
