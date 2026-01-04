@@ -13,6 +13,7 @@ import {
 import { Request } from 'express';
 
 import { AuthService } from './auth.service';
+import { SocialAuthService } from './social-auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -21,6 +22,9 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { GoogleAuthDto } from './dto/google-auth.dto';
+import { FacebookAuthDto } from './dto/facebook-auth.dto';
+import { PhoneAuthDto } from './dto/phone-auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser, AuthenticatedUser } from './decorators/current-user.decorator';
 
@@ -28,7 +32,70 @@ import { CurrentUser, AuthenticatedUser } from './decorators/current-user.decora
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly socialAuthService: SocialAuthService,
+  ) {}
+
+  /**
+   * POST /auth/google
+   * Authenticate with Google ID token.
+   */
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  async googleLogin(@Body() dto: GoogleAuthDto) {
+    const result = await this.socialAuthService.googleLogin(dto.idToken, dto.accessToken);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Google login successful',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+    };
+  }
+
+  /**
+   * POST /auth/facebook
+   * Authenticate with Facebook access token.
+   */
+  @Post('facebook')
+  @HttpCode(HttpStatus.OK)
+  async facebookLogin(@Body() dto: FacebookAuthDto) {
+    const result = await this.socialAuthService.facebookLogin(dto.accessToken);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Facebook login successful',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+    };
+  }
+
+  /**
+   * POST /auth/phone
+   * Authenticate with Firebase phone ID token.
+   */
+  @Post('phone')
+  @HttpCode(HttpStatus.OK)
+  async phoneLogin(@Body() dto: PhoneAuthDto) {
+    const result = await this.socialAuthService.phoneLogin(dto.idToken);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Phone login successful',
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+    };
+  }
 
   /**
    * POST /auth/register
