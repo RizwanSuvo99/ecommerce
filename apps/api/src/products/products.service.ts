@@ -2,6 +2,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
@@ -376,7 +377,6 @@ export class ProductsService {
       _count: { rating: true },
     });
 
-    // Increment view count asynchronously (fire and forget)
     this.incrementViewCount(product.id).catch((err) => {
       this.logger.warn(`Failed to increment view count for product ${product.id}: ${err.message}`);
     });
@@ -414,7 +414,6 @@ export class ProductsService {
   async update(id: string, dto: UpdateProductDto) {
     this.logger.log(`Updating product: ${id}`);
 
-    // Verify the product exists
     const existing = await this.prisma.product.findUnique({
       where: { id },
       select: { id: true, name: true, slug: true },
@@ -424,13 +423,11 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
 
-    // Build update data
     const updateData: Prisma.ProductUpdateInput = {};
 
     if (dto.name !== undefined) {
       updateData.name = dto.name;
 
-      // Regenerate slug when name changes
       if (dto.name !== existing.name) {
         const rawSlug = this.generateSlug(dto.name);
         updateData.slug = await this.ensureUniqueSlug(rawSlug, id);
@@ -457,7 +454,6 @@ export class ProductsService {
     if (dto.metaTitle !== undefined) updateData.metaTitle = dto.metaTitle;
     if (dto.metaDescription !== undefined) updateData.metaDescription = dto.metaDescription;
 
-    // Handle category update
     if (dto.categoryId !== undefined) {
       const category = await this.prisma.category.findUnique({
         where: { id: dto.categoryId },
@@ -471,7 +467,6 @@ export class ProductsService {
       updateData.category = { connect: { id: dto.categoryId } };
     }
 
-    // Handle brand update
     if (dto.brandId !== undefined) {
       if (dto.brandId) {
         const brand = await this.prisma.brand.findUnique({
@@ -485,7 +480,6 @@ export class ProductsService {
 
         updateData.brand = { connect: { id: dto.brandId } };
       } else {
-        // Disconnect brand if brandId is explicitly set to null/empty
         updateData.brand = { disconnect: true };
       }
     }
@@ -511,5 +505,83 @@ export class ProductsService {
 
     this.logger.log(`Product updated: ${product.id} (${product.slug})`);
     return product;
+  }
+
+  /**
+   * Archive a product (soft delete by setting status to ARCHIVED).
+   */
+  async archive(id: string) {
+    this.logger.log(`Archiving product: ${id}`);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
+
+    if (product.status === 'ARCHIVED') {
+      this.logger.warn(`Product ${id} is already archived`);
+      return this.prisma.product.findUnique({
+        where: { id },
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          brand: { select: { id: true, name: true, slug: true } },
+        },
+      });
+    }
+
+    const archived = await this.prisma.product.update({
+      where: { id },
+      data: { status: 'ARCHIVED' },
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        brand: { select: { id: true, name: true, slug: true } },
+      },
+    });
+
+    this.logger.log(`Product archived: ${id}`);
+    return archived;
+  }
+
+  /**
+   * Permanently delete a product and all related records.
+   * This action is irreversible and restricted to SUPER_ADMIN.
+   */
+  async permanentDelete(id: string) {
+    this.logger.log(`Permanently deleting product: ${id}`);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        _count: {
+          select: { orderItems: true },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
+
+    // Prevent deletion if the product has associated order items
+    if (product._count.orderItems > 0) {
+      throw new ForbiddenException(
+        `Cannot permanently delete product "${product.name}" because it has ${product._count.orderItems} associated order item(s). Archive it instead.`,
+      );
+    }
+
+    // Delete the product (cascading deletes will handle variants, images, attributes, etc.)
+    await this.prisma.product.delete({
+      where: { id },
+    });
+
+    this.logger.log(`Product permanently deleted: ${id} (${product.slug})`);
+    return { deleted: true, id, name: product.name };
   }
 }

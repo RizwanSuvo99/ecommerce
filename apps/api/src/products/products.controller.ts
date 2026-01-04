@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -73,5 +74,29 @@ export class ProductsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.productsService.update(id, updateProductDto);
+  }
+
+  /**
+   * Delete a product by ID.
+   * By default, this archives the product (soft delete).
+   * Pass ?permanent=true to permanently delete (SUPER_ADMIN only).
+   */
+  @Delete(':id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async delete(
+    @Param('id') id: string,
+    @Query('permanent') permanent: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    if (permanent === 'true') {
+      // Only SUPER_ADMIN can permanently delete
+      if (user.role !== 'SUPER_ADMIN') {
+        throw new Error('Only SUPER_ADMIN can permanently delete products');
+      }
+      return this.productsService.permanentDelete(id);
+    }
+
+    return this.productsService.archive(id);
   }
 }
