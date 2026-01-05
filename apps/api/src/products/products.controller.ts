@@ -16,6 +16,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/product-filter.dto';
+import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -26,6 +27,8 @@ import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  // ─── Product Endpoints ──────────────────────────────────────────────────────
 
   /**
    * Create a new product.
@@ -54,7 +57,6 @@ export class ProductsController {
   /**
    * Get a single product by slug with full details.
    * Public endpoint - no authentication required.
-   * Increments view count on each access.
    */
   @Get(':slug')
   @Public()
@@ -90,7 +92,6 @@ export class ProductsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (permanent === 'true') {
-      // Only SUPER_ADMIN can permanently delete
       if (user.role !== 'SUPER_ADMIN') {
         throw new Error('Only SUPER_ADMIN can permanently delete products');
       }
@@ -98,5 +99,52 @@ export class ProductsController {
     }
 
     return this.productsService.archive(id);
+  }
+
+  // ─── Variant Endpoints ──────────────────────────────────────────────────────
+
+  /**
+   * Create a new variant for a product.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Post(':id/variants')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.CREATED)
+  async createVariant(
+    @Param('id') productId: string,
+    @Body() createVariantDto: CreateVariantDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.createVariant(productId, createVariantDto);
+  }
+
+  /**
+   * Update an existing variant.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Patch(':id/variants/:variantId')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async updateVariant(
+    @Param('id') productId: string,
+    @Param('variantId') variantId: string,
+    @Body() updateVariantDto: UpdateVariantDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.updateVariant(productId, variantId, updateVariantDto);
+  }
+
+  /**
+   * Delete a variant from a product.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Delete(':id/variants/:variantId')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async deleteVariant(
+    @Param('id') productId: string,
+    @Param('variantId') variantId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.deleteVariant(productId, variantId);
   }
 }

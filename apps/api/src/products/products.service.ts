@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto, ProductSortBy, SortOrder } from './dto/product-filter.dto';
+import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
 
 @Injectable()
 export class ProductsService {
@@ -17,9 +18,10 @@ export class ProductsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  // ─── Utility Methods ────────────────────────────────────────────────────────
+
   /**
    * Generates a URL-friendly slug from a product name.
-   * Appends a random suffix to ensure uniqueness.
    */
   generateSlug(name: string): string {
     const baseSlug = name
@@ -50,8 +52,23 @@ export class ProductsService {
   }
 
   /**
-   * Ensures slug uniqueness by appending a counter if necessary.
+   * Generates a variant SKU from the product slug and attribute values.
    */
+  generateVariantSku(productSlug: string, attributeValues: string[]): string {
+    const base = productSlug
+      .toUpperCase()
+      .replace(/-/g, '')
+      .substring(0, 6);
+
+    const attrPart = attributeValues
+      .map((v) => v.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 3))
+      .join('-');
+
+    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+
+    return attrPart ? `${base}-${attrPart}-${random}` : `${base}-VAR-${random}`;
+  }
+
   private async ensureUniqueSlug(slug: string, excludeId?: string): Promise<string> {
     let currentSlug = slug;
     let counter = 0;
@@ -71,9 +88,6 @@ export class ProductsService {
     }
   }
 
-  /**
-   * Ensures SKU uniqueness by regenerating if necessary.
-   */
   private async ensureUniqueSku(sku: string): Promise<string> {
     let currentSku = sku;
 
@@ -92,9 +106,26 @@ export class ProductsService {
     }
   }
 
-  /**
-   * Creates a new product with auto-generated slug and SKU.
-   */
+  private async ensureUniqueVariantSku(sku: string): Promise<string> {
+    let currentSku = sku;
+
+    while (true) {
+      const existing = await this.prisma.productVariant.findUnique({
+        where: { sku: currentSku },
+        select: { id: true },
+      });
+
+      if (!existing) {
+        return currentSku;
+      }
+
+      const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+      currentSku = `${sku.split('-')[0]}-${random}${Date.now().toString(36).toUpperCase().slice(-3)}`;
+    }
+  }
+
+  // ─── Product CRUD ───────────────────────────────────────────────────────────
+
   async create(dto: CreateProductDto) {
     this.logger.log(`Creating product: ${dto.name}`);
 
@@ -166,9 +197,6 @@ export class ProductsService {
     return product;
   }
 
-  /**
-   * Find all products with pagination, sorting, and filtering.
-   */
   async findAll(filters: ProductFilterDto) {
     const {
       page = 1,
@@ -285,10 +313,6 @@ export class ProductsService {
     };
   }
 
-  /**
-   * Find a single product by its slug, including full details.
-   * Also increments the view count asynchronously.
-   */
   async findBySlug(slug: string) {
     const product = await this.prisma.product.findUnique({
       where: { slug },
@@ -397,9 +421,6 @@ export class ProductsService {
     };
   }
 
-  /**
-   * Increment the view count of a product.
-   */
   private async incrementViewCount(productId: string): Promise<void> {
     await this.prisma.product.update({
       where: { id: productId },
@@ -407,10 +428,6 @@ export class ProductsService {
     });
   }
 
-  /**
-   * Update an existing product by ID.
-   * If the name changes, regenerate the slug.
-   */
   async update(id: string, dto: UpdateProductDto) {
     this.logger.log(`Updating product: ${id}`);
 
@@ -507,9 +524,6 @@ export class ProductsService {
     return product;
   }
 
-  /**
-   * Archive a product (soft delete by setting status to ARCHIVED).
-   */
   async archive(id: string) {
     this.logger.log(`Archiving product: ${id}`);
 
@@ -546,10 +560,6 @@ export class ProductsService {
     return archived;
   }
 
-  /**
-   * Permanently delete a product and all related records.
-   * This action is irreversible and restricted to SUPER_ADMIN.
-   */
   async permanentDelete(id: string) {
     this.logger.log(`Permanently deleting product: ${id}`);
 
@@ -569,19 +579,185 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
 
-    // Prevent deletion if the product has associated order items
     if (product._count.orderItems > 0) {
       throw new ForbiddenException(
         `Cannot permanently delete product "${product.name}" because it has ${product._count.orderItems} associated order item(s). Archive it instead.`,
       );
     }
 
-    // Delete the product (cascading deletes will handle variants, images, attributes, etc.)
     await this.prisma.product.delete({
       where: { id },
     });
 
     this.logger.log(`Product permanently deleted: ${id} (${product.slug})`);
     return { deleted: true, id, name: product.name };
+  }
+
+  // ─── Variant Management ─────────────────────────────────────────────────────
+
+  /**
+   * Create a new variant for a product.
+   * Auto-generates SKU from product slug + attribute values.
+   */
+  async createVariant(productId: string, dto: CreateVariantDto) {
+    this.logger.log(`Creating variant for product: ${productId}`);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, slug: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${productId}" not found`);
+    }
+
+    // Auto-generate SKU from product slug and attribute values
+    const attrValues = dto.attributeValues?.map((av) => av.value) ?? [];
+    const rawSku = this.generateVariantSku(product.slug, attrValues);
+    const sku = await this.ensureUniqueVariantSku(rawSku);
+
+    // Determine next sort order
+    const lastVariant = await this.prisma.productVariant.findFirst({
+      where: { productId },
+      orderBy: { sortOrder: 'desc' },
+      select: { sortOrder: true },
+    });
+    const nextSortOrder = dto.sortOrder ?? (lastVariant ? lastVariant.sortOrder + 1 : 0);
+
+    const variant = await this.prisma.productVariant.create({
+      data: {
+        product: { connect: { id: productId } },
+        name: dto.name,
+        sku,
+        price: dto.price,
+        compareAtPrice: dto.compareAtPrice,
+        costPrice: dto.costPrice,
+        quantity: dto.quantity ?? 0,
+        weight: dto.weight,
+        weightUnit: dto.weightUnit ?? 'kg',
+        isActive: dto.isActive ?? true,
+        sortOrder: nextSortOrder,
+        attributeValues: dto.attributeValues
+          ? {
+              create: dto.attributeValues.map((av) => ({
+                attribute: { connect: { id: av.attributeId } },
+                value: av.value,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        attributeValues: {
+          include: {
+            attribute: {
+              select: { id: true, name: true, type: true },
+            },
+          },
+        },
+      },
+    });
+
+    this.logger.log(`Variant created: ${variant.id} (${variant.sku})`);
+    return variant;
+  }
+
+  /**
+   * Update an existing variant.
+   */
+  async updateVariant(productId: string, variantId: string, dto: UpdateVariantDto) {
+    this.logger.log(`Updating variant ${variantId} for product ${productId}`);
+
+    const variant = await this.prisma.productVariant.findFirst({
+      where: { id: variantId, productId },
+      select: { id: true },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(
+        `Variant with ID "${variantId}" not found for product "${productId}"`,
+      );
+    }
+
+    const updateData: Prisma.ProductVariantUpdateInput = {};
+
+    if (dto.name !== undefined) updateData.name = dto.name;
+    if (dto.price !== undefined) updateData.price = dto.price;
+    if (dto.compareAtPrice !== undefined) updateData.compareAtPrice = dto.compareAtPrice;
+    if (dto.costPrice !== undefined) updateData.costPrice = dto.costPrice;
+    if (dto.quantity !== undefined) updateData.quantity = dto.quantity;
+    if (dto.weight !== undefined) updateData.weight = dto.weight;
+    if (dto.weightUnit !== undefined) updateData.weightUnit = dto.weightUnit;
+    if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
+    if (dto.sortOrder !== undefined) updateData.sortOrder = dto.sortOrder;
+
+    // If attribute values are provided, replace them
+    if (dto.attributeValues) {
+      // Delete existing attribute values
+      await this.prisma.productVariantAttributeValue.deleteMany({
+        where: { variantId },
+      });
+
+      // Create new attribute values
+      updateData.attributeValues = {
+        create: dto.attributeValues.map((av) => ({
+          attribute: { connect: { id: av.attributeId } },
+          value: av.value,
+        })),
+      };
+    }
+
+    const updated = await this.prisma.productVariant.update({
+      where: { id: variantId },
+      data: updateData,
+      include: {
+        attributeValues: {
+          include: {
+            attribute: {
+              select: { id: true, name: true, type: true },
+            },
+          },
+        },
+      },
+    });
+
+    this.logger.log(`Variant updated: ${updated.id}`);
+    return updated;
+  }
+
+  /**
+   * Delete a variant from a product.
+   */
+  async deleteVariant(productId: string, variantId: string) {
+    this.logger.log(`Deleting variant ${variantId} from product ${productId}`);
+
+    const variant = await this.prisma.productVariant.findFirst({
+      where: { id: variantId, productId },
+      select: {
+        id: true,
+        sku: true,
+        _count: {
+          select: { orderItems: true },
+        },
+      },
+    });
+
+    if (!variant) {
+      throw new NotFoundException(
+        `Variant with ID "${variantId}" not found for product "${productId}"`,
+      );
+    }
+
+    if (variant._count.orderItems > 0) {
+      throw new ForbiddenException(
+        `Cannot delete variant "${variant.sku}" because it has associated order items. Deactivate it instead.`,
+      );
+    }
+
+    await this.prisma.productVariant.delete({
+      where: { id: variantId },
+    });
+
+    this.logger.log(`Variant deleted: ${variantId} (${variant.sku})`);
+    return { deleted: true, id: variantId, sku: variant.sku };
   }
 }
