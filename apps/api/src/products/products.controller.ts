@@ -11,6 +11,15 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsArray,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -22,6 +31,52 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
+
+/**
+ * DTO for adding an image to a product.
+ * In production, this would be handled via multipart form upload.
+ */
+class AddImageDto {
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @IsString()
+  @IsOptional()
+  thumbnailUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  alt?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  width?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  height?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isPrimary?: boolean;
+
+  @IsString()
+  @IsOptional()
+  variantId?: string;
+
+  @IsString()
+  @IsOptional()
+  blurHash?: string;
+}
+
+class ReorderImagesDto {
+  @IsArray()
+  @IsString({ each: true })
+  imageIds: string[];
+}
 
 @Controller('products')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -105,7 +160,6 @@ export class ProductsController {
 
   /**
    * Create a new variant for a product.
-   * Restricted to ADMIN and SUPER_ADMIN roles.
    */
   @Post(':id/variants')
   @Roles('ADMIN', 'SUPER_ADMIN')
@@ -120,7 +174,6 @@ export class ProductsController {
 
   /**
    * Update an existing variant.
-   * Restricted to ADMIN and SUPER_ADMIN roles.
    */
   @Patch(':id/variants/:variantId')
   @Roles('ADMIN', 'SUPER_ADMIN')
@@ -135,7 +188,6 @@ export class ProductsController {
 
   /**
    * Delete a variant from a product.
-   * Restricted to ADMIN and SUPER_ADMIN roles.
    */
   @Delete(':id/variants/:variantId')
   @Roles('ADMIN', 'SUPER_ADMIN')
@@ -146,5 +198,52 @@ export class ProductsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.productsService.deleteVariant(productId, variantId);
+  }
+
+  // ─── Image Endpoints ───────────────────────────────────────────────────────
+
+  /**
+   * Add an image to a product.
+   * In production, this endpoint would accept multipart/form-data
+   * and handle file upload to a cloud storage service.
+   * Currently accepts image metadata (URL) as a placeholder.
+   */
+  @Post(':id/images')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.CREATED)
+  async addImage(
+    @Param('id') productId: string,
+    @Body() addImageDto: AddImageDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.addImage(productId, addImageDto);
+  }
+
+  /**
+   * Remove an image from a product.
+   */
+  @Delete(':id/images/:imageId')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async removeImage(
+    @Param('id') productId: string,
+    @Param('imageId') imageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.removeImage(productId, imageId);
+  }
+
+  /**
+   * Reorder images for a product.
+   * Accepts an array of image IDs in the desired display order.
+   */
+  @Patch(':id/images/reorder')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async reorderImages(
+    @Param('id') productId: string,
+    @Body() reorderDto: ReorderImagesDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.reorderImages(productId, reorderDto.imageIds);
   }
 }

@@ -3,6 +3,7 @@ import {
   Logger,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
@@ -20,9 +21,6 @@ export class ProductsService {
 
   // ─── Utility Methods ────────────────────────────────────────────────────────
 
-  /**
-   * Generates a URL-friendly slug from a product name.
-   */
   generateSlug(name: string): string {
     const baseSlug = name
       .toLowerCase()
@@ -36,9 +34,6 @@ export class ProductsService {
     return `${baseSlug}-${suffix}`;
   }
 
-  /**
-   * Generates a unique SKU from a product name.
-   */
   generateSku(name: string): string {
     const prefix = name
       .toUpperCase()
@@ -51,9 +46,6 @@ export class ProductsService {
     return `${prefix}-${uniquePart}${random}`;
   }
 
-  /**
-   * Generates a variant SKU from the product slug and attribute values.
-   */
   generateVariantSku(productSlug: string, attributeValues: string[]): string {
     const base = productSlug
       .toUpperCase()
@@ -595,10 +587,6 @@ export class ProductsService {
 
   // ─── Variant Management ─────────────────────────────────────────────────────
 
-  /**
-   * Create a new variant for a product.
-   * Auto-generates SKU from product slug + attribute values.
-   */
   async createVariant(productId: string, dto: CreateVariantDto) {
     this.logger.log(`Creating variant for product: ${productId}`);
 
@@ -611,12 +599,10 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID "${productId}" not found`);
     }
 
-    // Auto-generate SKU from product slug and attribute values
     const attrValues = dto.attributeValues?.map((av) => av.value) ?? [];
     const rawSku = this.generateVariantSku(product.slug, attrValues);
     const sku = await this.ensureUniqueVariantSku(rawSku);
 
-    // Determine next sort order
     const lastVariant = await this.prisma.productVariant.findFirst({
       where: { productId },
       orderBy: { sortOrder: 'desc' },
@@ -661,9 +647,6 @@ export class ProductsService {
     return variant;
   }
 
-  /**
-   * Update an existing variant.
-   */
   async updateVariant(productId: string, variantId: string, dto: UpdateVariantDto) {
     this.logger.log(`Updating variant ${variantId} for product ${productId}`);
 
@@ -690,14 +673,11 @@ export class ProductsService {
     if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
     if (dto.sortOrder !== undefined) updateData.sortOrder = dto.sortOrder;
 
-    // If attribute values are provided, replace them
     if (dto.attributeValues) {
-      // Delete existing attribute values
       await this.prisma.productVariantAttributeValue.deleteMany({
         where: { variantId },
       });
 
-      // Create new attribute values
       updateData.attributeValues = {
         create: dto.attributeValues.map((av) => ({
           attribute: { connect: { id: av.attributeId } },
@@ -724,9 +704,6 @@ export class ProductsService {
     return updated;
   }
 
-  /**
-   * Delete a variant from a product.
-   */
   async deleteVariant(productId: string, variantId: string) {
     this.logger.log(`Deleting variant ${variantId} from product ${productId}`);
 
@@ -759,5 +736,174 @@ export class ProductsService {
 
     this.logger.log(`Variant deleted: ${variantId} (${variant.sku})`);
     return { deleted: true, id: variantId, sku: variant.sku };
+  }
+
+  // ─── Image Management ──────────────────────────────────────────────────────
+
+  /**
+   * Add an image to a product.
+   * Accepts image metadata (URL, alt text, dimensions).
+   * In a real implementation, this would handle multipart file upload
+   * and upload to a storage service (S3, Cloudinary, etc.).
+   */
+  async addImage(
+    productId: string,
+    imageData: {
+      url: string;
+      thumbnailUrl?: string;
+      alt?: string;
+      width?: number;
+      height?: number;
+      isPrimary?: boolean;
+      variantId?: string;
+      blurHash?: string;
+    },
+  ) {
+    this.logger.log(`Adding image to product: ${productId}`);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${productId}" not found`);
+    }
+
+    // If this image is set as primary, unset other primary images
+    if (imageData.isPrimary) {
+      await this.prisma.productImage.updateMany({
+        where: { productId, isPrimary: true },
+        data: { isPrimary: false },
+      });
+    }
+
+    // Determine next sort order
+    const lastImage = await this.prisma.productImage.findFirst({
+      where: { productId },
+      orderBy: { sortOrder: 'desc' },
+      select: { sortOrder: true },
+    });
+    const nextSortOrder = lastImage ? lastImage.sortOrder + 1 : 0;
+
+    // If this is the first image, make it primary by default
+    const imageCount = await this.prisma.productImage.count({
+      where: { productId },
+    });
+    const shouldBePrimary = imageData.isPrimary ?? imageCount === 0;
+
+    const image = await this.prisma.productImage.create({
+      data: {
+        product: { connect: { id: productId } },
+        variant: imageData.variantId
+          ? { connect: { id: imageData.variantId } }
+          : undefined,
+        url: imageData.url,
+        thumbnailUrl: imageData.thumbnailUrl,
+        alt: imageData.alt,
+        width: imageData.width,
+        height: imageData.height,
+        isPrimary: shouldBePrimary,
+        sortOrder: nextSortOrder,
+        blurHash: imageData.blurHash,
+      },
+    });
+
+    this.logger.log(`Image added: ${image.id} to product ${productId}`);
+    return image;
+  }
+
+  /**
+   * Remove an image from a product.
+   * If the removed image was primary, the next image becomes primary.
+   */
+  async removeImage(productId: string, imageId: string) {
+    this.logger.log(`Removing image ${imageId} from product ${productId}`);
+
+    const image = await this.prisma.productImage.findFirst({
+      where: { id: imageId, productId },
+      select: { id: true, isPrimary: true, url: true },
+    });
+
+    if (!image) {
+      throw new NotFoundException(
+        `Image with ID "${imageId}" not found for product "${productId}"`,
+      );
+    }
+
+    await this.prisma.productImage.delete({
+      where: { id: imageId },
+    });
+
+    // If the deleted image was primary, set the first remaining image as primary
+    if (image.isPrimary) {
+      const firstImage = await this.prisma.productImage.findFirst({
+        where: { productId },
+        orderBy: { sortOrder: 'asc' },
+        select: { id: true },
+      });
+
+      if (firstImage) {
+        await this.prisma.productImage.update({
+          where: { id: firstImage.id },
+          data: { isPrimary: true },
+        });
+      }
+    }
+
+    this.logger.log(`Image removed: ${imageId} from product ${productId}`);
+    return { deleted: true, id: imageId };
+  }
+
+  /**
+   * Reorder images for a product.
+   * Accepts an array of image IDs in the desired order.
+   */
+  async reorderImages(productId: string, imageIds: string[]) {
+    this.logger.log(`Reordering ${imageIds.length} images for product ${productId}`);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${productId}" not found`);
+    }
+
+    // Verify all image IDs belong to this product
+    const existingImages = await this.prisma.productImage.findMany({
+      where: { productId },
+      select: { id: true },
+    });
+
+    const existingIds = new Set(existingImages.map((img) => img.id));
+
+    for (const imageId of imageIds) {
+      if (!existingIds.has(imageId)) {
+        throw new BadRequestException(
+          `Image with ID "${imageId}" does not belong to product "${productId}"`,
+        );
+      }
+    }
+
+    // Update sort order for each image in a transaction
+    await this.prisma.$transaction(
+      imageIds.map((imageId, index) =>
+        this.prisma.productImage.update({
+          where: { id: imageId },
+          data: { sortOrder: index },
+        }),
+      ),
+    );
+
+    // Return updated images
+    const updatedImages = await this.prisma.productImage.findMany({
+      where: { productId },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    this.logger.log(`Images reordered for product ${productId}`);
+    return updatedImages;
   }
 }
