@@ -6,9 +6,11 @@ import {
   Body,
   Param,
   Query,
+  Headers,
   UseGuards,
   DefaultValuePipe,
   ParseIntPipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { OrdersService } from './orders.service';
@@ -16,6 +18,7 @@ import { ShippingService } from './shipping.service';
 import { CheckoutDto } from './dto/checkout.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
@@ -24,10 +27,11 @@ import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.
  * Orders controller.
  *
  * Handles order creation, retrieval, status management, and cancellation.
- * All endpoints require authentication; admin endpoints require ADMIN role.
+ * Checkout and order creation support both authenticated and guest users.
+ * Admin endpoints require ADMIN role.
  */
 @Controller()
-@UseGuards(JwtAuthGuard)
+@UseGuards(OptionalAuthGuard)
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
@@ -38,30 +42,48 @@ export class OrdersController {
 
   /**
    * Validate checkout data before placing an order.
+   * Supports both authenticated users and guests (via X-Session-Id header).
    *
    * POST /checkout/validate
    */
   @Post('checkout/validate')
   async validateCheckout(
     @Body() dto: CheckoutDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
   ) {
-    return this.ordersService.validateCheckout(dto, user.id);
+    return this.ordersService.validateCheckout(dto, user?.id, sessionId);
   }
 
   // ─── Order Creation ───────────────────────────────────────────────────────────
 
   /**
-   * Create a new order from the authenticated user's cart.
+   * Create a new order from the user's or guest's cart.
    *
    * POST /orders
    */
   @Post('orders')
   async createOrder(
     @Body() dto: CheckoutDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
   ) {
-    return this.ordersService.createOrder(dto, user.id);
+    return this.ordersService.createOrder(dto, user?.id, sessionId);
+  }
+
+  // ─── Guest Order Lookup ─────────────────────────────────────────────────────
+
+  /**
+   * Look up a guest order by order number + email.
+   *
+   * GET /orders/guest?orderNumber=X&email=Y
+   */
+  @Get('orders/guest')
+  async findGuestOrder(
+    @Query('orderNumber') orderNumber: string,
+    @Query('email') email: string,
+  ) {
+    return this.ordersService.findGuestOrder(orderNumber, email);
   }
 
   // ─── Order Listing ────────────────────────────────────────────────────────────
@@ -72,6 +94,7 @@ export class OrdersController {
    * GET /orders?page=1&limit=10
    */
   @Get('orders')
+  @UseGuards(JwtAuthGuard)
   async findUserOrders(
     @CurrentUser() user: AuthenticatedUser,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -86,6 +109,7 @@ export class OrdersController {
    * GET /orders/:orderNumber
    */
   @Get('orders/:orderNumber')
+  @UseGuards(JwtAuthGuard)
   async findOrderByNumber(
     @Param('orderNumber') orderNumber: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -101,6 +125,7 @@ export class OrdersController {
    * POST /orders/:id/cancel
    */
   @Post('orders/:id/cancel')
+  @UseGuards(JwtAuthGuard)
   async cancelOrder(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -112,20 +137,20 @@ export class OrdersController {
   // ─── Shipping ─────────────────────────────────────────────────────────────────
 
   /**
-   * Calculate shipping cost for the given address.
+   * Calculate shipping cost for the given address or division.
    *
-   * Returns available shipping methods with costs and delivery estimates.
-   * Inside Dhaka: ৳60 standard, Outside Dhaka: ৳120 standard.
-   * Free standard shipping on orders above ৳2000.
-   *
-   * GET /shipping/calculate?addressId=x
+   * GET /shipping/calculate?addressId=x or GET /shipping/calculate?division=Dhaka
    */
   @Get('shipping/calculate')
   async calculateShipping(
-    @Query('addressId') addressId: string,
-    @CurrentUser() user: AuthenticatedUser,
+    @Query('addressId') addressId?: string,
+    @Query('division') division?: string,
+    @CurrentUser() user?: AuthenticatedUser | null,
   ) {
-    return this.shippingService.calculateShipping(addressId, user.id);
+    if (addressId) {
+      return this.shippingService.calculateShipping(addressId, user?.id);
+    }
+    return this.shippingService.calculateShippingByDivision(division || 'Dhaka');
   }
 
   // ─── Admin: Order Management ──────────────────────────────────────────────────

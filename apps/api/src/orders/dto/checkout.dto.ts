@@ -3,6 +3,7 @@ import {
   IsString,
   IsOptional,
   IsEnum,
+  IsEmail,
 } from 'class-validator';
 
 /**
@@ -17,13 +18,16 @@ export enum PaymentMethod {
 /**
  * DTO for validating checkout data before order creation.
  *
+ * For authenticated users: `addressId` is required (saved address).
+ * For guests: `addressId` is omitted; inline shipping fields + guest contact are required.
+ *
  * POST /checkout/validate
  */
 export class CheckoutDto {
-  /** ID of the shipping address to deliver to */
+  /** ID of the shipping address (required for authenticated users, optional for guests) */
   @IsString()
-  @IsNotEmpty()
-  addressId: string;
+  @IsOptional()
+  addressId?: string;
 
   /** Selected shipping method identifier */
   @IsString()
@@ -41,4 +45,52 @@ export class CheckoutDto {
   @IsString()
   @IsOptional()
   couponCode?: string;
+
+  // ─── Guest contact info ──────────────────────────────────
+
+  @IsString()
+  @IsOptional()
+  guestFullName?: string;
+
+  @IsEmail()
+  @IsOptional()
+  guestEmail?: string;
+
+  @IsString()
+  @IsOptional()
+  guestPhone?: string;
+
+  // ─── Inline shipping address (for guests) ────────────────
+
+  @IsString()
+  @IsOptional()
+  shippingFullName?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingPhone?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingAddressLine1?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingAddressLine2?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingDivision?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingDistrict?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingArea?: string;
+
+  @IsString()
+  @IsOptional()
+  shippingPostalCode?: string;
 }
