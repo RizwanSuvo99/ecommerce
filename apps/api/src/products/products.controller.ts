@@ -26,6 +26,11 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/product-filter.dto';
 import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
+import {
+  BulkUpdateStatusDto,
+  BulkDeleteDto,
+  BulkAssignCategoryDto,
+} from './dto/bulk-operation.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -82,6 +87,53 @@ class ReorderImagesDto {
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  // ─── Bulk Operation Endpoints ───────────────────────────────────────────────
+  // NOTE: These must be defined BEFORE parameterized routes like :slug/:id
+  // to prevent NestJS from interpreting "bulk" as a route parameter.
+
+  /**
+   * Bulk update status of multiple products.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Post('bulk/status')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async bulkUpdateStatus(
+    @Body() bulkUpdateStatusDto: BulkUpdateStatusDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.bulkUpdateStatus(bulkUpdateStatusDto);
+  }
+
+  /**
+   * Bulk delete (archive) multiple products.
+   * Products with order history will be archived instead of deleted.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Post('bulk/delete')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async bulkDelete(
+    @Body() bulkDeleteDto: BulkDeleteDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.bulkDelete(bulkDeleteDto);
+  }
+
+  /**
+   * Bulk assign a category to multiple products.
+   * Restricted to ADMIN and SUPER_ADMIN roles.
+   */
+  @Post('bulk/category')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async bulkAssignCategory(
+    @Body() bulkAssignCategoryDto: BulkAssignCategoryDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.productsService.bulkAssignCategory(bulkAssignCategoryDto);
+  }
 
   // ─── Product Endpoints ──────────────────────────────────────────────────────
 
@@ -206,7 +258,6 @@ export class ProductsController {
    * Add an image to a product.
    * In production, this endpoint would accept multipart/form-data
    * and handle file upload to a cloud storage service.
-   * Currently accepts image metadata (URL) as a placeholder.
    */
   @Post(':id/images')
   @Roles('ADMIN', 'SUPER_ADMIN')

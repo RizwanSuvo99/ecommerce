@@ -12,6 +12,11 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto, ProductSortBy, SortOrder } from './dto/product-filter.dto';
 import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
+import {
+  BulkUpdateStatusDto,
+  BulkDeleteDto,
+  BulkAssignCategoryDto,
+} from './dto/bulk-operation.dto';
 
 @Injectable()
 export class ProductsService {
@@ -740,12 +745,6 @@ export class ProductsService {
 
   // ─── Image Management ──────────────────────────────────────────────────────
 
-  /**
-   * Add an image to a product.
-   * Accepts image metadata (URL, alt text, dimensions).
-   * In a real implementation, this would handle multipart file upload
-   * and upload to a storage service (S3, Cloudinary, etc.).
-   */
   async addImage(
     productId: string,
     imageData: {
@@ -770,7 +769,6 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID "${productId}" not found`);
     }
 
-    // If this image is set as primary, unset other primary images
     if (imageData.isPrimary) {
       await this.prisma.productImage.updateMany({
         where: { productId, isPrimary: true },
@@ -778,7 +776,6 @@ export class ProductsService {
       });
     }
 
-    // Determine next sort order
     const lastImage = await this.prisma.productImage.findFirst({
       where: { productId },
       orderBy: { sortOrder: 'desc' },
@@ -786,7 +783,6 @@ export class ProductsService {
     });
     const nextSortOrder = lastImage ? lastImage.sortOrder + 1 : 0;
 
-    // If this is the first image, make it primary by default
     const imageCount = await this.prisma.productImage.count({
       where: { productId },
     });
@@ -813,10 +809,6 @@ export class ProductsService {
     return image;
   }
 
-  /**
-   * Remove an image from a product.
-   * If the removed image was primary, the next image becomes primary.
-   */
   async removeImage(productId: string, imageId: string) {
     this.logger.log(`Removing image ${imageId} from product ${productId}`);
 
@@ -835,7 +827,6 @@ export class ProductsService {
       where: { id: imageId },
     });
 
-    // If the deleted image was primary, set the first remaining image as primary
     if (image.isPrimary) {
       const firstImage = await this.prisma.productImage.findFirst({
         where: { productId },
@@ -855,10 +846,6 @@ export class ProductsService {
     return { deleted: true, id: imageId };
   }
 
-  /**
-   * Reorder images for a product.
-   * Accepts an array of image IDs in the desired order.
-   */
   async reorderImages(productId: string, imageIds: string[]) {
     this.logger.log(`Reordering ${imageIds.length} images for product ${productId}`);
 
@@ -871,7 +858,6 @@ export class ProductsService {
       throw new NotFoundException(`Product with ID "${productId}" not found`);
     }
 
-    // Verify all image IDs belong to this product
     const existingImages = await this.prisma.productImage.findMany({
       where: { productId },
       select: { id: true },
@@ -887,7 +873,6 @@ export class ProductsService {
       }
     }
 
-    // Update sort order for each image in a transaction
     await this.prisma.$transaction(
       imageIds.map((imageId, index) =>
         this.prisma.productImage.update({
@@ -897,7 +882,6 @@ export class ProductsService {
       ),
     );
 
-    // Return updated images
     const updatedImages = await this.prisma.productImage.findMany({
       where: { productId },
       orderBy: { sortOrder: 'asc' },
@@ -905,5 +889,165 @@ export class ProductsService {
 
     this.logger.log(`Images reordered for product ${productId}`);
     return updatedImages;
+  }
+
+  // ─── Bulk Operations ───────────────────────────────────────────────────────
+
+  /**
+   * Bulk update the status of multiple products.
+   */
+  async bulkUpdateStatus(dto: BulkUpdateStatusDto) {
+    this.logger.log(
+      `Bulk updating status to "${dto.status}" for ${dto.productIds.length} products`,
+    );
+
+    // Verify all products exist
+    const existingProducts = await this.prisma.product.findMany({
+      where: { id: { in: dto.productIds } },
+      select: { id: true },
+    });
+
+    const existingIds = new Set(existingProducts.map((p) => p.id));
+    const missingIds = dto.productIds.filter((id) => !existingIds.has(id));
+
+    if (missingIds.length > 0) {
+      throw new NotFoundException(
+        `Products not found: ${missingIds.join(', ')}`,
+      );
+    }
+
+    const result = await this.prisma.product.updateMany({
+      where: { id: { in: dto.productIds } },
+      data: { status: dto.status },
+    });
+
+    this.logger.log(`Bulk status update completed: ${result.count} products updated`);
+
+    return {
+      updated: result.count,
+      status: dto.status,
+      productIds: dto.productIds,
+    };
+  }
+
+  /**
+   * Bulk delete (archive) multiple products.
+   * Products with order items will be archived instead of deleted.
+   */
+  async bulkDelete(dto: BulkDeleteDto) {
+    this.logger.log(`Bulk deleting ${dto.productIds.length} products`);
+
+    // Verify all products exist
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: dto.productIds } },
+      select: {
+        id: true,
+        name: true,
+        _count: {
+          select: { orderItems: true },
+        },
+      },
+    });
+
+    const existingIds = new Set(products.map((p) => p.id));
+    const missingIds = dto.productIds.filter((id) => !existingIds.has(id));
+
+    if (missingIds.length > 0) {
+      throw new NotFoundException(
+        `Products not found: ${missingIds.join(', ')}`,
+      );
+    }
+
+    // Separate products that can be deleted vs those that must be archived
+    const canDelete: string[] = [];
+    const mustArchive: string[] = [];
+
+    for (const product of products) {
+      if (product._count.orderItems > 0) {
+        mustArchive.push(product.id);
+      } else {
+        canDelete.push(product.id);
+      }
+    }
+
+    // Archive products with order items
+    let archivedCount = 0;
+    if (mustArchive.length > 0) {
+      const archiveResult = await this.prisma.product.updateMany({
+        where: { id: { in: mustArchive } },
+        data: { status: 'ARCHIVED' },
+      });
+      archivedCount = archiveResult.count;
+    }
+
+    // Delete products without order items
+    let deletedCount = 0;
+    if (canDelete.length > 0) {
+      const deleteResult = await this.prisma.product.deleteMany({
+        where: { id: { in: canDelete } },
+      });
+      deletedCount = deleteResult.count;
+    }
+
+    this.logger.log(
+      `Bulk delete completed: ${deletedCount} deleted, ${archivedCount} archived`,
+    );
+
+    return {
+      deleted: deletedCount,
+      archived: archivedCount,
+      deletedIds: canDelete,
+      archivedIds: mustArchive,
+    };
+  }
+
+  /**
+   * Bulk assign a category to multiple products.
+   */
+  async bulkAssignCategory(dto: BulkAssignCategoryDto) {
+    this.logger.log(
+      `Bulk assigning category "${dto.categoryId}" to ${dto.productIds.length} products`,
+    );
+
+    // Verify category exists
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
+      select: { id: true, name: true },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID "${dto.categoryId}" not found`);
+    }
+
+    // Verify all products exist
+    const existingProducts = await this.prisma.product.findMany({
+      where: { id: { in: dto.productIds } },
+      select: { id: true },
+    });
+
+    const existingIds = new Set(existingProducts.map((p) => p.id));
+    const missingIds = dto.productIds.filter((id) => !existingIds.has(id));
+
+    if (missingIds.length > 0) {
+      throw new NotFoundException(
+        `Products not found: ${missingIds.join(', ')}`,
+      );
+    }
+
+    const result = await this.prisma.product.updateMany({
+      where: { id: { in: dto.productIds } },
+      data: { categoryId: dto.categoryId },
+    });
+
+    this.logger.log(
+      `Bulk category assignment completed: ${result.count} products updated to category "${category.name}"`,
+    );
+
+    return {
+      updated: result.count,
+      categoryId: dto.categoryId,
+      categoryName: category.name,
+      productIds: dto.productIds,
+    };
   }
 }
