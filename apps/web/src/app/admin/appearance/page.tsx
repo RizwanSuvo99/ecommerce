@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 import ColorSettings from '../../../components/admin/appearance/color-settings';
+import TypographySettings from '../../../components/admin/appearance/typography-settings';
+import BorderSettings from '../../../components/admin/appearance/border-settings';
+import LayoutSettings from '../../../components/admin/appearance/layout-settings';
+import CustomCSSEditor from '../../../components/admin/appearance/custom-css-editor';
 
 type SettingsTab = 'colors' | 'typography' | 'borders' | 'layout' | 'custom-css';
 
@@ -32,12 +38,11 @@ export default function AdminAppearancePage() {
 
   const fetchTheme = useCallback(async () => {
     try {
-      const response = await fetch('/api/theme');
-      if (!response.ok) throw new Error('Failed to fetch theme');
-      const data = await response.json();
-      setTheme(data);
+      const { data } = await apiClient.get('/admin/theme');
+      setTheme(data.data || data);
     } catch (error) {
       console.error('Fetch theme error:', error);
+      toast.error('Failed to load theme settings');
     } finally {
       setLoading(false);
     }
@@ -52,19 +57,13 @@ export default function AdminAppearancePage() {
     setSaving(true);
 
     try {
-      const response = await fetch('/api/admin/theme', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(theme),
-      });
-
-      if (!response.ok) throw new Error('Failed to save theme');
-
-      const data = await response.json();
-      setTheme(data);
+      const { data } = await apiClient.patch('/admin/theme', theme);
+      setTheme(data.data || data);
       setHasChanges(false);
+      toast.success('Theme saved');
     } catch (error) {
       console.error('Save theme error:', error);
+      toast.error('Failed to save theme');
     } finally {
       setSaving(false);
     }
@@ -74,13 +73,13 @@ export default function AdminAppearancePage() {
     if (!confirm('Are you sure you want to reset all appearance settings to defaults?')) return;
 
     try {
-      const response = await fetch('/api/admin/theme/reset', { method: 'POST' });
-      if (!response.ok) throw new Error('Failed to reset theme');
-      const data = await response.json();
-      setTheme(data);
+      const { data } = await apiClient.post('/admin/theme/reset');
+      setTheme(data.data || data);
       setHasChanges(false);
+      toast.success('Theme reset to defaults');
     } catch (error) {
       console.error('Reset theme error:', error);
+      toast.error('Failed to reset theme');
     }
   };
 
@@ -162,27 +161,31 @@ export default function AdminAppearancePage() {
           )}
 
           {activeTab === 'typography' && (
-            <div className="text-center py-12 text-gray-500">
-              Typography settings component will be loaded here.
-            </div>
+            <TypographySettings
+              typography={theme.typography as any}
+              onChange={(typography) => updateTheme('typography', typography)}
+            />
           )}
 
           {activeTab === 'borders' && (
-            <div className="text-center py-12 text-gray-500">
-              Border settings component will be loaded here.
-            </div>
+            <BorderSettings
+              borders={theme.borders as any}
+              onChange={(borders) => updateTheme('borders', borders)}
+            />
           )}
 
           {activeTab === 'layout' && (
-            <div className="text-center py-12 text-gray-500">
-              Layout settings component will be loaded here.
-            </div>
+            <LayoutSettings
+              layout={theme.layout as any}
+              onChange={(layout) => updateTheme('layout', layout)}
+            />
           )}
 
           {activeTab === 'custom-css' && (
-            <div className="text-center py-12 text-gray-500">
-              Custom CSS editor component will be loaded here.
-            </div>
+            <CustomCSSEditor
+              value={theme.customCSS}
+              onChange={(css) => updateTheme('customCSS', css)}
+            />
           )}
         </div>
       </div>
