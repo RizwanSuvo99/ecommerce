@@ -7,8 +7,6 @@ import {
   ShoppingCart,
   Users,
   Tag,
-  FileText,
-  Settings,
   BarChart3,
   type LucideIcon,
 } from 'lucide-react';

@@ -5,7 +5,6 @@ import {
   ShoppingCart,
   UserPlus,
   AlertTriangle,
-  Package,
   Clock,
 } from 'lucide-react';
 

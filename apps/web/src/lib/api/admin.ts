@@ -86,7 +86,7 @@ export interface ActivityData {
  */
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   const { data } = await apiClient.get('/admin/dashboard/stats');
-  return data.data;
+  return data.data ?? data;
 }
 
 /**
@@ -94,7 +94,7 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
  */
 export async function fetchDashboardCharts(): Promise<ChartsData> {
   const { data } = await apiClient.get('/admin/dashboard/charts');
-  return data.data;
+  return data.data ?? data;
 }
 
 /**
@@ -102,7 +102,7 @@ export async function fetchDashboardCharts(): Promise<ChartsData> {
  */
 export async function fetchDashboardActivity(): Promise<ActivityData> {
   const { data } = await apiClient.get('/admin/dashboard/activity');
-  return data.data;
+  return data.data ?? data;
 }
 
 // ──────────────────────────────────────────────────────────

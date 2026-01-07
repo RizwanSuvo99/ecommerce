@@ -45,7 +45,8 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
 
-  const category = payload[0].payload;
+  const category = payload[0]?.payload;
+  if (!category) return null;
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
