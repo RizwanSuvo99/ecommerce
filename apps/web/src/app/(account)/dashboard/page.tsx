@@ -91,8 +91,8 @@ export default function AccountDashboardPage() {
       label: 'Total Orders',
       value: stats?.totalOrders || 0,
       icon: Package,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-teal-600',
+      bg: 'bg-teal-50',
     },
     {
       label: 'Total Spent',
@@ -127,11 +127,11 @@ export default function AccountDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl p-6 text-white">
         <h2 className="text-xl font-bold">
           Welcome back, {user?.firstName || 'there'}!
         </h2>
-        <p className="text-blue-100 text-sm mt-1">
+        <p className="text-teal-100 text-sm mt-1">
           Here&apos;s a summary of your account activity.
         </p>
       </div>
@@ -173,7 +173,7 @@ export default function AccountDashboardPage() {
           </h3>
           <Link
             href="/orders"
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+            className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
           >
             View All
             <ArrowRight className="w-4 h-4" />
@@ -185,7 +185,7 @@ export default function AccountDashboardPage() {
             {recentOrders.map((order) => (
               <Link
                 key={order.id}
-                href={`/orders/${order.id}/tracking`}
+                href={`/orders/${order.orderNumber}`}
                 className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-4">
@@ -218,7 +218,7 @@ export default function AccountDashboardPage() {
             <p className="text-gray-500 text-sm">No orders yet</p>
             <Link
               href="/"
-              className="text-blue-600 text-sm font-medium hover:text-blue-700 mt-1 inline-block"
+              className="text-teal-600 text-sm font-medium hover:text-teal-700 mt-1 inline-block"
             >
               Start shopping
             </Link>
@@ -234,7 +234,7 @@ export default function AccountDashboardPage() {
             <Link
               key={action.href}
               href={action.href}
-              className="flex flex-col items-center gap-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
+              className="flex flex-col items-center gap-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-teal-200 transition-all"
             >
               <Icon className="w-6 h-6 text-gray-600" />
               <span className="text-sm font-medium text-gray-700">
