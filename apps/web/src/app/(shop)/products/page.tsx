@@ -587,19 +587,8 @@ export default function ProductsPage() {
             />
           </button>
 
-          {/* Quick add to cart */}
-          {product.stock > 0 ? (
-            <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-              <button
-                onClick={(e) => handleQuickAdd(e, product)}
-                disabled={isUpdating}
-                className="flex w-full items-center justify-center gap-2 bg-teal-600/95 py-2.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-teal-700 disabled:opacity-50"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Add to Cart
-              </button>
-            </div>
-          ) : (
+          {/* Out of stock overlay */}
+          {product.stock <= 0 && (
             <div className="absolute inset-x-0 bottom-0 bg-gray-900/80 py-2.5 text-center text-sm font-medium text-white backdrop-blur-sm">
               Out of Stock
             </div>
@@ -651,6 +640,20 @@ export default function ProductsPage() {
               </span>
             )}
           </div>
+
+          {/* Add to Cart */}
+          {product.stock > 0 ? (
+            <button
+              onClick={(e) => handleQuickAdd(e, product)}
+              disabled={isUpdating}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-teal-700 disabled:opacity-50"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Add to Cart
+            </button>
+          ) : (
+            <p className="mt-2 text-center text-xs font-medium text-red-500">Out of Stock</p>
+          )}
         </div>
       </Link>
     );
