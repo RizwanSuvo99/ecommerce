@@ -75,7 +75,7 @@ function CategoryTreeItem({
         className={cn(
           'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors',
           isSelected
-            ? 'bg-indigo-50 text-indigo-700'
+            ? 'bg-teal-50 text-teal-700'
             : 'text-gray-700 hover:bg-gray-50',
         )}
         style={{ paddingLeft: `${level * 16 + 12}px` }}
@@ -98,7 +98,7 @@ function CategoryTreeItem({
         )}
         {!hasChildren && <span className="w-4" />}
         <span className="flex-1 text-left">{category.name}</span>
-        {isSelected && <Check className="h-4 w-4 text-indigo-600" />}
+        {isSelected && <Check className="h-4 w-4 text-teal-600" />}
         {category._count && (
           <span className="text-xs text-gray-400">
             {category._count.products}
@@ -219,7 +219,7 @@ export function CategorizationForm({
             value={categorySearch}
             onChange={(e) => setCategorySearch(e.target.value)}
             placeholder="Search categories..."
-            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
 
@@ -261,7 +261,7 @@ export function CategorizationForm({
             value={brandSearch}
             onChange={(e) => setBrandSearch(e.target.value)}
             placeholder="Search brands..."
-            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
 
@@ -278,7 +278,7 @@ export function CategorizationForm({
                 className={cn(
                   'flex w-full items-center gap-3 px-3 py-2 text-sm transition-colors',
                   brand.id === brandId
-                    ? 'bg-indigo-50 text-indigo-700'
+                    ? 'bg-teal-50 text-teal-700'
                     : 'text-gray-700 hover:bg-gray-50',
                 )}
               >
@@ -295,7 +295,7 @@ export function CategorizationForm({
                 )}
                 <span className="flex-1 text-left">{brand.name}</span>
                 {brand.id === brandId && (
-                  <Check className="h-4 w-4 text-indigo-600" />
+                  <Check className="h-4 w-4 text-teal-600" />
                 )}
               </button>
             ))
@@ -339,7 +339,7 @@ export function CategorizationForm({
               }
             }}
             placeholder="Add a tag..."
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
           <button
             onClick={addTag}
@@ -358,7 +358,7 @@ export function CategorizationForm({
             type="checkbox"
             checked={isFeatured}
             onChange={(e) => onFeaturedChange(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
           />
           <div>
             <p className="text-sm font-medium text-gray-900">

@@ -221,14 +221,14 @@ export function MediaForm({
           className={cn(
             'cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors',
             isDragging
-              ? 'border-indigo-400 bg-indigo-50'
-              : 'border-gray-300 hover:border-indigo-400 hover:bg-gray-50',
+              ? 'border-teal-400 bg-teal-50'
+              : 'border-gray-300 hover:border-teal-400 hover:bg-gray-50',
           )}
         >
           <Upload
             className={cn(
               'mx-auto h-10 w-10',
-              isDragging ? 'text-indigo-500' : 'text-gray-400',
+              isDragging ? 'text-teal-500' : 'text-gray-400',
             )}
           />
           <p className="mt-3 text-sm font-medium text-gray-700">
@@ -266,12 +266,12 @@ export function MediaForm({
                   <p className="truncate text-sm text-gray-700">{file.name}</p>
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
                     <div
-                      className="h-full rounded-full bg-indigo-600 transition-all"
+                      className="h-full rounded-full bg-teal-600 transition-all"
                       style={{ width: `${file.progress}%` }}
                     />
                   </div>
                 </div>
-                <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+                <Loader2 className="h-4 w-4 animate-spin text-teal-600" />
               </div>
             ))}
           </div>
@@ -299,9 +299,9 @@ export function MediaForm({
                   className={cn(
                     'group relative aspect-square overflow-hidden rounded-xl border-2 bg-gray-50 transition-all',
                     dragOverIndex === index
-                      ? 'border-indigo-400 scale-105'
+                      ? 'border-teal-400 scale-105'
                       : index === primaryIndex
-                        ? 'border-indigo-500'
+                        ? 'border-teal-500'
                         : 'border-gray-200',
                     draggedIndex === index && 'opacity-50',
                   )}
@@ -314,7 +314,7 @@ export function MediaForm({
 
                   {/* Primary badge */}
                   {index === primaryIndex && (
-                    <span className="absolute left-2 top-2 rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="absolute left-2 top-2 rounded-full bg-teal-600 px-2 py-0.5 text-xs font-medium text-white">
                       Primary
                     </span>
                   )}

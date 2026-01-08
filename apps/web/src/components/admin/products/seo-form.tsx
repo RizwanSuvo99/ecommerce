@@ -103,7 +103,7 @@ export function SeoForm({
               onChange={(e) => onMetaTitleChange(e.target.value)}
               placeholder={productName || 'Enter a SEO-friendly title'}
               maxLength={70}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-500">
               Recommended: 50-60 characters. Leave empty to use the product
@@ -133,7 +133,7 @@ export function SeoForm({
               onChange={(e) => onMetaDescriptionChange(e.target.value)}
               placeholder="Write a compelling description that summarizes this product for search results..."
               maxLength={160}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-500">
               Recommended: 120-155 characters for optimal display in search
@@ -166,7 +166,7 @@ export function SeoForm({
             {/* Google-style preview */}
             <div className="space-y-1">
               <p className="truncate text-sm text-green-700">{displayUrl}</p>
-              <h4 className="truncate text-xl text-blue-800 hover:underline">
+              <h4 className="truncate text-xl text-teal-800 hover:underline">
                 {displayTitle}
               </h4>
               <p className="line-clamp-2 text-sm text-gray-600">

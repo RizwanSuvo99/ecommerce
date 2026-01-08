@@ -247,8 +247,8 @@ export function CategoryFormDialog({
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100">
-              <FolderTree className="h-5 w-5 text-indigo-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100">
+              <FolderTree className="h-5 w-5 text-teal-600" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
@@ -292,7 +292,7 @@ export function CategoryFormDialog({
                 'w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-1',
                 errors.name
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
+                  : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
               )}
             />
             {errors.name && (
@@ -310,7 +310,7 @@ export function CategoryFormDialog({
               value={nameBn}
               onChange={(e) => setNameBn(e.target.value)}
               placeholder="e.g., ইলেকট্রনিক্স"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -323,7 +323,7 @@ export function CategoryFormDialog({
               type="text"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -337,7 +337,7 @@ export function CategoryFormDialog({
               onChange={(e) =>
                 setSelectedParentId(e.target.value || null)
               }
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none"
             >
               <option value="">None (Top Level)</option>
               {parentOptions.map((option) => (
@@ -358,7 +358,7 @@ export function CategoryFormDialog({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of this category..."
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -418,7 +418,7 @@ export function CategoryFormDialog({
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
             />
             <span className="text-sm font-medium text-gray-700">Active</span>
           </label>
@@ -435,7 +435,7 @@ export function CategoryFormDialog({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
           >
             {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
             {isEditing ? 'Save Changes' : 'Create Category'}

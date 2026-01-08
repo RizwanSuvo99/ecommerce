@@ -228,7 +228,7 @@ export default function AdminProductsPage() {
         </div>
         <Link
           href="/admin/products/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700"
         >
           <Plus className="h-4 w-4" />
           Add Product
@@ -244,7 +244,7 @@ export default function AdminProductsPage() {
             placeholder="Search products by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </form>
 
@@ -255,7 +255,7 @@ export default function AdminProductsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -296,7 +296,7 @@ export default function AdminProductsPage() {
                       selectedIds.size === products.length
                     }
                     onChange={toggleSelectAll}
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -355,7 +355,7 @@ export default function AdminProductsPage() {
                     key={product.id}
                     className={cn(
                       'hover:bg-gray-50',
-                      selectedIds.has(product.id) && 'bg-indigo-50',
+                      selectedIds.has(product.id) && 'bg-teal-50',
                     )}
                   >
                     <td className="px-4 py-3">
@@ -363,7 +363,7 @@ export default function AdminProductsPage() {
                         type="checkbox"
                         checked={selectedIds.has(product.id)}
                         onChange={() => toggleSelect(product.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                     </td>
                     <td className="px-4 py-3">
@@ -382,7 +382,7 @@ export default function AdminProductsPage() {
                         <div className="min-w-0">
                           <Link
                             href={`/admin/products/${product.id}/edit`}
-                            className="truncate text-sm font-medium text-gray-900 hover:text-indigo-600"
+                            className="truncate text-sm font-medium text-gray-900 hover:text-teal-600"
                           >
                             {product.name}
                           </Link>
@@ -475,7 +475,7 @@ export default function AdminProductsPage() {
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-sm font-medium',
                       pageNum === page
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-teal-600 text-white'
                         : 'border border-gray-300 text-gray-600 hover:bg-gray-50',
                     )}
                   >

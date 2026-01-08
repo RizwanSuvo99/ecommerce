@@ -260,7 +260,7 @@ export default function AdminProductEditPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-indigo-600" />
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-teal-600" />
           <p className="mt-3 text-sm text-gray-500">Loading product...</p>
         </div>
       </div>
@@ -317,7 +317,7 @@ export default function AdminProductEditPage() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700 disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -331,7 +331,7 @@ export default function AdminProductEditPage() {
           <select
             value={formData.status}
             onChange={(e) => updateField('status', e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           >
             <option value="DRAFT">Draft</option>
             <option value="ACTIVE">Active</option>
@@ -371,7 +371,7 @@ export default function AdminProductEditPage() {
               className={cn(
                 'flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors',
                 activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-600'
+                  ? 'border-teal-600 text-teal-600'
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
               )}
             >
@@ -402,7 +402,7 @@ export default function AdminProductEditPage() {
                   'w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-1',
                   errors.name
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
+                    : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
                 )}
               />
               {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -417,7 +417,7 @@ export default function AdminProductEditPage() {
                 type="text"
                 value={formData.nameBn}
                 onChange={(e) => updateField('nameBn', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
@@ -425,7 +425,7 @@ export default function AdminProductEditPage() {
               <label htmlFor="edit-slug" className="mb-1.5 block text-sm font-medium text-gray-700">
                 URL Slug
               </label>
-              <div className="flex rounded-lg border border-gray-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+              <div className="flex rounded-lg border border-gray-300 focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500">
                 <span className="inline-flex items-center border-r border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
                   /products/
                 </span>
@@ -448,7 +448,7 @@ export default function AdminProductEditPage() {
                 rows={5}
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
@@ -461,7 +461,7 @@ export default function AdminProductEditPage() {
                 rows={4}
                 value={formData.descriptionBn}
                 onChange={(e) => updateField('descriptionBn', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
@@ -474,7 +474,7 @@ export default function AdminProductEditPage() {
                 type="text"
                 value={formData.sku}
                 onChange={(e) => updateField('sku', e.target.value.toUpperCase())}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm uppercase focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm uppercase focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
           </div>

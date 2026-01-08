@@ -65,7 +65,7 @@ function CurrencyInput({
           'flex rounded-lg border focus-within:ring-1',
           error
             ? 'border-red-300 focus-within:border-red-500 focus-within:ring-red-500'
-            : 'border-gray-300 focus-within:border-indigo-500 focus-within:ring-indigo-500',
+            : 'border-gray-300 focus-within:border-teal-500 focus-within:ring-teal-500',
         )}
       >
         <span className="inline-flex items-center border-r border-gray-300 bg-gray-50 px-3 text-sm font-medium text-gray-500">
@@ -216,7 +216,7 @@ export function PricingForm({ data, onChange, errors = {} }: PricingFormProps) {
               min="0"
               value={data.quantity}
               onChange={(e) => onChange('quantity', parseInt(e.target.value, 10) || 0)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             {errors.quantity && (
               <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>
@@ -239,7 +239,7 @@ export function PricingForm({ data, onChange, errors = {} }: PricingFormProps) {
               onChange={(e) =>
                 onChange('lowStockThreshold', parseInt(e.target.value, 10) || 0)
               }
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-500">
               Alert when stock drops below this number
@@ -264,7 +264,7 @@ export function PricingForm({ data, onChange, errors = {} }: PricingFormProps) {
                 onChange('weight', val === '' ? null : parseFloat(val));
               }}
               placeholder="e.g., 500"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-500">
               Used for shipping cost calculation

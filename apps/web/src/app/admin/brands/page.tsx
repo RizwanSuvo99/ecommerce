@@ -166,7 +166,7 @@ function BrandRow({ brand, onEdit, onDelete }: BrandCardProps) {
                 href={brand.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-indigo-600 hover:underline"
+                className="text-teal-600 hover:underline"
               >
                 website
               </a>
@@ -390,7 +390,7 @@ function BrandFormDialog({
               placeholder="e.g., Samsung"
               className={cn(
                 'w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-1',
-                errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-500',
+                errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-teal-500',
               )}
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -404,7 +404,7 @@ function BrandFormDialog({
               value={formData.nameBn}
               onChange={(e) => updateField('nameBn', e.target.value)}
               placeholder="e.g., স্যামসাং"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -415,7 +415,7 @@ function BrandFormDialog({
               type="text"
               value={formData.slug}
               onChange={(e) => updateField('slug', e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -426,7 +426,7 @@ function BrandFormDialog({
               rows={2}
               value={formData.description}
               onChange={(e) => updateField('description', e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -438,7 +438,7 @@ function BrandFormDialog({
               value={formData.website}
               onChange={(e) => updateField('website', e.target.value)}
               placeholder="https://example.com"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -448,7 +448,7 @@ function BrandFormDialog({
               type="checkbox"
               checked={formData.isActive}
               onChange={(e) => updateField('isActive', e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
             />
             <span className="text-sm font-medium text-gray-700">Active</span>
           </label>
@@ -461,7 +461,7 @@ function BrandFormDialog({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
           >
             {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
             {isEditing ? 'Save Changes' : 'Create Brand'}
@@ -539,7 +539,7 @@ export default function AdminBrandsPage() {
             setEditingBrand(null);
             setShowDialog(true);
           }}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700"
         >
           <Plus className="h-4 w-4" />
           Add Brand
@@ -555,7 +555,7 @@ export default function AdminBrandsPage() {
             placeholder="Search brands..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
 
@@ -565,7 +565,7 @@ export default function AdminBrandsPage() {
             className={cn(
               'rounded-l-lg p-2',
               viewMode === 'grid'
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-teal-600 text-white'
                 : 'text-gray-500 hover:bg-gray-50',
             )}
           >
@@ -576,7 +576,7 @@ export default function AdminBrandsPage() {
             className={cn(
               'rounded-r-lg p-2',
               viewMode === 'list'
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-teal-600 text-white'
                 : 'text-gray-500 hover:bg-gray-50',
             )}
           >
@@ -588,7 +588,7 @@ export default function AdminBrandsPage() {
       {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
         </div>
       ) : filteredBrands.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white py-12 text-center shadow-sm">

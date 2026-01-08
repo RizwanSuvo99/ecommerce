@@ -232,7 +232,7 @@ export default function AdminProductCreatePage() {
           <button
             onClick={() => handleSave(true)}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700 disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {isSaving ? 'Saving...' : 'Publish'}
@@ -250,7 +250,7 @@ export default function AdminProductCreatePage() {
               className={cn(
                 'flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors',
                 activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-600'
+                  ? 'border-teal-600 text-teal-600'
                   : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
               )}
             >
@@ -287,7 +287,7 @@ export default function AdminProductCreatePage() {
                   'w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-1',
                   errors.name
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
+                    : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
                 )}
               />
               {errors.name && (
@@ -309,7 +309,7 @@ export default function AdminProductCreatePage() {
                 value={formData.nameBn}
                 onChange={(e) => updateField('nameBn', e.target.value)}
                 placeholder="e.g., অর্গানিক বাসমতী চাল প্রিমিয়াম"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
@@ -321,7 +321,7 @@ export default function AdminProductCreatePage() {
               >
                 URL Slug <span className="text-red-500">*</span>
               </label>
-              <div className="flex rounded-lg border border-gray-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+              <div className="flex rounded-lg border border-gray-300 focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500">
                 <span className="inline-flex items-center border-r border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
                   /products/
                 </span>
@@ -352,7 +352,7 @@ export default function AdminProductCreatePage() {
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
                 placeholder="Describe the product in detail..."
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
@@ -370,7 +370,7 @@ export default function AdminProductCreatePage() {
                 value={formData.descriptionBn}
                 onChange={(e) => updateField('descriptionBn', e.target.value)}
                 placeholder="পণ্যের বিস্তারিত বিবরণ..."
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
@@ -394,7 +394,7 @@ export default function AdminProductCreatePage() {
                   'w-full rounded-lg border px-4 py-2.5 text-sm uppercase focus:outline-none focus:ring-1',
                   errors.sku
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500',
+                    : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
                 )}
               />
               {errors.sku && (

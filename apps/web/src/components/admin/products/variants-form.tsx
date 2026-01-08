@@ -163,7 +163,7 @@ function OptionTypeEditor({
           value={option.name}
           onChange={(e) => onChange({ ...option, name: e.target.value })}
           placeholder="e.g., Color, Size, Weight"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
         />
       </div>
 
@@ -176,12 +176,12 @@ function OptionTypeEditor({
           {option.values.map((value, valueIndex) => (
             <span
               key={valueIndex}
-              className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-700"
+              className="inline-flex items-center gap-1 rounded-full bg-teal-100 px-3 py-1 text-sm text-teal-700"
             >
               {value}
               <button
                 onClick={() => removeValue(valueIndex)}
-                className="rounded-full p-0.5 hover:bg-indigo-200"
+                className="rounded-full p-0.5 hover:bg-teal-200"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -195,12 +195,12 @@ function OptionTypeEditor({
             onChange={(e) => setNewValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a value and press Enter"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
           <button
             onClick={addValue}
             disabled={!newValue.trim()}
-            className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
           >
             Add
           </button>
@@ -308,7 +308,7 @@ export function VariantsForm({
             </p>
             <button
               onClick={addOption}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
             >
               <Plus className="h-4 w-4" />
               Add First Option
@@ -327,15 +327,15 @@ export function VariantsForm({
             ))}
 
             {/* Generate Variants Button */}
-            <div className="flex items-center justify-between rounded-lg bg-indigo-50 px-4 py-3">
-              <p className="text-sm text-indigo-700">
+            <div className="flex items-center justify-between rounded-lg bg-teal-50 px-4 py-3">
+              <p className="text-sm text-teal-700">
                 This will generate{' '}
                 <span className="font-semibold">{totalVariants}</span> variant
                 {totalVariants !== 1 ? 's' : ''}
               </p>
               <button
                 onClick={handleGenerateVariants}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
               >
                 Generate Variants
               </button>
@@ -407,7 +407,7 @@ export function VariantsForm({
                         </td>
                       ))}
                     <td className="px-4 py-2">
-                      <div className="flex rounded border border-gray-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+                      <div className="flex rounded border border-gray-300 focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500">
                         <span className="inline-flex items-center border-r border-gray-300 bg-gray-50 px-2 text-xs text-gray-500">
                           ৳
                         </span>
@@ -439,7 +439,7 @@ export function VariantsForm({
                             parseInt(e.target.value, 10) || 0,
                           )
                         }
-                        className="w-20 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-20 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -449,7 +449,7 @@ export function VariantsForm({
                         onChange={(e) =>
                           updateVariant(index, 'sku', e.target.value)
                         }
-                        className="w-36 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-36 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                       />
                     </td>
                     <td className="px-4 py-2 text-center">
@@ -459,7 +459,7 @@ export function VariantsForm({
                         onChange={(e) =>
                           updateVariant(index, 'isActive', e.target.checked)
                         }
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                     </td>
                   </tr>
