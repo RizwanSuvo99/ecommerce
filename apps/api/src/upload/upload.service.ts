@@ -11,6 +11,10 @@ import {
   UploadOptions,
   STORAGE_ADAPTER,
 } from './interfaces/storage-adapter.interface';
+import {
+  ImageProcessingService,
+  ImageProcessingResult,
+} from './image-processing.service';
 
 /**
  * Allowed MIME types for file uploads.
@@ -37,6 +41,20 @@ const ALL_ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES];
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_DOCUMENT_SIZE = 50 * 1024 * 1024; // 50 MB
 
+/**
+ * Extended upload result that includes processed image variants.
+ */
+export interface ImageUploadResult extends UploadResult {
+  variants: {
+    thumb: UploadResult;
+    medium: UploadResult;
+    large: UploadResult;
+  };
+  blurDataUrl: string | null;
+  originalWidth: number;
+  originalHeight: number;
+}
+
 @Injectable()
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);
@@ -44,6 +62,7 @@ export class UploadService {
   constructor(
     @Inject(STORAGE_ADAPTER)
     private readonly storageAdapter: StorageAdapter,
+    private readonly imageProcessingService: ImageProcessingService,
   ) {}
 
   /**
@@ -93,24 +112,68 @@ export class UploadService {
   }
 
   /**
-   * Upload an image with validation specific to image files.
+   * Upload an image with automatic processing: resize to multiple variants,
+   * convert to WebP, and generate a blur hash placeholder.
+   *
+   * @param file - Original image buffer
+   * @param originalName - Original filename
+   * @param mimeType - MIME type (must be an image type)
+   * @param options - Upload options
+   * @returns Upload result including all generated variants
    */
   async uploadImage(
     file: Buffer,
     originalName: string,
     mimeType: string,
     options?: UploadOptions,
-  ): Promise<UploadResult> {
+  ): Promise<ImageUploadResult> {
     if (!ALLOWED_IMAGE_TYPES.includes(mimeType)) {
       throw new BadRequestException(
         `Invalid image type "${mimeType}". Allowed: ${ALLOWED_IMAGE_TYPES.join(', ')}`,
       );
     }
 
-    return this.uploadFile(file, originalName, mimeType, {
+    const directory = options?.directory || 'images';
+
+    // Upload original
+    const original = await this.uploadFile(file, originalName, mimeType, {
       ...options,
-      directory: options?.directory || 'images',
+      directory,
     });
+
+    // Process image variants (thumb, medium, large) and generate blur placeholder
+    const processed: ImageProcessingResult =
+      await this.imageProcessingService.processImage(file);
+
+    // Upload each variant
+    const variantResults: Record<string, UploadResult> = {};
+
+    for (const variant of processed.variants) {
+      const variantName = `${this.stripExtension(originalName)}-${variant.name}.webp`;
+      const variantResult = await this.storageAdapter.upload(
+        variant.buffer,
+        variantName,
+        'image/webp',
+        { ...options, directory: `${directory}/${variant.name}` },
+      );
+      variantResults[variant.name] = variantResult;
+    }
+
+    this.logger.log(
+      `Image uploaded with ${processed.variants.length} variants: ${original.key}`,
+    );
+
+    return {
+      ...original,
+      variants: {
+        thumb: variantResults['thumb'],
+        medium: variantResults['medium'],
+        large: variantResults['large'],
+      },
+      blurDataUrl: processed.blurDataUrl,
+      originalWidth: processed.originalWidth,
+      originalHeight: processed.originalHeight,
+    };
   }
 
   /**
@@ -179,5 +242,13 @@ export class UploadService {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  /**
+   * Strip the file extension from a filename.
+   */
+  private stripExtension(filename: string): string {
+    const lastDot = filename.lastIndexOf('.');
+    return lastDot > 0 ? filename.substring(0, lastDot) : filename;
   }
 }

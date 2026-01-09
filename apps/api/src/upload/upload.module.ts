@@ -5,6 +5,7 @@ import { memoryStorage } from 'multer';
 
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
+import { ImageProcessingService } from './image-processing.service';
 import { LocalStorageAdapter } from './adapters/local-storage.adapter';
 import { STORAGE_ADAPTER } from './interfaces/storage-adapter.interface';
 
@@ -18,12 +19,13 @@ import { STORAGE_ADAPTER } from './interfaces/storage-adapter.interface';
   controllers: [UploadController],
   providers: [
     UploadService,
+    ImageProcessingService,
     LocalStorageAdapter,
     {
       provide: STORAGE_ADAPTER,
       useExisting: LocalStorageAdapter,
     },
   ],
-  exports: [UploadService],
+  exports: [UploadService, ImageProcessingService],
 })
 export class UploadModule {}
