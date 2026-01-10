@@ -13,8 +13,10 @@ import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '../auth
 // Constants
 // ──────────────────────────────────────────────────────────
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+const API_BASE_URL = (() => {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+  return base.endsWith('/api/v1') ? base : `${base}/api/v1`;
+})();
 
 const REQUEST_TIMEOUT = 15_000; // 15 seconds
 
