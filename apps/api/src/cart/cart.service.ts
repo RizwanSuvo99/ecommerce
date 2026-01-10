@@ -2,8 +2,11 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AddCartItemDto } from './dto/add-cart-item.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
 /**
  * Cart summary with calculated totals.
@@ -57,24 +60,14 @@ export class CartService {
 
   /**
    * Get or create a cart for the given user or guest session.
-   *
-   * If a user is authenticated, their cart is retrieved by userId.
-   * If no cart exists, a new one is created. For guests, the cart
-   * is identified by a sessionId.
-   *
-   * @param userId - Authenticated user ID (optional)
-   * @param sessionId - Guest session identifier (optional)
-   * @returns The active cart
    */
-  async getOrCreateCart(userId?: string, sessionId?: string) {
-    // Try to find existing cart
+  async getOrCreateCart(userId?: string, sessionId?: string): Promise<CartSummary> {
     let cart = await this.findCartRaw(userId, sessionId);
 
     if (cart) {
       return this.buildCartSummary(cart);
     }
 
-    // Create new cart
     cart = await this.prisma.cart.create({
       data: {
         ...(userId ? { userId } : {}),
@@ -83,21 +76,7 @@ export class CartService {
       },
       include: {
         items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                price: true,
-                compareAtPrice: true,
-                sku: true,
-                stock: true,
-                images: true,
-                status: true,
-              },
-            },
-          },
+          include: { product: this.productSelect() },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -112,16 +91,11 @@ export class CartService {
 
   /**
    * Get the cart with full details and calculated totals.
-   *
-   * @param userId - Authenticated user ID (optional)
-   * @param sessionId - Guest session identifier (optional)
-   * @returns Cart summary with subtotal, discount, total, and item count
    */
   async getCart(userId?: string, sessionId?: string): Promise<CartSummary> {
     const cart = await this.findCartRaw(userId, sessionId);
 
     if (!cart) {
-      // Return an empty cart summary
       return this.getOrCreateCart(userId, sessionId);
     }
 
@@ -129,15 +103,199 @@ export class CartService {
   }
 
   /**
+   * Add an item to the cart with stock validation.
+   *
+   * If the product already exists in the cart, the quantity is incremented.
+   * Validates that the product exists, is active, and has sufficient stock.
+   *
+   * @param dto - Add cart item data
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Updated cart summary
+   */
+  async addItem(
+    dto: AddCartItemDto,
+    userId?: string,
+    sessionId?: string,
+  ): Promise<CartSummary> {
+    // Validate product exists and is in stock
+    const product = await this.prisma.product.findUnique({
+      where: { id: dto.productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (product.status !== 'ACTIVE') {
+      throw new BadRequestException('Product is not available for purchase');
+    }
+
+    if (product.stock < dto.quantity) {
+      throw new BadRequestException(
+        `Insufficient stock. Only ${product.stock} items available.`,
+      );
+    }
+
+    // Get or create cart
+    const cartSummary = await this.getOrCreateCart(userId, sessionId);
+
+    // Check if item already exists in cart
+    const existingItem = await this.prisma.cartItem.findFirst({
+      where: {
+        cartId: cartSummary.id,
+        productId: dto.productId,
+        variantId: dto.variantId || null,
+      },
+    });
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + dto.quantity;
+
+      // Validate combined stock
+      if (product.stock < newQuantity) {
+        throw new BadRequestException(
+          `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in cart and only ${product.stock} are available.`,
+        );
+      }
+
+      await this.prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: { quantity: newQuantity },
+      });
+
+      this.logger.debug(
+        `Updated cart item quantity: ${existingItem.id} -> ${newQuantity}`,
+      );
+    } else {
+      await this.prisma.cartItem.create({
+        data: {
+          cartId: cartSummary.id,
+          productId: dto.productId,
+          variantId: dto.variantId || null,
+          quantity: dto.quantity,
+          price: product.price,
+        },
+      });
+
+      this.logger.debug(
+        `Added new item to cart: product ${dto.productId}, qty ${dto.quantity}`,
+      );
+    }
+
+    return this.getCartByIdSummary(cartSummary.id);
+  }
+
+  /**
+   * Update the quantity of a specific cart item.
+   *
+   * @param itemId - Cart item ID
+   * @param dto - New quantity
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Updated cart summary
+   */
+  async updateItemQuantity(
+    itemId: string,
+    dto: UpdateCartItemDto,
+    userId?: string,
+    sessionId?: string,
+  ): Promise<CartSummary> {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id: itemId },
+      include: {
+        cart: true,
+        product: true,
+      },
+    });
+
+    if (!cartItem) {
+      throw new NotFoundException('Cart item not found');
+    }
+
+    // Verify ownership
+    this.verifyCartOwnership(cartItem.cart, userId, sessionId);
+
+    // Validate stock
+    if (cartItem.product.stock < dto.quantity) {
+      throw new BadRequestException(
+        `Insufficient stock. Only ${cartItem.product.stock} items available.`,
+      );
+    }
+
+    await this.prisma.cartItem.update({
+      where: { id: itemId },
+      data: { quantity: dto.quantity },
+    });
+
+    this.logger.debug(`Updated cart item ${itemId} quantity to ${dto.quantity}`);
+
+    return this.getCartByIdSummary(cartItem.cartId);
+  }
+
+  /**
+   * Remove a specific item from the cart.
+   *
+   * @param itemId - Cart item ID to remove
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Updated cart summary
+   */
+  async removeItem(
+    itemId: string,
+    userId?: string,
+    sessionId?: string,
+  ): Promise<CartSummary> {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id: itemId },
+      include: { cart: true },
+    });
+
+    if (!cartItem) {
+      throw new NotFoundException('Cart item not found');
+    }
+
+    // Verify ownership
+    this.verifyCartOwnership(cartItem.cart, userId, sessionId);
+
+    await this.prisma.cartItem.delete({ where: { id: itemId } });
+
+    this.logger.debug(`Removed cart item: ${itemId}`);
+
+    return this.getCartByIdSummary(cartItem.cartId);
+  }
+
+  /**
+   * Remove all items from the cart.
+   *
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Updated (empty) cart summary
+   */
+  async clearCart(userId?: string, sessionId?: string): Promise<CartSummary> {
+    const cart = await this.findCartRaw(userId, sessionId);
+
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+
+    await this.prisma.cartItem.deleteMany({
+      where: { cartId: cart.id },
+    });
+
+    // Also remove any applied coupon
+    await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: { couponCode: null, discount: 0 },
+    });
+
+    this.logger.log(`Cleared cart: ${cart.id}`);
+
+    return this.getCartByIdSummary(cart.id);
+  }
+
+  /**
    * Merge a guest cart into an authenticated user's cart.
-   *
-   * When a guest user logs in, their anonymous cart items are moved
-   * into their authenticated cart. If an item already exists in the
-   * user cart, quantities are summed. The guest cart is then deleted.
-   *
-   * @param userId - The authenticated user's ID
-   * @param sessionId - The guest session ID to merge from
-   * @returns The merged user cart
    */
   async mergeGuestCart(userId: string, sessionId: string): Promise<CartSummary> {
     const guestCart = await this.prisma.cart.findFirst({
@@ -149,11 +307,9 @@ export class CartService {
       return this.getOrCreateCart(userId);
     }
 
-    // Get or create user cart (raw for internal use)
     const userCartSummary = await this.getOrCreateCart(userId);
     const userCartId = userCartSummary.id;
 
-    // Merge items
     for (const guestItem of guestCart.items) {
       const existingItem = await this.prisma.cartItem.findFirst({
         where: {
@@ -164,13 +320,11 @@ export class CartService {
       });
 
       if (existingItem) {
-        // Sum quantities for existing items
         await this.prisma.cartItem.update({
           where: { id: existingItem.id },
           data: { quantity: existingItem.quantity + guestItem.quantity },
         });
       } else {
-        // Move new items to user cart
         await this.prisma.cartItem.create({
           data: {
             cartId: userCartId,
@@ -183,14 +337,12 @@ export class CartService {
       }
     }
 
-    // Delete guest cart
     await this.prisma.cart.delete({ where: { id: guestCart.id } });
 
     this.logger.log(
       `Merged guest cart ${guestCart.id} (${guestCart.items.length} items) into user cart ${userCartId}`,
     );
 
-    // Return updated cart with totals
     return this.getCartByIdSummary(userCartId);
   }
 
@@ -202,21 +354,7 @@ export class CartService {
       where: { id: cartId },
       include: {
         items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                price: true,
-                compareAtPrice: true,
-                sku: true,
-                stock: true,
-                images: true,
-                status: true,
-              },
-            },
-          },
+          include: { product: this.productSelect() },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -231,9 +369,6 @@ export class CartService {
 
   // ─── Private Helpers ────────────────────────────────────────────────────────
 
-  /**
-   * Find a cart (raw Prisma result) by user ID or session ID.
-   */
   private async findCartRaw(userId?: string, sessionId?: string) {
     if (!userId && !sessionId) return null;
 
@@ -243,30 +378,29 @@ export class CartService {
       },
       include: {
         items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                price: true,
-                compareAtPrice: true,
-                sku: true,
-                stock: true,
-                images: true,
-                status: true,
-              },
-            },
-          },
+          include: { product: this.productSelect() },
           orderBy: { createdAt: 'asc' },
         },
       },
     });
   }
 
-  /**
-   * Build a cart summary with calculated totals from a raw cart.
-   */
+  private productSelect() {
+    return {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        compareAtPrice: true,
+        sku: true,
+        stock: true,
+        images: true,
+        status: true,
+      },
+    };
+  }
+
   private buildCartSummary(cart: any): CartSummary {
     const items: CartItemWithProduct[] = (cart.items || []).map((item: any) => ({
       id: item.id,
@@ -299,8 +433,19 @@ export class CartService {
   }
 
   /**
-   * Calculate expiry date for guest carts (30 days from now).
+   * Verify that the requesting user/session owns the cart.
    */
+  private verifyCartOwnership(
+    cart: any,
+    userId?: string,
+    sessionId?: string,
+  ): void {
+    if (userId && cart.userId === userId) return;
+    if (sessionId && cart.sessionId === sessionId && !cart.userId) return;
+
+    throw new BadRequestException('You do not have access to this cart');
+  }
+
   private getCartExpiry(): Date {
     const expiry = new Date();
     expiry.setDate(expiry.getDate() + 30);

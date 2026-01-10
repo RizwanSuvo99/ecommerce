@@ -2,11 +2,17 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
   UseGuards,
   Headers,
 } from '@nestjs/common';
 
 import { CartService } from './cart.service';
+import { AddCartItemDto } from './dto/add-cart-item.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
 
@@ -25,9 +31,6 @@ export class CartController {
    * Get the current cart with items, subtotal, discount, total, and item count.
    *
    * GET /cart
-   *
-   * Returns the cart for the authenticated user or guest session.
-   * Includes full product details for each item and calculated totals.
    */
   @Get()
   async getCart(
@@ -44,9 +47,6 @@ export class CartController {
    * Get or create the current user's/guest's cart.
    *
    * POST /cart
-   *
-   * For authenticated users, retrieves or creates a user-bound cart.
-   * For guests, requires X-Session-Id header to identify the session.
    */
   @Post()
   async getOrCreateCart(
@@ -60,12 +60,84 @@ export class CartController {
   }
 
   /**
+   * Add an item to the cart.
+   *
+   * POST /cart/items
+   *
+   * Validates product availability and stock before adding.
+   * If the product already exists in the cart, increments quantity.
+   */
+  @Post('items')
+  async addItem(
+    @Body() dto: AddCartItemDto,
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.addItem(
+      dto,
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
+
+  /**
+   * Update the quantity of a cart item.
+   *
+   * PATCH /cart/items/:itemId
+   */
+  @Patch('items/:itemId')
+  async updateItemQuantity(
+    @Param('itemId') itemId: string,
+    @Body() dto: UpdateCartItemDto,
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.updateItemQuantity(
+      itemId,
+      dto,
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
+
+  /**
+   * Remove a specific item from the cart.
+   *
+   * DELETE /cart/items/:itemId
+   */
+  @Delete('items/:itemId')
+  async removeItem(
+    @Param('itemId') itemId: string,
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.removeItem(
+      itemId,
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
+
+  /**
+   * Remove all items from the cart.
+   *
+   * DELETE /cart/items
+   */
+  @Delete('items')
+  async clearCart(
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.clearCart(
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
+
+  /**
    * Merge a guest cart into the authenticated user's cart.
    *
    * POST /cart/merge
-   *
-   * Called after login to transfer guest cart items to the user's cart.
-   * Requires both authentication and X-Session-Id header.
    */
   @Post('merge')
   async mergeGuestCart(
