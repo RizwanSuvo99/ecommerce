@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@react-oauth/google": "^0.13.4",
     "@t3-oss/env-nextjs": "^0.13.10",
     "axios": "^1.13.5",
     "clsx": "^2.1.0",
+    "firebase": "^12.9.0",
     "lucide-react": "^0.312.0",
     "next": "14.2.21",
     "nextjs-toploader": "^3.9.17",
@@ -28,7 +30,6 @@
   },
   "devDependencies": {
     "@ecommerce/eslint-config": "workspace:*",
-    "eslint-config-next": "14.2.21",
     "@ecommerce/tsconfig": "workspace:*",
     "@ecommerce/types": "workspace:*",
     "@ecommerce/ui": "workspace:*",
@@ -36,6 +37,7 @@
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.17",
+    "eslint-config-next": "14.2.21",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
