@@ -6,6 +6,43 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
+ * Cart summary with calculated totals.
+ */
+export interface CartSummary {
+  id: string;
+  userId: string | null;
+  sessionId: string | null;
+  items: CartItemWithProduct[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  itemCount: number;
+  couponCode: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CartItemWithProduct {
+  id: string;
+  productId: string;
+  variantId: string | null;
+  quantity: number;
+  price: number;
+  lineTotal: number;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    compareAtPrice: number | null;
+    sku: string;
+    stock: number;
+    images: any[];
+    status: string;
+  };
+}
+
+/**
  * Shopping cart service.
  *
  * Handles cart lifecycle management for both authenticated users and
@@ -31,10 +68,10 @@ export class CartService {
    */
   async getOrCreateCart(userId?: string, sessionId?: string) {
     // Try to find existing cart
-    let cart = await this.findCart(userId, sessionId);
+    let cart = await this.findCartRaw(userId, sessionId);
 
     if (cart) {
-      return cart;
+      return this.buildCartSummary(cart);
     }
 
     // Create new cart
@@ -70,7 +107,25 @@ export class CartService {
       `Created new cart: ${cart.id} for ${userId ? `user ${userId}` : `guest ${sessionId}`}`,
     );
 
-    return cart;
+    return this.buildCartSummary(cart);
+  }
+
+  /**
+   * Get the cart with full details and calculated totals.
+   *
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Cart summary with subtotal, discount, total, and item count
+   */
+  async getCart(userId?: string, sessionId?: string): Promise<CartSummary> {
+    const cart = await this.findCartRaw(userId, sessionId);
+
+    if (!cart) {
+      // Return an empty cart summary
+      return this.getOrCreateCart(userId, sessionId);
+    }
+
+    return this.buildCartSummary(cart);
   }
 
   /**
@@ -84,7 +139,7 @@ export class CartService {
    * @param sessionId - The guest session ID to merge from
    * @returns The merged user cart
    */
-  async mergeGuestCart(userId: string, sessionId: string) {
+  async mergeGuestCart(userId: string, sessionId: string): Promise<CartSummary> {
     const guestCart = await this.prisma.cart.findFirst({
       where: { sessionId, userId: null },
       include: { items: true },
@@ -94,14 +149,15 @@ export class CartService {
       return this.getOrCreateCart(userId);
     }
 
-    // Get or create user cart
-    const userCart = await this.getOrCreateCart(userId);
+    // Get or create user cart (raw for internal use)
+    const userCartSummary = await this.getOrCreateCart(userId);
+    const userCartId = userCartSummary.id;
 
     // Merge items
     for (const guestItem of guestCart.items) {
       const existingItem = await this.prisma.cartItem.findFirst({
         where: {
-          cartId: userCart.id,
+          cartId: userCartId,
           productId: guestItem.productId,
           variantId: guestItem.variantId,
         },
@@ -117,7 +173,7 @@ export class CartService {
         // Move new items to user cart
         await this.prisma.cartItem.create({
           data: {
-            cartId: userCart.id,
+            cartId: userCartId,
             productId: guestItem.productId,
             variantId: guestItem.variantId,
             quantity: guestItem.quantity,
@@ -131,17 +187,54 @@ export class CartService {
     await this.prisma.cart.delete({ where: { id: guestCart.id } });
 
     this.logger.log(
-      `Merged guest cart ${guestCart.id} (${guestCart.items.length} items) into user cart ${userCart.id}`,
+      `Merged guest cart ${guestCart.id} (${guestCart.items.length} items) into user cart ${userCartId}`,
     );
 
-    // Return updated cart
-    return this.getCartById(userCart.id);
+    // Return updated cart with totals
+    return this.getCartByIdSummary(userCartId);
   }
 
   /**
-   * Find a cart by user ID or session ID.
+   * Get a cart by ID with calculated totals.
    */
-  async findCart(userId?: string, sessionId?: string) {
+  async getCartByIdSummary(cartId: string): Promise<CartSummary> {
+    const cart = await this.prisma.cart.findUnique({
+      where: { id: cartId },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                price: true,
+                compareAtPrice: true,
+                sku: true,
+                stock: true,
+                images: true,
+                status: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+
+    return this.buildCartSummary(cart);
+  }
+
+  // ─── Private Helpers ────────────────────────────────────────────────────────
+
+  /**
+   * Find a cart (raw Prisma result) by user ID or session ID.
+   */
+  private async findCartRaw(userId?: string, sessionId?: string) {
     if (!userId && !sessionId) return null;
 
     return this.prisma.cart.findFirst({
@@ -172,41 +265,38 @@ export class CartService {
   }
 
   /**
-   * Get a cart by its ID with full item details.
+   * Build a cart summary with calculated totals from a raw cart.
    */
-  async getCartById(cartId: string) {
-    const cart = await this.prisma.cart.findUnique({
-      where: { id: cartId },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                price: true,
-                compareAtPrice: true,
-                sku: true,
-                stock: true,
-                images: true,
-                status: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
+  private buildCartSummary(cart: any): CartSummary {
+    const items: CartItemWithProduct[] = (cart.items || []).map((item: any) => ({
+      id: item.id,
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      price: Number(item.price),
+      lineTotal: Number(item.price) * item.quantity,
+      product: item.product,
+    }));
 
-    if (!cart) {
-      throw new NotFoundException('Cart not found');
-    }
+    const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+    const discount = Number(cart.discount || 0);
+    const total = Math.max(0, subtotal - discount);
+    const itemCount = items.reduce((count, item) => count + item.quantity, 0);
 
-    return cart;
+    return {
+      id: cart.id,
+      userId: cart.userId,
+      sessionId: cart.sessionId,
+      items,
+      subtotal,
+      discount,
+      total,
+      itemCount,
+      couponCode: cart.couponCode || null,
+      createdAt: cart.createdAt,
+      updatedAt: cart.updatedAt,
+    };
   }
-
-  // ─── Private Helpers ────────────────────────────────────────────────────────
 
   /**
    * Calculate expiry date for guest carts (30 days from now).

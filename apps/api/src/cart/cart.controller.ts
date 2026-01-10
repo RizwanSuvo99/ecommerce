@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   UseGuards,
-  Req,
   Headers,
 } from '@nestjs/common';
 
@@ -21,6 +20,25 @@ import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.
 @UseGuards(OptionalAuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
+
+  /**
+   * Get the current cart with items, subtotal, discount, total, and item count.
+   *
+   * GET /cart
+   *
+   * Returns the cart for the authenticated user or guest session.
+   * Includes full product details for each item and calculated totals.
+   */
+  @Get()
+  async getCart(
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.getCart(
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
 
   /**
    * Get or create the current user's/guest's cart.
