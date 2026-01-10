@@ -4,13 +4,15 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: string;
-  isActive: boolean;
+  status: string;
   createdAt: string;
   lastLoginAt: string | null;
   _count: { orders: number };
@@ -44,7 +46,7 @@ export default function AdminUsersPage() {
       setUsers(data.data.users);
       setPagination(data.data.pagination);
     } catch {
-      // handle error
+      toast.error('Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -63,9 +65,10 @@ export default function AdminUsersPage() {
   const toggleActive = async (id: string) => {
     try {
       await apiClient.patch(`/admin/users/${id}/toggle-active`);
+      toast.success('User status updated');
       fetchUsers();
     } catch {
-      // handle error
+      toast.error('Failed to update user status');
     }
   };
 
@@ -161,7 +164,7 @@ export default function AdminUsersPage() {
               users.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
-                    {user.name}
+                    {user.firstName} {user.lastName}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{user.email}</td>
                   <td className="whitespace-nowrap px-4 py-3">{roleBadge(user.role)}</td>
@@ -172,12 +175,12 @@ export default function AdminUsersPage() {
                     <button
                       onClick={() => toggleActive(user.id)}
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        user.isActive
+                        user.status === 'ACTIVE'
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
                       }`}
                     >
-                      {user.isActive ? 'Active' : 'Inactive'}
+                      {user.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                     </button>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right text-sm">

@@ -4,14 +4,16 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface UserDetail {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string | null;
   role: string;
-  isActive: boolean;
+  status: string;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
@@ -32,17 +34,16 @@ interface UserDetail {
   _count: { orders: number; reviews: number };
 }
 
-const ROLES = ['CUSTOMER', 'EDITOR', 'ADMIN', 'SUPER_ADMIN'];
+const ROLES = ['CUSTOMER', 'VENDOR', 'ADMIN', 'SUPER_ADMIN'];
 
 export default function AdminUserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', role: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', phone: '', role: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     apiClient
@@ -50,24 +51,22 @@ export default function AdminUserDetailPage() {
       .then(({ data }) => {
         const u = data.data;
         setUser(u);
-        setForm({ name: u.name, email: u.email, phone: u.phone ?? '', role: u.role });
+        setForm({ firstName: u.firstName, lastName: u.lastName, email: u.email, phone: u.phone ?? '', role: u.role });
       })
-      .catch(() => setMessage('Failed to load user'))
+      .catch(() => toast.error('Failed to load user'))
       .finally(() => setLoading(false));
   }, [id]);
 
   const handleSave = async () => {
     setSaving(true);
-    setMessage('');
     try {
       await apiClient.patch(`/admin/users/${id}`, form);
-      setMessage('User updated successfully.');
+      toast.success('User updated');
       setEditing(false);
-      // Refresh user data
       const { data } = await apiClient.get(`/admin/users/${id}`);
       setUser(data.data);
     } catch {
-      setMessage('Failed to update user.');
+      toast.error('Failed to update user');
     } finally {
       setSaving(false);
     }
@@ -77,9 +76,10 @@ export default function AdminUserDetailPage() {
     if (!confirm('Are you sure you want to delete this user?')) return;
     try {
       await apiClient.delete(`/admin/users/${id}`);
+      toast.success('User deleted');
       router.push('/admin/users');
     } catch {
-      setMessage('Failed to delete user.');
+      toast.error('Failed to delete user');
     }
   };
 
@@ -96,7 +96,7 @@ export default function AdminUserDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h1>
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
         <div className="flex gap-2">
@@ -115,21 +115,24 @@ export default function AdminUserDetailPage() {
         </div>
       </div>
 
-      {message && (
-        <p className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
-
       {/* Edit Form or Info Display */}
       {editing ? (
         <div className="grid grid-cols-1 gap-4 rounded-lg border p-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label className="block text-sm font-medium text-gray-700">First Name</label>
             <input
               type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.firstName}
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
+            <input
+              type="text"
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
@@ -183,8 +186,8 @@ export default function AdminUserDetailPage() {
           <div>
             <dt className="text-xs text-gray-500">Status</dt>
             <dd className="mt-1">
-              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {user.isActive ? 'Active' : 'Inactive'}
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {user.status === 'ACTIVE' ? 'Active' : user.status}
               </span>
             </dd>
           </div>

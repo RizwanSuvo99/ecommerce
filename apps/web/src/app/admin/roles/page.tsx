@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface Permission {
   key: string;
@@ -29,7 +30,6 @@ export default function AdminRolesPage() {
     description: '',
     permissions: [] as string[],
   });
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -40,7 +40,7 @@ export default function AdminRolesPage() {
         setRoles(rolesRes.data.data);
         setPermissions(permRes.data.data);
       })
-      .catch(() => setMessage('Failed to load data'))
+      .catch(() => toast.error('Failed to load roles'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -79,7 +79,6 @@ export default function AdminRolesPage() {
   };
 
   const handleSave = async () => {
-    setMessage('');
     try {
       if (editingRole) {
         await apiClient.patch(`/admin/roles/${editingRole.id}`, form);
@@ -89,9 +88,9 @@ export default function AdminRolesPage() {
       const { data } = await apiClient.get('/admin/roles');
       setRoles(data.data);
       setShowForm(false);
-      setMessage('Role saved successfully.');
+      toast.success('Role saved');
     } catch {
-      setMessage('Failed to save role.');
+      toast.error('Failed to save role');
     }
   };
 
@@ -100,9 +99,9 @@ export default function AdminRolesPage() {
     try {
       await apiClient.delete(`/admin/roles/${id}`);
       setRoles((prev) => prev.filter((r) => r.id !== id));
-      setMessage('Role deleted.');
+      toast.success('Role deleted');
     } catch {
-      setMessage('Cannot delete role with assigned users.');
+      toast.error('Cannot delete role with assigned users');
     }
   };
 
@@ -124,12 +123,6 @@ export default function AdminRolesPage() {
           Create Role
         </button>
       </div>
-
-      {message && (
-        <p className={`text-sm ${message.includes('success') || message.includes('deleted') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
 
       {/* Roles List */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
