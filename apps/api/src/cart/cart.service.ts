@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { ApplyCouponDto } from './dto/apply-coupon.dto';
 
 /**
  * Cart summary with calculated totals.
@@ -58,6 +59,8 @@ export class CartService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  // ─── Cart Lifecycle ──────────────────────────────────────────────────────────
+
   /**
    * Get or create a cart for the given user or guest session.
    */
@@ -102,23 +105,16 @@ export class CartService {
     return this.buildCartSummary(cart);
   }
 
+  // ─── Item Operations ─────────────────────────────────────────────────────────
+
   /**
    * Add an item to the cart with stock validation.
-   *
-   * If the product already exists in the cart, the quantity is incremented.
-   * Validates that the product exists, is active, and has sufficient stock.
-   *
-   * @param dto - Add cart item data
-   * @param userId - Authenticated user ID (optional)
-   * @param sessionId - Guest session identifier (optional)
-   * @returns Updated cart summary
    */
   async addItem(
     dto: AddCartItemDto,
     userId?: string,
     sessionId?: string,
   ): Promise<CartSummary> {
-    // Validate product exists and is in stock
     const product = await this.prisma.product.findUnique({
       where: { id: dto.productId },
     });
@@ -137,10 +133,8 @@ export class CartService {
       );
     }
 
-    // Get or create cart
     const cartSummary = await this.getOrCreateCart(userId, sessionId);
 
-    // Check if item already exists in cart
     const existingItem = await this.prisma.cartItem.findFirst({
       where: {
         cartId: cartSummary.id,
@@ -152,7 +146,6 @@ export class CartService {
     if (existingItem) {
       const newQuantity = existingItem.quantity + dto.quantity;
 
-      // Validate combined stock
       if (product.stock < newQuantity) {
         throw new BadRequestException(
           `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in cart and only ${product.stock} are available.`,
@@ -163,10 +156,6 @@ export class CartService {
         where: { id: existingItem.id },
         data: { quantity: newQuantity },
       });
-
-      this.logger.debug(
-        `Updated cart item quantity: ${existingItem.id} -> ${newQuantity}`,
-      );
     } else {
       await this.prisma.cartItem.create({
         data: {
@@ -177,10 +166,6 @@ export class CartService {
           price: product.price,
         },
       });
-
-      this.logger.debug(
-        `Added new item to cart: product ${dto.productId}, qty ${dto.quantity}`,
-      );
     }
 
     return this.getCartByIdSummary(cartSummary.id);
@@ -188,12 +173,6 @@ export class CartService {
 
   /**
    * Update the quantity of a specific cart item.
-   *
-   * @param itemId - Cart item ID
-   * @param dto - New quantity
-   * @param userId - Authenticated user ID (optional)
-   * @param sessionId - Guest session identifier (optional)
-   * @returns Updated cart summary
    */
   async updateItemQuantity(
     itemId: string,
@@ -203,20 +182,15 @@ export class CartService {
   ): Promise<CartSummary> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: itemId },
-      include: {
-        cart: true,
-        product: true,
-      },
+      include: { cart: true, product: true },
     });
 
     if (!cartItem) {
       throw new NotFoundException('Cart item not found');
     }
 
-    // Verify ownership
     this.verifyCartOwnership(cartItem.cart, userId, sessionId);
 
-    // Validate stock
     if (cartItem.product.stock < dto.quantity) {
       throw new BadRequestException(
         `Insufficient stock. Only ${cartItem.product.stock} items available.`,
@@ -228,18 +202,11 @@ export class CartService {
       data: { quantity: dto.quantity },
     });
 
-    this.logger.debug(`Updated cart item ${itemId} quantity to ${dto.quantity}`);
-
     return this.getCartByIdSummary(cartItem.cartId);
   }
 
   /**
    * Remove a specific item from the cart.
-   *
-   * @param itemId - Cart item ID to remove
-   * @param userId - Authenticated user ID (optional)
-   * @param sessionId - Guest session identifier (optional)
-   * @returns Updated cart summary
    */
   async removeItem(
     itemId: string,
@@ -255,22 +222,15 @@ export class CartService {
       throw new NotFoundException('Cart item not found');
     }
 
-    // Verify ownership
     this.verifyCartOwnership(cartItem.cart, userId, sessionId);
 
     await this.prisma.cartItem.delete({ where: { id: itemId } });
-
-    this.logger.debug(`Removed cart item: ${itemId}`);
 
     return this.getCartByIdSummary(cartItem.cartId);
   }
 
   /**
    * Remove all items from the cart.
-   *
-   * @param userId - Authenticated user ID (optional)
-   * @param sessionId - Guest session identifier (optional)
-   * @returns Updated (empty) cart summary
    */
   async clearCart(userId?: string, sessionId?: string): Promise<CartSummary> {
     const cart = await this.findCartRaw(userId, sessionId);
@@ -279,20 +239,148 @@ export class CartService {
       throw new NotFoundException('Cart not found');
     }
 
-    await this.prisma.cartItem.deleteMany({
-      where: { cartId: cart.id },
-    });
+    await this.prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
 
-    // Also remove any applied coupon
     await this.prisma.cart.update({
       where: { id: cart.id },
       data: { couponCode: null, discount: 0 },
     });
 
-    this.logger.log(`Cleared cart: ${cart.id}`);
+    return this.getCartByIdSummary(cart.id);
+  }
+
+  // ─── Coupon Operations ────────────────────────────────────────────────────────
+
+  /**
+   * Apply a coupon code to the cart.
+   *
+   * Validates the coupon exists, is active, has not expired, and has not
+   * exceeded its usage limit. Calculates the discount based on coupon type
+   * (percentage or fixed amount) and minimum order requirements.
+   *
+   * @param dto - Coupon code to apply
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Updated cart summary with discount applied
+   */
+  async applyCoupon(
+    dto: ApplyCouponDto,
+    userId?: string,
+    sessionId?: string,
+  ): Promise<CartSummary> {
+    const cart = await this.findCartRaw(userId, sessionId);
+
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+
+    // Look up the coupon
+    const coupon = await this.prisma.coupon.findUnique({
+      where: { code: dto.code.toUpperCase() },
+    });
+
+    if (!coupon) {
+      throw new BadRequestException('Invalid coupon code');
+    }
+
+    // Validate coupon is active
+    if (!coupon.isActive) {
+      throw new BadRequestException('This coupon is no longer active');
+    }
+
+    // Validate expiry
+    if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
+      throw new BadRequestException('This coupon has expired');
+    }
+
+    // Validate start date
+    if (coupon.startsAt && new Date(coupon.startsAt) > new Date()) {
+      throw new BadRequestException('This coupon is not yet active');
+    }
+
+    // Validate usage limit
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+      throw new BadRequestException('This coupon has reached its usage limit');
+    }
+
+    // Calculate cart subtotal for minimum order validation
+    const cartSummary = this.buildCartSummary(cart);
+
+    if (coupon.minOrderAmount && cartSummary.subtotal < Number(coupon.minOrderAmount)) {
+      throw new BadRequestException(
+        `Minimum order amount of ৳${coupon.minOrderAmount} required for this coupon`,
+      );
+    }
+
+    // Calculate discount
+    let discount: number;
+
+    if (coupon.type === 'PERCENTAGE') {
+      discount = (cartSummary.subtotal * Number(coupon.value)) / 100;
+
+      // Apply max discount cap if set
+      if (coupon.maxDiscount && discount > Number(coupon.maxDiscount)) {
+        discount = Number(coupon.maxDiscount);
+      }
+    } else {
+      // FIXED amount discount
+      discount = Number(coupon.value);
+    }
+
+    // Ensure discount does not exceed subtotal
+    discount = Math.min(discount, cartSummary.subtotal);
+
+    // Apply coupon to cart
+    await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        couponCode: coupon.code,
+        discount,
+      },
+    });
+
+    this.logger.log(
+      `Applied coupon "${coupon.code}" to cart ${cart.id}: discount ৳${discount.toFixed(2)}`,
+    );
 
     return this.getCartByIdSummary(cart.id);
   }
+
+  /**
+   * Remove the applied coupon from the cart.
+   *
+   * @param userId - Authenticated user ID (optional)
+   * @param sessionId - Guest session identifier (optional)
+   * @returns Updated cart summary with coupon removed
+   */
+  async removeCoupon(
+    userId?: string,
+    sessionId?: string,
+  ): Promise<CartSummary> {
+    const cart = await this.findCartRaw(userId, sessionId);
+
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+
+    if (!cart.couponCode) {
+      throw new BadRequestException('No coupon is applied to this cart');
+    }
+
+    await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        couponCode: null,
+        discount: 0,
+      },
+    });
+
+    this.logger.log(`Removed coupon from cart ${cart.id}`);
+
+    return this.getCartByIdSummary(cart.id);
+  }
+
+  // ─── Cart Merge ───────────────────────────────────────────────────────────────
 
   /**
    * Merge a guest cart into an authenticated user's cart.
@@ -432,9 +520,6 @@ export class CartService {
     };
   }
 
-  /**
-   * Verify that the requesting user/session owns the cart.
-   */
   private verifyCartOwnership(
     cart: any,
     userId?: string,

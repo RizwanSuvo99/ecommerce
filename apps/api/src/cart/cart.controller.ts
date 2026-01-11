@@ -13,6 +13,7 @@ import {
 import { CartService } from './cart.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { ApplyCouponDto } from './dto/apply-coupon.dto';
 import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
 
@@ -26,6 +27,8 @@ import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.
 @UseGuards(OptionalAuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
+
+  // ─── Cart ─────────────────────────────────────────────────────────────────────
 
   /**
    * Get the current cart with items, subtotal, discount, total, and item count.
@@ -59,13 +62,12 @@ export class CartController {
     );
   }
 
+  // ─── Items ────────────────────────────────────────────────────────────────────
+
   /**
    * Add an item to the cart.
    *
    * POST /cart/items
-   *
-   * Validates product availability and stock before adding.
-   * If the product already exists in the cart, increments quantity.
    */
   @Post('items')
   async addItem(
@@ -133,6 +135,47 @@ export class CartController {
       !user ? sessionId : undefined,
     );
   }
+
+  // ─── Coupon ───────────────────────────────────────────────────────────────────
+
+  /**
+   * Apply a coupon code to the cart.
+   *
+   * POST /cart/coupon
+   *
+   * Validates the coupon and calculates the discount based on
+   * coupon type (percentage or fixed) and cart subtotal.
+   */
+  @Post('coupon')
+  async applyCoupon(
+    @Body() dto: ApplyCouponDto,
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.applyCoupon(
+      dto,
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
+
+  /**
+   * Remove the applied coupon from the cart.
+   *
+   * DELETE /cart/coupon
+   */
+  @Delete('coupon')
+  async removeCoupon(
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
+    return this.cartService.removeCoupon(
+      user?.id,
+      !user ? sessionId : undefined,
+    );
+  }
+
+  // ─── Merge ────────────────────────────────────────────────────────────────────
 
   /**
    * Merge a guest cart into the authenticated user's cart.
