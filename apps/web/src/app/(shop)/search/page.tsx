@@ -19,6 +19,7 @@ interface Product {
   reviewCount: number;
   categoryName: string | null;
   brandName: string | null;
+  stock: number;
 }
 
 interface Pagination {
@@ -44,6 +45,7 @@ function normalizeProduct(raw: any): Product {
     reviewCount: raw._count?.reviews ?? raw.totalReviews ?? 0,
     categoryName: raw.category?.name ?? null,
     brandName: raw.brand?.name ?? null,
+    stock: raw.quantity ?? 0,
   };
 }
 
@@ -119,6 +121,7 @@ export default function SearchPage() {
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.stock <= 0) return;
     addItem({ productId: product.id, quantity: 1 });
   };
 
@@ -232,16 +235,22 @@ export default function SearchPage() {
                       <Heart className={`h-4 w-4 ${wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
                     </button>
 
-                    <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
-                      <button
-                        onClick={(e) => handleQuickAdd(e, product)}
-                        disabled={isUpdating}
-                        className="flex w-full items-center justify-center gap-2 bg-teal-600/95 py-2.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-teal-700 disabled:opacity-50"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        Add to Cart
-                      </button>
-                    </div>
+                    {product.stock > 0 ? (
+                      <div className="absolute inset-x-0 bottom-0 translate-y-full transition-transform duration-300 group-hover:translate-y-0">
+                        <button
+                          onClick={(e) => handleQuickAdd(e, product)}
+                          disabled={isUpdating}
+                          className="flex w-full items-center justify-center gap-2 bg-teal-600/95 py-2.5 text-sm font-medium text-white backdrop-blur-sm hover:bg-teal-700 disabled:opacity-50"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Add to Cart
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-x-0 bottom-0 bg-gray-900/80 py-2.5 text-center text-sm font-medium text-white backdrop-blur-sm">
+                        Out of Stock
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-1 flex-col p-3 sm:p-4">
