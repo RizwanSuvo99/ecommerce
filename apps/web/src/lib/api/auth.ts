@@ -14,6 +14,42 @@ import type {
 import { apiClient } from './client';
 
 // ──────────────────────────────────────────────────────────
+// Helpers — normalise the API response into the shape the
+// frontend AuthResponse type expects.
+// ──────────────────────────────────────────────────────────
+
+/** Default access-token lifetime in seconds (15 min) used when the API doesn't return expiresIn. */
+const DEFAULT_EXPIRES_IN = 900;
+
+function normalizeAuthResponse(raw: any): AuthResponse {
+  // The API returns { user, accessToken, refreshToken } (flat)
+  // but the frontend type expects { user, tokens: { accessToken, refreshToken, expiresIn, tokenType } }
+  const user: AuthUser = {
+    id: raw.user.id,
+    email: raw.user.email,
+    firstName: raw.user.firstName,
+    lastName: raw.user.lastName,
+    fullName: `${raw.user.firstName} ${raw.user.lastName}`,
+    role: raw.user.role,
+    avatar: raw.user.avatar ?? undefined,
+    emailVerified: raw.user.emailVerified ?? false,
+    phone: raw.user.phone ?? undefined,
+    createdAt: raw.user.createdAt,
+  };
+
+  const tokens: AuthTokens = raw.tokens
+    ? raw.tokens
+    : {
+        accessToken: raw.accessToken,
+        refreshToken: raw.refreshToken,
+        expiresIn: raw.expiresIn ?? DEFAULT_EXPIRES_IN,
+        tokenType: 'Bearer' as const,
+      };
+
+  return { user, tokens };
+}
+
+// ──────────────────────────────────────────────────────────
 // Auth API functions
 // ──────────────────────────────────────────────────────────
 
@@ -21,11 +57,11 @@ import { apiClient } from './client';
  * Authenticate a user with email and password.
  */
 export async function login(payload: LoginRequest): Promise<AuthResponse> {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>(
+  const { data } = await apiClient.post<ApiResponse<any>>(
     '/auth/login',
     payload,
   );
-  return data.data;
+  return normalizeAuthResponse(data.data);
 }
 
 /**
@@ -34,11 +70,11 @@ export async function login(payload: LoginRequest): Promise<AuthResponse> {
 export async function register(
   payload: RegisterRequest,
 ): Promise<AuthResponse> {
-  const { data } = await apiClient.post<ApiResponse<AuthResponse>>(
+  const { data } = await apiClient.post<ApiResponse<any>>(
     '/auth/register',
     payload,
   );
-  return data.data;
+  return normalizeAuthResponse(data.data);
 }
 
 /**
@@ -47,11 +83,21 @@ export async function register(
 export async function refreshTokens(
   refreshToken: string,
 ): Promise<AuthTokens> {
-  const { data } = await apiClient.post<ApiResponse<AuthTokens>>(
+  const { data } = await apiClient.post<ApiResponse<any>>(
     '/auth/refresh',
     { refreshToken },
   );
-  return data.data;
+
+  // The refresh endpoint also returns flat tokens
+  const raw = data.data;
+  return raw.tokens
+    ? raw.tokens
+    : {
+        accessToken: raw.accessToken,
+        refreshToken: raw.refreshToken,
+        expiresIn: raw.expiresIn ?? DEFAULT_EXPIRES_IN,
+        tokenType: 'Bearer' as const,
+      };
 }
 
 /**
@@ -119,25 +165,46 @@ export async function changePassword(
 
 /**
  * Retrieve the currently authenticated user's profile.
+ * API endpoint is /auth/me (not /auth/profile).
  */
 export async function getProfile(): Promise<AuthUser> {
-  const { data } = await apiClient.get<ApiResponse<AuthUser>>(
-    '/auth/profile',
-  );
-  return data.data;
+  const { data } = await apiClient.get<ApiResponse<any>>('/auth/me');
+  const raw = data.data;
+  return {
+    id: raw.id,
+    email: raw.email,
+    firstName: raw.firstName,
+    lastName: raw.lastName,
+    fullName: `${raw.firstName} ${raw.lastName}`,
+    role: raw.role,
+    avatar: raw.avatar ?? undefined,
+    emailVerified: raw.emailVerified ?? false,
+    phone: raw.phone ?? undefined,
+    createdAt: raw.createdAt,
+  };
 }
 
 /**
  * Update the currently authenticated user's profile fields.
+ * API endpoint is /auth/me (not /auth/profile).
  */
 export async function updateProfile(
   payload: UpdateProfileInput,
 ): Promise<AuthUser> {
-  const { data } = await apiClient.patch<ApiResponse<AuthUser>>(
-    '/auth/profile',
-    payload,
-  );
-  return data.data;
+  const { data } = await apiClient.patch<ApiResponse<any>>('/auth/me', payload);
+  const raw = data.data;
+  return {
+    id: raw.id,
+    email: raw.email,
+    firstName: raw.firstName,
+    lastName: raw.lastName,
+    fullName: `${raw.firstName} ${raw.lastName}`,
+    role: raw.role,
+    avatar: raw.avatar ?? undefined,
+    emailVerified: raw.emailVerified ?? false,
+    phone: raw.phone ?? undefined,
+    createdAt: raw.createdAt,
+  };
 }
 
 /**
