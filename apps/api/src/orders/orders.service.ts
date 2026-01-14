@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto, PaymentMethod } from './dto/checkout.dto';
+import {
+  UpdateOrderStatusDto,
+  ORDER_STATUS_TRANSITIONS,
+} from './dto/update-order-status.dto';
 
 /**
  * Validation result for a single cart item during checkout.
@@ -41,13 +45,6 @@ interface PaginationOptions {
   limit: number;
 }
 
-/**
- * Order number format: ORD-YYYYMMDD-XXXX
- *
- * - ORD: fixed prefix for easy identification
- * - YYYYMMDD: date the order was placed
- * - XXXX: zero-padded daily sequential counter (0001-9999)
- */
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
@@ -56,9 +53,6 @@ export class OrdersService {
 
   // ─── Order Number Generator ─────────────────────────────────────────────────
 
-  /**
-   * Generate a unique order number in ORD-YYYYMMDD-XXXX format.
-   */
   async generateOrderNumber(): Promise<string> {
     const now = new Date();
     const year = now.getFullYear();
@@ -89,10 +83,6 @@ export class OrdersService {
 
   // ─── Checkout Validation ──────────────────────────────────────────────────────
 
-  /**
-   * Validate checkout data: stock availability, price consistency,
-   * coupon validity, and shipping address/method.
-   */
   async validateCheckout(
     dto: CheckoutDto,
     userId: string,
@@ -198,12 +188,6 @@ export class OrdersService {
 
   // ─── Order Creation ───────────────────────────────────────────────────────────
 
-  /**
-   * Create a new order from the user's cart.
-   *
-   * Snapshots prices, decrements inventory, creates order+items,
-   * clears cart, and increments coupon usage — all in a transaction.
-   */
   async createOrder(dto: CheckoutDto, userId: string) {
     const validation = await this.validateCheckout(dto, userId);
 
@@ -316,12 +300,6 @@ export class OrdersService {
 
   // ─── Order Queries ────────────────────────────────────────────────────────────
 
-  /**
-   * Find all orders for a specific user (paginated).
-   *
-   * Returns orders sorted by creation date (newest first) with
-   * item count and basic item details.
-   */
   async findUserOrders(userId: string, options: PaginationOptions) {
     const { page, limit } = options;
     const skip = (page - 1) * limit;
@@ -360,12 +338,6 @@ export class OrdersService {
     };
   }
 
-  /**
-   * Find a single order by its order number.
-   *
-   * Includes full item details and user information.
-   * Verifies ownership unless the caller is an admin.
-   */
   async findOrderByNumber(orderNumber: string, userId?: string) {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
@@ -386,7 +358,6 @@ export class OrdersService {
       throw new NotFoundException(`Order ${orderNumber} not found`);
     }
 
-    // If a userId is provided, verify ownership
     if (userId && order.userId !== userId) {
       throw new NotFoundException(`Order ${orderNumber} not found`);
     }
@@ -394,11 +365,6 @@ export class OrdersService {
     return order;
   }
 
-  /**
-   * Find all orders (admin view) with pagination and filtering.
-   *
-   * Supports filtering by status and includes user details.
-   */
   async findAllOrders(options: PaginationOptions & { status?: string }) {
     const { page, limit, status } = options;
     const skip = (page - 1) * limit;
@@ -444,5 +410,72 @@ export class OrdersService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  // ─── Order Status Update ──────────────────────────────────────────────────────
+
+  /**
+   * Update an order's status with transition validation.
+   *
+   * Only allows transitions defined in ORDER_STATUS_TRANSITIONS.
+   * For example, a PENDING order can only move to CONFIRMED or CANCELLED,
+   * not directly to SHIPPED.
+   *
+   * @param orderId - The order ID to update
+   * @param dto - New status and optional note
+   * @returns The updated order
+   */
+  async updateStatus(orderId: string, dto: UpdateOrderStatusDto) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order not found`);
+    }
+
+    // Validate the status transition
+    const allowedTransitions = ORDER_STATUS_TRANSITIONS[order.status] || [];
+
+    if (!allowedTransitions.includes(dto.status)) {
+      throw new BadRequestException(
+        `Cannot transition order from "${order.status}" to "${dto.status}". ` +
+        `Allowed transitions: ${allowedTransitions.length > 0 ? allowedTransitions.join(', ') : 'none (terminal state)'}`,
+      );
+    }
+
+    // Build the update data
+    const updateData: any = {
+      status: dto.status,
+    };
+
+    // Set timestamps for specific statuses
+    if (dto.status === 'CONFIRMED') {
+      updateData.confirmedAt = new Date();
+    } else if (dto.status === 'SHIPPED') {
+      updateData.shippedAt = new Date();
+    } else if (dto.status === 'DELIVERED') {
+      updateData.deliveredAt = new Date();
+      updateData.paymentStatus = 'PAID';
+    } else if (dto.status === 'CANCELLED') {
+      updateData.cancelledAt = new Date();
+    }
+
+    // Add status note if provided
+    if (dto.note) {
+      updateData.statusNote = dto.note;
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { id: orderId },
+      data: updateData,
+      include: { items: true },
+    });
+
+    this.logger.log(
+      `Order ${order.orderNumber} status updated: ${order.status} → ${dto.status}`,
+    );
+
+    return updatedOrder;
   }
 }

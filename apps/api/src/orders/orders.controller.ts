@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Query,
@@ -12,6 +13,7 @@ import {
 
 import { OrdersService } from './orders.service';
 import { CheckoutDto } from './dto/checkout.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -77,8 +79,6 @@ export class OrdersController {
   /**
    * Get a single order by order number.
    *
-   * The authenticated user can only view their own orders.
-   *
    * GET /orders/:orderNumber
    */
   @Get('orders/:orderNumber')
@@ -89,7 +89,7 @@ export class OrdersController {
     return this.ordersService.findOrderByNumber(orderNumber, user.id);
   }
 
-  // ─── Admin: Order Listing ─────────────────────────────────────────────────────
+  // ─── Admin: Order Management ──────────────────────────────────────────────────
 
   /**
    * Get all orders (admin view) with optional status filter.
@@ -105,5 +105,22 @@ export class OrdersController {
     @Query('status') status?: string,
   ) {
     return this.ordersService.findAllOrders({ page, limit, status });
+  }
+
+  /**
+   * Update an order's status (admin only).
+   *
+   * Validates the status transition before applying the change.
+   *
+   * PATCH /admin/orders/:id/status
+   */
+  @Patch('admin/orders/:id/status')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async updateOrderStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateOrderStatusDto,
+  ) {
+    return this.ordersService.updateStatus(id, dto);
   }
 }
