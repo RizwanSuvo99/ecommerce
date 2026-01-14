@@ -103,12 +103,25 @@ export class OrdersService {
 
   async validateCheckout(
     dto: CheckoutDto,
-    userId: string,
+    userId?: string,
+    sessionId?: string,
   ): Promise<CheckoutValidation> {
     const errors: string[] = [];
+    const isGuest = !userId;
+
+    // Look up cart by userId or sessionId
+    const cartWhere: any = userId
+      ? { userId }
+      : sessionId
+        ? { sessionId, userId: null }
+        : null;
+
+    if (!cartWhere) {
+      throw new BadRequestException('No cart found. Please add items to your cart first.');
+    }
 
     const cart = await this.prisma.cart.findFirst({
-      where: { userId },
+      where: cartWhere,
       include: {
         items: {
           include: { product: true },
@@ -150,12 +163,26 @@ export class OrdersService {
 
     const subtotal = itemValidations.reduce((sum, v) => sum + v.lineTotal, 0);
 
-    const address = await this.prisma.address.findFirst({
-      where: { id: dto.addressId, userId },
-    });
-
-    if (!address) {
-      errors.push('Shipping address not found or does not belong to you');
+    // Address validation: authenticated users use addressId, guests provide inline
+    if (isGuest) {
+      if (!dto.guestEmail) errors.push('Guest email is required');
+      if (!dto.guestFullName) errors.push('Guest name is required');
+      if (!dto.guestPhone) errors.push('Guest phone is required');
+      if (!dto.shippingAddressLine1) errors.push('Shipping address is required');
+      if (!dto.shippingDivision) errors.push('Shipping division is required');
+      if (!dto.shippingDistrict) errors.push('Shipping district is required');
+      if (!dto.shippingPostalCode) errors.push('Shipping postal code is required');
+    } else {
+      if (!dto.addressId) {
+        errors.push('Shipping address is required');
+      } else {
+        const address = await this.prisma.address.findFirst({
+          where: { id: dto.addressId, userId },
+        });
+        if (!address) {
+          errors.push('Shipping address not found or does not belong to you');
+        }
+      }
     }
 
     let discount = 0;
@@ -206,8 +233,9 @@ export class OrdersService {
 
   // ─── Order Creation ───────────────────────────────────────────────────────────
 
-  async createOrder(dto: CheckoutDto, userId: string) {
-    const validation = await this.validateCheckout(dto, userId);
+  async createOrder(dto: CheckoutDto, userId?: string, sessionId?: string) {
+    const isGuest = !userId;
+    const validation = await this.validateCheckout(dto, userId, sessionId);
 
     if (!validation.valid) {
       throw new BadRequestException({
@@ -216,8 +244,13 @@ export class OrdersService {
       });
     }
 
+    // Look up cart
+    const cartWhere: any = userId
+      ? { userId }
+      : { sessionId, userId: null };
+
     const cart = await this.prisma.cart.findFirst({
-      where: { userId },
+      where: cartWhere,
       include: {
         items: {
           include: { product: true },
@@ -230,12 +263,32 @@ export class OrdersService {
       throw new BadRequestException('Your cart is empty');
     }
 
-    const address = await this.prisma.address.findFirst({
-      where: { id: dto.addressId, userId },
-    });
+    // Resolve shipping address
+    let address: any;
 
-    if (!address) {
-      throw new NotFoundException('Shipping address not found');
+    if (isGuest) {
+      // Create a guest address record (userId = null)
+      address = await this.prisma.address.create({
+        data: {
+          fullName: dto.shippingFullName || dto.guestFullName || 'Guest',
+          phone: dto.shippingPhone || dto.guestPhone || '',
+          addressLine1: dto.shippingAddressLine1 || '',
+          addressLine2: dto.shippingAddressLine2 || null,
+          division: dto.shippingDivision || '',
+          district: dto.shippingDistrict || '',
+          area: dto.shippingArea || null,
+          postalCode: dto.shippingPostalCode || '',
+          label: 'Guest',
+        },
+      });
+    } else {
+      address = await this.prisma.address.findFirst({
+        where: { id: dto.addressId, userId },
+      });
+
+      if (!address) {
+        throw new NotFoundException('Shipping address not found');
+      }
     }
 
     const orderNumber = await this.generateOrderNumber();
@@ -257,7 +310,7 @@ export class OrdersService {
       const createdOrder = await tx.order.create({
         data: {
           orderNumber,
-          userId,
+          userId: userId || null,
           status: 'PENDING',
           paymentMethod: dto.paymentMethod,
           paymentStatus: dto.paymentMethod === PaymentMethod.COD ? 'PENDING' : 'AWAITING',
@@ -267,11 +320,16 @@ export class OrdersService {
           tax: 0,
           total: validation.total,
           couponCode: dto.couponCode?.toUpperCase() || null,
-          shippingName: `${address.firstName} ${address.lastName}`,
+          // Guest contact info
+          guestEmail: isGuest ? dto.guestEmail : null,
+          guestPhone: isGuest ? dto.guestPhone : null,
+          guestFullName: isGuest ? dto.guestFullName : null,
+          // Shipping address snapshot
+          shippingName: address.fullName,
           shippingPhone: address.phone,
           shippingAddress: address.addressLine1,
           shippingAddress2: address.addressLine2 || null,
-          shippingCity: address.city,
+          shippingCity: address.district,
           shippingDistrict: address.district,
           shippingDivision: address.division,
           shippingPostalCode: address.postalCode,
@@ -310,7 +368,7 @@ export class OrdersService {
     });
 
     this.logger.log(
-      `Order ${orderNumber} created for user ${userId} — ${cart.items.length} items, total ৳${validation.total}`,
+      `Order ${orderNumber} created for ${isGuest ? `guest (${dto.guestEmail})` : `user ${userId}`} — ${cart.items.length} items, total ৳${validation.total}`,
     );
 
     return order;
@@ -440,11 +498,17 @@ export class OrdersService {
         subtotal: Number(o.subtotal),
         shippingCost: Number(o.shippingCost),
         discountAmount: Number(o.discountAmount),
-        customer: {
-          name: `${o.user.firstName ?? ''} ${o.user.lastName ?? ''}`.trim() || 'Unknown',
-          email: o.user.email,
-          phone: o.user.phone ?? '',
-        },
+        customer: o.user
+          ? {
+              name: `${o.user.firstName ?? ''} ${o.user.lastName ?? ''}`.trim() || 'Unknown',
+              email: o.user.email,
+              phone: o.user.phone ?? '',
+            }
+          : {
+              name: (o as any).guestFullName || 'Guest',
+              email: (o as any).guestEmail || '',
+              phone: (o as any).guestPhone || '',
+            },
         items: o._count.items,
         paymentStatus: o.payments[0]?.status ?? 'PENDING',
         paymentMethod: o.payments[0]?.method ?? '',
@@ -522,13 +586,21 @@ export class OrdersService {
       paymentStatus: payment?.status ?? 'PENDING',
       paymentMethod: payment?.method ?? '',
       transactionId: payment?.transactionId ?? null,
-      customer: {
-        id: order.user.id,
-        name: `${order.user.firstName ?? ''} ${order.user.lastName ?? ''}`.trim() || 'Unknown',
-        email: order.user.email,
-        phone: order.user.phone ?? '',
-        totalOrders: order.user._count.orders,
-      },
+      customer: order.user
+        ? {
+            id: order.user.id,
+            name: `${order.user.firstName ?? ''} ${order.user.lastName ?? ''}`.trim() || 'Unknown',
+            email: order.user.email,
+            phone: order.user.phone ?? '',
+            totalOrders: order.user._count.orders,
+          }
+        : {
+            id: null,
+            name: (order as any).guestFullName || 'Guest',
+            email: (order as any).guestEmail || '',
+            phone: (order as any).guestPhone || '',
+            totalOrders: 0,
+          },
       shippingAddress: order.shippingAddress
         ? {
             name: order.shippingAddress.fullName,
@@ -570,6 +642,53 @@ export class OrdersService {
       trackingNumber: order.shipping?.trackingNumber ?? null,
       notes: order.notes,
       timeline: [],
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    };
+  }
+
+  // ─── Guest Order Lookup ───────────────────────────────────────────────────────
+
+  /**
+   * Look up a guest order by order number + email verification.
+   */
+  async findGuestOrder(orderNumber: string, email: string) {
+    if (!orderNumber || !email) {
+      throw new BadRequestException('Order number and email are required');
+    }
+
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        items: true,
+        shippingAddress: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order ${orderNumber} not found`);
+    }
+
+    // Verify guest email matches
+    if (order.guestEmail?.toLowerCase() !== email.toLowerCase()) {
+      throw new NotFoundException(`Order ${orderNumber} not found`);
+    }
+
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      guestFullName: order.guestFullName,
+      guestEmail: order.guestEmail,
+      guestPhone: order.guestPhone,
+      subtotal: Number(order.subtotal),
+      shippingCost: Number(order.shippingCost),
+      taxAmount: Number(order.taxAmount),
+      discountAmount: Number(order.discountAmount),
+      totalAmount: Number(order.totalAmount),
+      couponCode: order.couponCode,
+      items: order.items,
+      shippingAddress: order.shippingAddress,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };
