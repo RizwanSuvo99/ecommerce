@@ -38,14 +38,14 @@ interface ProductFormData {
   price: number;
   compareAtPrice: number | null;
   costPrice: number | null;
-  stock: number;
+  quantity: number;
   lowStockThreshold: number;
   weight: number | null;
   categoryId: string;
   brandId: string;
   tags: string[];
   images: string[];
-  isActive: boolean;
+  status: string;
   isFeatured: boolean;
   metaTitle: string;
   metaDescription: string;
@@ -127,14 +127,14 @@ export default function AdminProductEditPage() {
     price: 0,
     compareAtPrice: null,
     costPrice: null,
-    stock: 0,
+    quantity: 0,
     lowStockThreshold: 10,
     weight: null,
     categoryId: '',
     brandId: '',
     tags: [],
     images: [],
-    isActive: false,
+    status: 'DRAFT',
     isFeatured: false,
     metaTitle: '',
     metaDescription: '',
@@ -149,7 +149,7 @@ export default function AdminProductEditPage() {
       try {
         setIsLoading(true);
         const { data } = await apiClient.get(`/products/${productId}`);
-        const product = data.data;
+        const product = data.data ?? data;
 
         setFormData({
           name: product.name ?? '',
@@ -161,14 +161,14 @@ export default function AdminProductEditPage() {
           price: product.price ?? 0,
           compareAtPrice: product.compareAtPrice ?? null,
           costPrice: product.costPrice ?? null,
-          stock: product.stock ?? 0,
-          lowStockThreshold: product.lowStockThreshold ?? 10,
+          quantity: product.quantity ?? 0,
+          lowStockThreshold: 10,
           weight: product.weight ?? null,
           categoryId: product.categoryId ?? '',
           brandId: product.brandId ?? '',
           tags: product.tags ?? [],
           images: product.images ?? [],
-          isActive: product.isActive ?? false,
+          status: product.status ?? 'DRAFT',
           isFeatured: product.isFeatured ?? false,
           metaTitle: product.metaTitle ?? '',
           metaDescription: product.metaDescription ?? '',
@@ -222,7 +222,8 @@ export default function AdminProductEditPage() {
 
     try {
       setIsSaving(true);
-      await apiClient.patch(`/products/${productId}`, formData);
+      const { lowStockThreshold, ...payload } = formData;
+      await apiClient.patch(`/products/${productId}`, payload);
       setLastSaved(new Date());
       toast.success('Product saved');
     } catch (err) {
@@ -327,28 +328,36 @@ export default function AdminProductEditPage() {
       {/* Status Toggle */}
       <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white px-6 py-4 shadow-sm">
         <label className="flex items-center gap-3">
-          <div
-            className={cn(
-              'relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors',
-              formData.isActive ? 'bg-green-500' : 'bg-gray-300',
-            )}
-            onClick={() => updateField('isActive', !formData.isActive)}
+          <select
+            value={formData.status}
+            onChange={(e) => updateField('status', e.target.value)}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
-            <span
-              className={cn(
-                'inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
-                formData.isActive ? 'translate-x-5' : 'translate-x-0.5',
-              )}
-            />
-          </div>
-          <span className="text-sm font-medium text-gray-700">
-            {formData.isActive ? 'Published' : 'Draft'}
-          </span>
+            <option value="DRAFT">Draft</option>
+            <option value="ACTIVE">Active</option>
+            <option value="ARCHIVED">Archived</option>
+            <option value="OUT_OF_STOCK">Out of Stock</option>
+          </select>
         </label>
-        <span className="text-xs text-gray-500">
-          {formData.isActive
+        <span
+          className={cn(
+            'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+            formData.status === 'ACTIVE'
+              ? 'bg-green-100 text-green-700'
+              : formData.status === 'ARCHIVED'
+                ? 'bg-gray-100 text-gray-700'
+                : formData.status === 'OUT_OF_STOCK'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-yellow-100 text-yellow-700',
+          )}
+        >
+          {formData.status === 'ACTIVE'
             ? 'This product is visible on the store.'
-            : 'This product is hidden from customers.'}
+            : formData.status === 'ARCHIVED'
+              ? 'This product is archived and hidden.'
+              : formData.status === 'OUT_OF_STOCK'
+                ? 'This product is out of stock.'
+                : 'This product is hidden from customers.'}
         </span>
       </div>
 
@@ -478,7 +487,7 @@ export default function AdminProductEditPage() {
             price: formData.price,
             compareAtPrice: formData.compareAtPrice,
             costPrice: formData.costPrice,
-            stock: formData.stock,
+            quantity: formData.quantity,
             lowStockThreshold: formData.lowStockThreshold,
             weight: formData.weight,
           }}

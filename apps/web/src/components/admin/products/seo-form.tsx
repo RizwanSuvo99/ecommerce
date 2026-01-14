@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Globe, Eye } from 'lucide-react';
 
 import { cn } from '@/lib/utils';

@@ -12,7 +12,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  MoreHorizontal,
   ImageIcon,
   Check,
   X,
@@ -28,50 +27,60 @@ import { toast } from 'sonner';
 // Types
 // ──────────────────────────────────────────────────────────
 
+interface ProductImage {
+  id: string;
+  url: string;
+  thumbnailUrl: string | null;
+  alt: string | null;
+}
+
 interface Product {
   id: string;
   name: string;
   sku: string;
   price: number;
   compareAtPrice: number | null;
-  stock: number;
-  isActive: boolean;
-  images: string[];
+  quantity: number;
+  status: string;
+  images: ProductImage[];
   category: { name: string } | null;
   brand: { name: string } | null;
   createdAt: string;
 }
 
-interface ProductsResponse {
-  data: Product[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // ──────────────────────────────────────────────────────────
 // Status Badge
 // ──────────────────────────────────────────────────────────
 
-function StatusBadge({ active }: { active: boolean }) {
+function StatusBadge({ status }: { status: string }) {
+  const config: Record<string, { bg: string; label: string }> = {
+    ACTIVE: { bg: 'bg-green-100 text-green-700', label: 'Active' },
+    DRAFT: { bg: 'bg-gray-100 text-gray-600', label: 'Draft' },
+    ARCHIVED: { bg: 'bg-yellow-100 text-yellow-700', label: 'Archived' },
+    OUT_OF_STOCK: { bg: 'bg-red-100 text-red-700', label: 'Out of Stock' },
+  };
+  const { bg, label } = config[status] ?? { bg: 'bg-gray-100 text-gray-600', label: 'Draft' };
+
   return (
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
-        active
-          ? 'bg-green-100 text-green-700'
-          : 'bg-gray-100 text-gray-600',
+        bg,
       )}
     >
-      {active ? (
+      {status === 'ACTIVE' ? (
         <Check className="h-3 w-3" />
       ) : (
         <X className="h-3 w-3" />
       )}
-      {active ? 'Active' : 'Draft'}
+      {label}
     </span>
   );
 }
@@ -106,7 +115,7 @@ export default function AdminProductsPage() {
   const searchParams = useSearchParams();
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
+  const [meta, setMeta] = useState<PaginationMeta>({ total: 0, page: 1, limit: 20, totalPages: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -126,16 +135,16 @@ export default function AdminProductsPage() {
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', '20');
-      if (searchQuery) params.set('q', searchQuery);
-      if (statusFilter !== 'all') params.set('status', statusFilter);
+      if (searchQuery) params.set('search', searchQuery);
+      if (statusFilter !== 'all') params.set('status', statusFilter.toUpperCase());
       params.set('sortBy', sortBy);
       params.set('sortOrder', sortOrder);
 
-      const { data } = await apiClient.get<{ data: ProductsResponse }>(
+      const { data: res } = await apiClient.get(
         `/products?${params.toString()}`,
       );
-      setProducts(data.data.data);
-      setMeta(data.data.meta);
+      setProducts(res.data ?? res ?? []);
+      setMeta(res.meta ?? { total: 0, page: 1, limit: 20, totalPages: 0 });
     } catch (err) {
       console.error('Failed to load products:', err);
       toast.error('Failed to load products');
@@ -360,10 +369,10 @@ export default function AdminProductsPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                          {product.images?.[0] ? (
+                          {product.images?.[0]?.url ? (
                             <img
-                              src={product.images[0]}
-                              alt={product.name}
+                              src={product.images[0].url}
+                              alt={product.images[0].alt || product.name}
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -391,23 +400,23 @@ export default function AdminProductsPage() {
                     <td className="whitespace-nowrap px-4 py-3">
                       <div>
                         <span className="text-sm font-medium text-gray-900">
-                          {formatBDT(product.price)}
+                          {formatBDT(Number(product.price))}
                         </span>
                         {product.compareAtPrice && (
                           <span className="ml-1 text-xs text-gray-400 line-through">
-                            {formatBDT(product.compareAtPrice)}
+                            {formatBDT(Number(product.compareAtPrice))}
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
-                      <StockBadge stock={product.stock} />
+                      <StockBadge stock={product.quantity} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
                       {product.category?.name ?? '—'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
-                      <StatusBadge active={product.isActive} />
+                      <StatusBadge status={product.status} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">

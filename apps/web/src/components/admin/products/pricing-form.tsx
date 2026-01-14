@@ -12,7 +12,7 @@ interface PricingFormData {
   price: number;
   compareAtPrice: number | null;
   costPrice: number | null;
-  stock: number;
+  quantity: number;
   lowStockThreshold: number;
   weight: number | null;
 }
@@ -205,21 +205,21 @@ export function PricingForm({ data, onChange, errors = {} }: PricingFormProps) {
           {/* Stock Quantity */}
           <div>
             <label
-              htmlFor="stock"
+              htmlFor="quantity"
               className="mb-1.5 block text-sm font-medium text-gray-700"
             >
               Stock Quantity <span className="text-red-500">*</span>
             </label>
             <input
-              id="stock"
+              id="quantity"
               type="number"
               min="0"
-              value={data.stock}
-              onChange={(e) => onChange('stock', parseInt(e.target.value, 10) || 0)}
+              value={data.quantity}
+              onChange={(e) => onChange('quantity', parseInt(e.target.value, 10) || 0)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
-            {errors.stock && (
-              <p className="mt-1 text-sm text-red-600">{errors.stock}</p>
+            {errors.quantity && (
+              <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>
             )}
           </div>
 
@@ -273,11 +273,11 @@ export function PricingForm({ data, onChange, errors = {} }: PricingFormProps) {
         </div>
 
         {/* Stock Warning */}
-        {data.stock > 0 && data.stock <= data.lowStockThreshold && (
+        {data.quantity > 0 && data.quantity <= data.lowStockThreshold && (
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-3">
             <AlertTriangle className="h-4 w-4 text-orange-600" />
             <p className="text-sm text-orange-700">
-              Current stock ({data.stock}) is at or below the low stock
+              Current stock ({data.quantity}) is at or below the low stock
               threshold ({data.lowStockThreshold}).
             </p>
           </div>

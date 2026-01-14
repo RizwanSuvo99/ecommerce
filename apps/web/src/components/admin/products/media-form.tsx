@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
 import {
   Upload,
   X,
@@ -87,9 +88,11 @@ export function MediaForm({
         },
       });
 
-      return data.data.url;
+      const result = data.data ?? data;
+      return result.url;
     } catch (err) {
       console.error('Upload failed:', err);
+      toast.error('Image upload failed');
       return null;
     } finally {
       setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
@@ -162,7 +165,7 @@ export function MediaForm({
 
     const reordered = [...images];
     const [moved] = reordered.splice(draggedIndex, 1);
-    reordered.splice(targetIndex, 0, moved);
+    reordered.splice(targetIndex, 0, moved ?? '');
     onChange(reordered);
 
     // Update primary index if needed

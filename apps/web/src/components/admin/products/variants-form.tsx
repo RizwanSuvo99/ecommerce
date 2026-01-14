@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Plus,
   X,
@@ -9,10 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Trash2,
-  Copy,
 } from 'lucide-react';
-
-import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -88,7 +85,7 @@ function generateVariantMatrix(
     [],
   );
 
-  return combinations.map((optionValues, index) => ({
+  return combinations.map((optionValues) => ({
     id: generateId(),
     options: optionValues,
     price: basePrice || null,
@@ -271,7 +268,9 @@ export function VariantsForm({
 
   const updateVariant = (index: number, field: keyof Variant, value: unknown) => {
     const updated = [...variants];
-    updated[index] = { ...updated[index], [field]: value };
+    const existing = updated[index];
+    if (!existing) return;
+    updated[index] = { ...existing, [field]: value };
     onVariantsChange(updated);
   };
 

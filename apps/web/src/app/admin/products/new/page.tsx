@@ -35,14 +35,14 @@ interface ProductFormData {
   price: number;
   compareAtPrice: number | null;
   costPrice: number | null;
-  stock: number;
+  quantity: number;
   lowStockThreshold: number;
   weight: number | null;
   categoryId: string;
   brandId: string;
   tags: string[];
   images: string[];
-  isActive: boolean;
+  status: string;
   isFeatured: boolean;
   metaTitle: string;
   metaDescription: string;
@@ -118,14 +118,14 @@ export default function AdminProductCreatePage() {
     price: 0,
     compareAtPrice: null,
     costPrice: null,
-    stock: 0,
+    quantity: 0,
     lowStockThreshold: 10,
     weight: null,
     categoryId: '',
     brandId: '',
     tags: [],
     images: [],
-    isActive: false,
+    status: 'DRAFT',
     isFeatured: false,
     metaTitle: '',
     metaDescription: '',
@@ -183,14 +183,16 @@ export default function AdminProductCreatePage() {
 
     try {
       setIsSaving(true);
+      const { lowStockThreshold, ...rest } = formData;
       const payload = {
-        ...formData,
-        isActive: publish,
+        ...rest,
+        status: publish ? 'ACTIVE' : 'DRAFT',
       };
 
       const { data } = await apiClient.post('/products', payload);
       toast.success('Product created');
-      router.push(`/admin/products/${data.data?.id || data.id}/edit`);
+      const product = data.data ?? data;
+      router.push(`/admin/products/${product.id}/edit`);
     } catch (err) {
       console.error('Failed to create product:', err);
       toast.error('Failed to create product');
@@ -409,7 +411,7 @@ export default function AdminProductCreatePage() {
             price: formData.price,
             compareAtPrice: formData.compareAtPrice,
             costPrice: formData.costPrice,
-            stock: formData.stock,
+            quantity: formData.quantity,
             lowStockThreshold: formData.lowStockThreshold,
             weight: formData.weight,
           }}

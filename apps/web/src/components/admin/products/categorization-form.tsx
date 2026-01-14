@@ -14,6 +14,7 @@ import {
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -152,10 +153,11 @@ export function CategorizationForm({
   useEffect(() => {
     async function loadCategories() {
       try {
-        const { data } = await apiClient.get('/categories/tree');
-        setCategories(data.data);
+        const { data } = await apiClient.get('/categories');
+        setCategories(data.data ?? data ?? []);
       } catch (err) {
         console.error('Failed to load categories:', err);
+        toast.error('Failed to load categories');
       } finally {
         setIsLoadingCategories(false);
       }
@@ -169,9 +171,10 @@ export function CategorizationForm({
     async function loadBrands() {
       try {
         const { data } = await apiClient.get('/brands');
-        setBrands(data.data);
+        setBrands(data.data ?? data ?? []);
       } catch (err) {
         console.error('Failed to load brands:', err);
+        toast.error('Failed to load brands');
       } finally {
         setIsLoadingBrands(false);
       }
