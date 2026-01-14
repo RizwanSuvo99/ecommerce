@@ -159,7 +159,7 @@ export default function ProfilePage() {
             <button
               onClick={handleAvatarClick}
               disabled={isUploading}
-              className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-blue-700 transition-colors"
+              className="absolute bottom-0 right-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors"
             >
               <Camera className="w-4 h-4" />
             </button>
@@ -183,7 +183,7 @@ export default function ProfilePage() {
             <button
               onClick={handleAvatarClick}
               disabled={isUploading}
-              className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="mt-2 text-sm text-teal-600 hover:text-teal-700 font-medium"
             >
               {isUploading ? 'Uploading...' : 'Choose file'}
             </button>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
               placeholder="Enter your full name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
 
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                 setFormData((prev) => ({ ...prev, phone: e.target.value }))
               }
               placeholder="+8801XXXXXXXXX"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
         </div>
@@ -258,7 +258,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 transition-colors"
           >
             {isSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
