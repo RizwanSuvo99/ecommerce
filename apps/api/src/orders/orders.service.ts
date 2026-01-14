@@ -34,6 +34,14 @@ interface CheckoutValidation {
 }
 
 /**
+ * Pagination options for order listings.
+ */
+interface PaginationOptions {
+  page: number;
+  limit: number;
+}
+
+/**
  * Order number format: ORD-YYYYMMDD-XXXX
  *
  * - ORD: fixed prefix for easy identification
@@ -50,12 +58,6 @@ export class OrdersService {
 
   /**
    * Generate a unique order number in ORD-YYYYMMDD-XXXX format.
-   *
-   * The sequence counter resets daily. Each call atomically increments
-   * the counter for the current date to avoid duplicates under
-   * concurrent load.
-   *
-   * @returns A unique order number string, e.g. "ORD-20260113-0042"
    */
   async generateOrderNumber(): Promise<string> {
     const now = new Date();
@@ -199,20 +201,10 @@ export class OrdersService {
   /**
    * Create a new order from the user's cart.
    *
-   * This method performs the following steps in a single transaction:
-   * 1. Validate the cart and stock availability
-   * 2. Snapshot current product prices into order items
-   * 3. Decrement product inventory for each item
-   * 4. Create the order and associated order items
-   * 5. Clear the user's cart
-   * 6. Increment coupon usage if a coupon was applied
-   *
-   * @param dto - Checkout data (address, shipping, payment, coupon)
-   * @param userId - Authenticated user ID
-   * @returns The created order with items
+   * Snapshots prices, decrements inventory, creates order+items,
+   * clears cart, and increments coupon usage — all in a transaction.
    */
   async createOrder(dto: CheckoutDto, userId: string) {
-    // Pre-validate checkout data
     const validation = await this.validateCheckout(dto, userId);
 
     if (!validation.valid) {
@@ -222,7 +214,6 @@ export class OrdersService {
       });
     }
 
-    // Fetch the cart for the transaction
     const cart = await this.prisma.cart.findFirst({
       where: { userId },
       include: {
@@ -237,7 +228,6 @@ export class OrdersService {
       throw new BadRequestException('Your cart is empty');
     }
 
-    // Fetch shipping address for the order snapshot
     const address = await this.prisma.address.findFirst({
       where: { id: dto.addressId, userId },
     });
@@ -246,19 +236,15 @@ export class OrdersService {
       throw new NotFoundException('Shipping address not found');
     }
 
-    // Generate the order number before the transaction
     const orderNumber = await this.generateOrderNumber();
 
-    // Execute order creation in a transaction
     const order = await this.prisma.$transaction(async (tx) => {
-      // 1. Decrement inventory for each product
       for (const item of cart.items) {
         const product = await tx.product.update({
           where: { id: item.productId },
           data: { stock: { decrement: item.quantity } },
         });
 
-        // Double-check stock didn't go negative (race condition guard)
         if (product.stock < 0) {
           throw new BadRequestException(
             `"${item.product.name}" went out of stock during checkout`,
@@ -266,7 +252,6 @@ export class OrdersService {
         }
       }
 
-      // 2. Create the order with snapshotted prices
       const createdOrder = await tx.order.create({
         data: {
           orderNumber,
@@ -280,7 +265,6 @@ export class OrdersService {
           tax: 0,
           total: validation.total,
           couponCode: dto.couponCode?.toUpperCase() || null,
-          // Snapshot the shipping address
           shippingName: `${address.firstName} ${address.lastName}`,
           shippingPhone: address.phone,
           shippingAddress: address.addressLine1,
@@ -289,7 +273,6 @@ export class OrdersService {
           shippingDistrict: address.district,
           shippingDivision: address.division,
           shippingPostalCode: address.postalCode,
-          // Order items
           items: {
             create: cart.items.map((item) => ({
               productId: item.productId,
@@ -308,14 +291,12 @@ export class OrdersService {
         },
       });
 
-      // 3. Clear the user's cart
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
       await tx.cart.update({
         where: { id: cart.id },
         data: { couponCode: null, discount: 0 },
       });
 
-      // 4. Increment coupon usage if one was applied
       if (dto.couponCode) {
         await tx.coupon.update({
           where: { code: dto.couponCode.toUpperCase() },
@@ -331,5 +312,137 @@ export class OrdersService {
     );
 
     return order;
+  }
+
+  // ─── Order Queries ────────────────────────────────────────────────────────────
+
+  /**
+   * Find all orders for a specific user (paginated).
+   *
+   * Returns orders sorted by creation date (newest first) with
+   * item count and basic item details.
+   */
+  async findUserOrders(userId: string, options: PaginationOptions) {
+    const { page, limit } = options;
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { userId },
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+              quantity: true,
+              price: true,
+              total: true,
+              imageUrl: true,
+            },
+          },
+          _count: { select: { items: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where: { userId } }),
+    ]);
+
+    return {
+      data: orders,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Find a single order by its order number.
+   *
+   * Includes full item details and user information.
+   * Verifies ownership unless the caller is an admin.
+   */
+  async findOrderByNumber(orderNumber: string, userId?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        items: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order ${orderNumber} not found`);
+    }
+
+    // If a userId is provided, verify ownership
+    if (userId && order.userId !== userId) {
+      throw new NotFoundException(`Order ${orderNumber} not found`);
+    }
+
+    return order;
+  }
+
+  /**
+   * Find all orders (admin view) with pagination and filtering.
+   *
+   * Supports filtering by status and includes user details.
+   */
+  async findAllOrders(options: PaginationOptions & { status?: string }) {
+    const { page, limit, status } = options;
+    const skip = (page - 1) * limit;
+
+    const where = status ? { status } : {};
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+              quantity: true,
+              price: true,
+              total: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          _count: { select: { items: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return {
+      data: orders,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }
