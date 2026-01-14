@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CheckoutDto } from './dto/checkout.dto';
+import { CheckoutDto, PaymentMethod } from './dto/checkout.dto';
 
 /**
  * Validation result for a single cart item during checkout.
@@ -64,7 +64,6 @@ export class OrdersService {
     const day = String(now.getDate()).padStart(2, '0');
     const dateStr = `${year}${month}${day}`;
 
-    // Count orders placed today to determine the next sequence number
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
@@ -91,9 +90,6 @@ export class OrdersService {
   /**
    * Validate checkout data: stock availability, price consistency,
    * coupon validity, and shipping address/method.
-   *
-   * Returns a detailed validation result with item-level stock checks
-   * and the calculated totals (subtotal, discount, shipping, total).
    */
   async validateCheckout(
     dto: CheckoutDto,
@@ -101,7 +97,6 @@ export class OrdersService {
   ): Promise<CheckoutValidation> {
     const errors: string[] = [];
 
-    // 1. Fetch the user's cart with items
     const cart = await this.prisma.cart.findFirst({
       where: { userId },
       include: {
@@ -116,7 +111,6 @@ export class OrdersService {
       throw new BadRequestException('Your cart is empty');
     }
 
-    // 2. Validate each item's stock and price
     const itemValidations: ItemValidation[] = [];
 
     for (const item of cart.items) {
@@ -144,10 +138,8 @@ export class OrdersService {
       });
     }
 
-    // 3. Calculate subtotal from current product prices
     const subtotal = itemValidations.reduce((sum, v) => sum + v.lineTotal, 0);
 
-    // 4. Validate shipping address
     const address = await this.prisma.address.findFirst({
       where: { id: dto.addressId, userId },
     });
@@ -156,7 +148,6 @@ export class OrdersService {
       errors.push('Shipping address not found or does not belong to you');
     }
 
-    // 5. Validate coupon (if provided)
     let discount = 0;
 
     if (dto.couponCode) {
@@ -177,7 +168,6 @@ export class OrdersService {
           `Minimum order of ৳${coupon.minOrderAmount} required for this coupon`,
         );
       } else {
-        // Calculate discount
         if (coupon.type === 'PERCENTAGE') {
           discount = (subtotal * Number(coupon.value)) / 100;
           if (coupon.maxDiscount && discount > Number(coupon.maxDiscount)) {
@@ -190,10 +180,7 @@ export class OrdersService {
       }
     }
 
-    // 6. Shipping cost placeholder (will be calculated by shipping service)
     const shippingCost = 0;
-
-    // 7. Calculate total
     const total = Math.max(0, subtotal - discount + shippingCost);
 
     return {
@@ -205,5 +192,144 @@ export class OrdersService {
       total,
       errors,
     };
+  }
+
+  // ─── Order Creation ───────────────────────────────────────────────────────────
+
+  /**
+   * Create a new order from the user's cart.
+   *
+   * This method performs the following steps in a single transaction:
+   * 1. Validate the cart and stock availability
+   * 2. Snapshot current product prices into order items
+   * 3. Decrement product inventory for each item
+   * 4. Create the order and associated order items
+   * 5. Clear the user's cart
+   * 6. Increment coupon usage if a coupon was applied
+   *
+   * @param dto - Checkout data (address, shipping, payment, coupon)
+   * @param userId - Authenticated user ID
+   * @returns The created order with items
+   */
+  async createOrder(dto: CheckoutDto, userId: string) {
+    // Pre-validate checkout data
+    const validation = await this.validateCheckout(dto, userId);
+
+    if (!validation.valid) {
+      throw new BadRequestException({
+        message: 'Checkout validation failed',
+        errors: validation.errors,
+      });
+    }
+
+    // Fetch the cart for the transaction
+    const cart = await this.prisma.cart.findFirst({
+      where: { userId },
+      include: {
+        items: {
+          include: { product: true },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    if (!cart || cart.items.length === 0) {
+      throw new BadRequestException('Your cart is empty');
+    }
+
+    // Fetch shipping address for the order snapshot
+    const address = await this.prisma.address.findFirst({
+      where: { id: dto.addressId, userId },
+    });
+
+    if (!address) {
+      throw new NotFoundException('Shipping address not found');
+    }
+
+    // Generate the order number before the transaction
+    const orderNumber = await this.generateOrderNumber();
+
+    // Execute order creation in a transaction
+    const order = await this.prisma.$transaction(async (tx) => {
+      // 1. Decrement inventory for each product
+      for (const item of cart.items) {
+        const product = await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        });
+
+        // Double-check stock didn't go negative (race condition guard)
+        if (product.stock < 0) {
+          throw new BadRequestException(
+            `"${item.product.name}" went out of stock during checkout`,
+          );
+        }
+      }
+
+      // 2. Create the order with snapshotted prices
+      const createdOrder = await tx.order.create({
+        data: {
+          orderNumber,
+          userId,
+          status: 'PENDING',
+          paymentMethod: dto.paymentMethod,
+          paymentStatus: dto.paymentMethod === PaymentMethod.COD ? 'PENDING' : 'AWAITING',
+          subtotal: validation.subtotal,
+          discount: validation.discount,
+          shippingCost: validation.shippingCost,
+          tax: 0,
+          total: validation.total,
+          couponCode: dto.couponCode?.toUpperCase() || null,
+          // Snapshot the shipping address
+          shippingName: `${address.firstName} ${address.lastName}`,
+          shippingPhone: address.phone,
+          shippingAddress: address.addressLine1,
+          shippingAddress2: address.addressLine2 || null,
+          shippingCity: address.city,
+          shippingDistrict: address.district,
+          shippingDivision: address.division,
+          shippingPostalCode: address.postalCode,
+          // Order items
+          items: {
+            create: cart.items.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId || null,
+              name: item.product.name,
+              sku: item.product.sku,
+              price: Number(item.product.price),
+              quantity: item.quantity,
+              total: Number(item.product.price) * item.quantity,
+              imageUrl: item.product.images?.[0]?.url || null,
+            })),
+          },
+        },
+        include: {
+          items: true,
+        },
+      });
+
+      // 3. Clear the user's cart
+      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+      await tx.cart.update({
+        where: { id: cart.id },
+        data: { couponCode: null, discount: 0 },
+      });
+
+      // 4. Increment coupon usage if one was applied
+      if (dto.couponCode) {
+        await tx.coupon.update({
+          where: { code: dto.couponCode.toUpperCase() },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+
+      return createdOrder;
+    });
+
+    this.logger.log(
+      `Order ${orderNumber} created for user ${userId} — ${cart.items.length} items, total ৳${validation.total}`,
+    );
+
+    return order;
   }
 }

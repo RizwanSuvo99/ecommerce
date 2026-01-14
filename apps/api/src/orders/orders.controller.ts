@@ -26,10 +26,6 @@ export class OrdersController {
   /**
    * Validate checkout data before placing an order.
    *
-   * Checks stock availability, verifies prices haven't changed,
-   * validates the coupon (if provided), and confirms the shipping
-   * address and method are valid.
-   *
    * POST /checkout/validate
    */
   @Post('checkout/validate')
@@ -38,5 +34,23 @@ export class OrdersController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ordersService.validateCheckout(dto, user.id);
+  }
+
+  // ─── Order Creation ───────────────────────────────────────────────────────────
+
+  /**
+   * Create a new order from the authenticated user's cart.
+   *
+   * Snapshots current prices, decrements inventory, creates the order
+   * with all items, and clears the cart — all within a single transaction.
+   *
+   * POST /orders
+   */
+  @Post('orders')
+  async createOrder(
+    @Body() dto: CheckoutDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.createOrder(dto, user.id);
   }
 }
