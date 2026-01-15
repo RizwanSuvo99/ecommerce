@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto, PaymentMethod } from './dto/checkout.dto';
 import {
   UpdateOrderStatusDto,
+  OrderStatus,
   ORDER_STATUS_TRANSITIONS,
 } from './dto/update-order-status.dto';
 
@@ -44,6 +45,23 @@ interface PaginationOptions {
   page: number;
   limit: number;
 }
+
+/**
+ * Statuses that allow cancellation by the customer.
+ */
+const CUSTOMER_CANCELLABLE_STATUSES = [
+  OrderStatus.PENDING,
+  OrderStatus.CONFIRMED,
+];
+
+/**
+ * Statuses that allow cancellation by an admin.
+ */
+const ADMIN_CANCELLABLE_STATUSES = [
+  OrderStatus.PENDING,
+  OrderStatus.CONFIRMED,
+  OrderStatus.PROCESSING,
+];
 
 @Injectable()
 export class OrdersService {
@@ -416,14 +434,6 @@ export class OrdersService {
 
   /**
    * Update an order's status with transition validation.
-   *
-   * Only allows transitions defined in ORDER_STATUS_TRANSITIONS.
-   * For example, a PENDING order can only move to CONFIRMED or CANCELLED,
-   * not directly to SHIPPED.
-   *
-   * @param orderId - The order ID to update
-   * @param dto - New status and optional note
-   * @returns The updated order
    */
   async updateStatus(orderId: string, dto: UpdateOrderStatusDto) {
     const order = await this.prisma.order.findUnique({
@@ -434,7 +444,6 @@ export class OrdersService {
       throw new NotFoundException(`Order not found`);
     }
 
-    // Validate the status transition
     const allowedTransitions = ORDER_STATUS_TRANSITIONS[order.status] || [];
 
     if (!allowedTransitions.includes(dto.status)) {
@@ -444,12 +453,10 @@ export class OrdersService {
       );
     }
 
-    // Build the update data
     const updateData: any = {
       status: dto.status,
     };
 
-    // Set timestamps for specific statuses
     if (dto.status === 'CONFIRMED') {
       updateData.confirmedAt = new Date();
     } else if (dto.status === 'SHIPPED') {
@@ -461,7 +468,6 @@ export class OrdersService {
       updateData.cancelledAt = new Date();
     }
 
-    // Add status note if provided
     if (dto.note) {
       updateData.statusNote = dto.note;
     }
@@ -477,5 +483,127 @@ export class OrdersService {
     );
 
     return updatedOrder;
+  }
+
+  // ─── Order Cancellation ───────────────────────────────────────────────────────
+
+  /**
+   * Cancel an order (customer-initiated).
+   *
+   * Validates that the order belongs to the user and is in a cancellable
+   * status (PENDING or CONFIRMED). Restores inventory for all items and
+   * initiates a refund if payment was already processed.
+   *
+   * @param orderId - The order ID to cancel
+   * @param userId - The authenticated user's ID
+   * @param reason - Optional cancellation reason
+   * @returns The cancelled order
+   */
+  async cancelOrder(orderId: string, userId: string, reason?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (order.userId !== userId) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (!CUSTOMER_CANCELLABLE_STATUSES.includes(order.status as OrderStatus)) {
+      throw new BadRequestException(
+        `Order cannot be cancelled. Current status: ${order.status}. ` +
+        `Cancellation is only allowed for orders in ${CUSTOMER_CANCELLABLE_STATUSES.join(' or ')} status.`,
+      );
+    }
+
+    return this.executeCancellation(order, reason, 'customer');
+  }
+
+  /**
+   * Cancel an order (admin-initiated).
+   *
+   * Admins can cancel orders in PENDING, CONFIRMED, or PROCESSING status.
+   * Restores inventory and initiates refund if needed.
+   *
+   * @param orderId - The order ID to cancel
+   * @param reason - Optional cancellation reason
+   * @returns The cancelled order
+   */
+  async adminCancelOrder(orderId: string, reason?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (!ADMIN_CANCELLABLE_STATUSES.includes(order.status as OrderStatus)) {
+      throw new BadRequestException(
+        `Order cannot be cancelled. Current status: ${order.status}. ` +
+        `Admin cancellation is allowed for: ${ADMIN_CANCELLABLE_STATUSES.join(', ')}`,
+      );
+    }
+
+    return this.executeCancellation(order, reason, 'admin');
+  }
+
+  /**
+   * Execute the cancellation: restore inventory, update status, initiate refund.
+   */
+  private async executeCancellation(
+    order: any,
+    reason: string | undefined,
+    cancelledBy: 'customer' | 'admin',
+  ) {
+    const cancelledOrder = await this.prisma.$transaction(async (tx) => {
+      // 1. Restore inventory for each item
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+
+      // 2. Restore coupon usage count if a coupon was applied
+      if (order.couponCode) {
+        await tx.coupon.update({
+          where: { code: order.couponCode },
+          data: { usedCount: { decrement: 1 } },
+        });
+      }
+
+      // 3. Determine refund status
+      const needsRefund = order.paymentStatus === 'PAID';
+      const paymentStatus = needsRefund ? 'REFUND_PENDING' : 'CANCELLED';
+
+      // 4. Update the order status
+      const updated = await tx.order.update({
+        where: { id: order.id },
+        data: {
+          status: OrderStatus.CANCELLED,
+          paymentStatus,
+          cancelledAt: new Date(),
+          statusNote: reason
+            ? `Cancelled by ${cancelledBy}: ${reason}`
+            : `Cancelled by ${cancelledBy}`,
+        },
+        include: { items: true },
+      });
+
+      return updated;
+    });
+
+    this.logger.log(
+      `Order ${order.orderNumber} cancelled by ${cancelledBy}. ` +
+      `${order.items.length} items restored to inventory.`,
+    );
+
+    return cancelledOrder;
   }
 }

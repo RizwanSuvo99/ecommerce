@@ -89,6 +89,25 @@ export class OrdersController {
     return this.ordersService.findOrderByNumber(orderNumber, user.id);
   }
 
+  // ─── Order Cancellation ───────────────────────────────────────────────────────
+
+  /**
+   * Cancel an order (customer-initiated).
+   *
+   * Only PENDING and CONFIRMED orders can be cancelled by the customer.
+   * Restores inventory and initiates refund if payment was processed.
+   *
+   * POST /orders/:id/cancel
+   */
+  @Post('orders/:id/cancel')
+  async cancelOrder(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body('reason') reason?: string,
+  ) {
+    return this.ordersService.cancelOrder(id, user.id, reason);
+  }
+
   // ─── Admin: Order Management ──────────────────────────────────────────────────
 
   /**
@@ -110,8 +129,6 @@ export class OrdersController {
   /**
    * Update an order's status (admin only).
    *
-   * Validates the status transition before applying the change.
-   *
    * PATCH /admin/orders/:id/status
    */
   @Patch('admin/orders/:id/status')
@@ -122,5 +139,22 @@ export class OrdersController {
     @Body() dto: UpdateOrderStatusDto,
   ) {
     return this.ordersService.updateStatus(id, dto);
+  }
+
+  /**
+   * Cancel an order (admin-initiated).
+   *
+   * Admins can cancel PENDING, CONFIRMED, and PROCESSING orders.
+   *
+   * POST /admin/orders/:id/cancel
+   */
+  @Post('admin/orders/:id/cancel')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async adminCancelOrder(
+    @Param('id') id: string,
+    @Body('reason') reason?: string,
+  ) {
+    return this.ordersService.adminCancelOrder(id, reason);
   }
 }
