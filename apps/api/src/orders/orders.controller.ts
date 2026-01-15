@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 
 import { OrdersService } from './orders.service';
+import { ShippingService } from './shipping.service';
 import { CheckoutDto } from './dto/checkout.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -28,7 +29,10 @@ import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly shippingService: ShippingService,
+  ) {}
 
   // ─── Checkout ─────────────────────────────────────────────────────────────────
 
@@ -94,9 +98,6 @@ export class OrdersController {
   /**
    * Cancel an order (customer-initiated).
    *
-   * Only PENDING and CONFIRMED orders can be cancelled by the customer.
-   * Restores inventory and initiates refund if payment was processed.
-   *
    * POST /orders/:id/cancel
    */
   @Post('orders/:id/cancel')
@@ -106,6 +107,25 @@ export class OrdersController {
     @Body('reason') reason?: string,
   ) {
     return this.ordersService.cancelOrder(id, user.id, reason);
+  }
+
+  // ─── Shipping ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Calculate shipping cost for the given address.
+   *
+   * Returns available shipping methods with costs and delivery estimates.
+   * Inside Dhaka: ৳60 standard, Outside Dhaka: ৳120 standard.
+   * Free standard shipping on orders above ৳2000.
+   *
+   * GET /shipping/calculate?addressId=x
+   */
+  @Get('shipping/calculate')
+  async calculateShipping(
+    @Query('addressId') addressId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.shippingService.calculateShipping(addressId, user.id);
   }
 
   // ─── Admin: Order Management ──────────────────────────────────────────────────
@@ -143,8 +163,6 @@ export class OrdersController {
 
   /**
    * Cancel an order (admin-initiated).
-   *
-   * Admins can cancel PENDING, CONFIRMED, and PROCESSING orders.
    *
    * POST /admin/orders/:id/cancel
    */
