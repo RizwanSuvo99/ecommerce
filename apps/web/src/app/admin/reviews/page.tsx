@@ -13,7 +13,7 @@ interface Review {
   adminNote: string | null;
   adminResponse: string | null;
   createdAt: string;
-  user: { id: string; name: string; email: string };
+  user: { id: string; firstName: string; lastName: string; email: string };
   product: { id: string; name: string; slug: string; images: string[] };
 }
 
@@ -149,7 +149,7 @@ export default function AdminReviewsPage() {
                       {review.product.name}
                     </p>
                     <p className="text-xs text-gray-500">
-                      by {review.user.name} ({review.user.email})
+                      by {review.user.firstName} {review.user.lastName} ({review.user.email})
                     </p>
                   </div>
                 </div>

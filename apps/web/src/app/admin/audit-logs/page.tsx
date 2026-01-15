@@ -13,7 +13,7 @@ interface AuditLog {
   newValues: string | null;
   ipAddress: string | null;
   createdAt: string;
-  user: { id: string; name: string; email: string } | null;
+  user: { id: string; firstName: string; lastName: string; email: string } | null;
 }
 
 interface Pagination {
@@ -153,7 +153,7 @@ export default function AdminAuditLogPage() {
                       {new Date(log.createdAt).toLocaleString()}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm">
-                      {log.user?.name ?? 'System'}
+                      {log.user ? `${log.user.firstName} ${log.user.lastName}` : 'System'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
                       {actionBadge(log.action)}
