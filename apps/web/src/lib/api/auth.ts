@@ -208,6 +208,38 @@ export async function updateProfile(
 }
 
 /**
+ * Authenticate with a Google token (ID token or access token from @react-oauth/google).
+ */
+export async function googleLogin(token: string, tokenType: 'idToken' | 'accessToken' = 'accessToken'): Promise<AuthResponse> {
+  const { data } = await apiClient.post<ApiResponse<any>>('/auth/google', {
+    [tokenType]: token,
+  });
+  return normalizeAuthResponse(data.data);
+}
+
+/**
+ * Authenticate with a Facebook access token.
+ */
+export async function facebookLogin(
+  accessToken: string,
+): Promise<AuthResponse> {
+  const { data } = await apiClient.post<ApiResponse<any>>('/auth/facebook', {
+    accessToken,
+  });
+  return normalizeAuthResponse(data.data);
+}
+
+/**
+ * Authenticate with a Firebase phone ID token.
+ */
+export async function phoneLogin(idToken: string): Promise<AuthResponse> {
+  const { data } = await apiClient.post<ApiResponse<any>>('/auth/phone', {
+    idToken,
+  });
+  return normalizeAuthResponse(data.data);
+}
+
+/**
  * Invalidate the current session / refresh token on the server.
  */
 export async function logout(): Promise<void> {
