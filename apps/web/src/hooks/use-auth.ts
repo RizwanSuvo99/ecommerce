@@ -27,14 +27,23 @@ import { AuthContext, type AuthContextValue } from '@/providers/auth-provider';
  * }
  * ```
  */
+const defaultAuthValue: AuthContextValue = {
+  user: null,
+  isLoading: true,
+  isSubmitting: false,
+  isAuthenticated: false,
+  login: async () => {},
+  register: async () => {},
+  logout: async () => {},
+  refreshUser: async () => {},
+};
+
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
 
+  // Return safe defaults during SSR or when provider is not yet mounted
   if (context === undefined) {
-    throw new Error(
-      'useAuth() must be used within an <AuthProvider>. ' +
-        'Make sure to wrap your application (or the relevant subtree) with <AuthProvider>.',
-    );
+    return defaultAuthValue;
   }
 
   return context;
