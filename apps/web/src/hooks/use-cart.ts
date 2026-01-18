@@ -42,14 +42,31 @@ import { CartContext, type CartContextValue } from '@/providers/cart-provider';
  * }
  * ```
  */
+const defaultCartValue: CartContextValue = {
+  cart: null,
+  isLoading: true,
+  isUpdating: false,
+  itemCount: 0,
+  isOpen: false,
+  openCart: () => {},
+  closeCart: () => {},
+  toggleCart: () => {},
+  addItem: async () => {},
+  updateItemQuantity: async () => {},
+  removeItem: async () => {},
+  clearCart: async () => {},
+  applyCoupon: async () => {},
+  removeCoupon: async () => {},
+  refreshCart: async () => {},
+  mergeGuestCart: async () => {},
+};
+
 export function useCart(): CartContextValue {
   const context = useContext(CartContext);
 
+  // Return safe defaults during SSR or when provider is not yet mounted
   if (context === undefined) {
-    throw new Error(
-      'useCart() must be used within a <CartProvider>. ' +
-        'Make sure to wrap your application (or the relevant subtree) with <CartProvider>.',
-    );
+    return defaultCartValue;
   }
 
   return context;
