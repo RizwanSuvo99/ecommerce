@@ -10,18 +10,17 @@ import {
   UseGuards,
   DefaultValuePipe,
   ParseIntPipe,
-  UnauthorizedException,
 } from '@nestjs/common';
 
-import { OrdersService } from './orders.service';
-import { ShippingService } from './shipping.service';
 import { CheckoutDto } from './dto/checkout.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrdersService } from './orders.service';
+import { ShippingService } from './shipping.service';
+import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
 
 /**
  * Orders controller.
@@ -68,7 +67,11 @@ export class OrdersController {
     @CurrentUser() user: AuthenticatedUser | null,
     @Headers('x-session-id') sessionId?: string,
   ) {
-    return this.ordersService.createOrder(dto, user?.id, sessionId);
+    const order = await this.ordersService.createOrder(dto, user?.id, sessionId);
+    return {
+      success: true,
+      data: order,
+    };
   }
 
   // ─── Guest Order Lookup ─────────────────────────────────────────────────────
@@ -79,10 +82,7 @@ export class OrdersController {
    * GET /orders/guest?orderNumber=X&email=Y
    */
   @Get('orders/guest')
-  async findGuestOrder(
-    @Query('orderNumber') orderNumber: string,
-    @Query('email') email: string,
-  ) {
+  async findGuestOrder(@Query('orderNumber') orderNumber: string, @Query('email') email: string) {
     return this.ordersService.findGuestOrder(orderNumber, email);
   }
 
@@ -191,10 +191,7 @@ export class OrdersController {
   @Patch('admin/orders/:id/status')
   @UseGuards(RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async updateOrderStatus(
-    @Param('id') id: string,
-    @Body() dto: UpdateOrderStatusDto,
-  ) {
+  async updateOrderStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto);
   }
 
@@ -206,10 +203,7 @@ export class OrdersController {
   @Post('admin/orders/:id/cancel')
   @UseGuards(RolesGuard)
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async adminCancelOrder(
-    @Param('id') id: string,
-    @Body('reason') reason?: string,
-  ) {
+  async adminCancelOrder(@Param('id') id: string, @Body('reason') reason?: string) {
     return this.ordersService.adminCancelOrder(id, reason);
   }
 }
