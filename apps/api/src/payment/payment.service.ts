@@ -38,6 +38,97 @@ export class PaymentService {
     return this.stripe;
   }
 
+  async createCheckoutSession(params: {
+    orderId: string;
+    items: Array<{
+      name: string;
+      description?: string;
+      image?: string;
+      quantity: number;
+      priceBDT: number;
+    }>;
+    customerEmail: string;
+    shippingCostBDT?: number;
+  }) {
+    const { orderId, items, customerEmail, shippingCostBDT = 0 } = params;
+
+    this.logger.log(`Creating Stripe checkout session for order ${orderId}`);
+
+    const totalBDT = items.reduce(
+      (sum, item) => sum + item.priceBDT * item.quantity,
+      0,
+    ) + shippingCostBDT;
+
+    this.validateAmount(totalBDT);
+
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(
+      (item) => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+            description: item.description || `Price: ${formatBDT(item.priceBDT)}`,
+            ...(item.image && { images: [item.image] }),
+          },
+          unit_amount: convertBDTtoUSDCents(item.priceBDT),
+        },
+        quantity: item.quantity,
+      }),
+    );
+
+    if (shippingCostBDT > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Shipping',
+            description: `Shipping cost: ${formatBDT(shippingCostBDT)}`,
+          },
+          unit_amount: convertBDTtoUSDCents(shippingCostBDT),
+        },
+        quantity: 1,
+      });
+    }
+
+    const successUrl = `${this.config.get('FRONTEND_URL')}/checkout/payment/success?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`;
+    const cancelUrl = `${this.config.get('FRONTEND_URL')}/checkout/payment/cancel?order_id=${orderId}`;
+
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      customer_email: customerEmail,
+      line_items: lineItems,
+      metadata: {
+        orderId,
+        totalBDT: totalBDT.toString(),
+        currency: 'BDT',
+      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    });
+
+    await this.createPaymentRecord({
+      orderId,
+      method: 'STRIPE',
+      amount: totalBDT,
+      currency: 'BDT',
+      status: 'PENDING',
+      stripeSessionId: session.id,
+    });
+
+    this.logger.log(
+      `Checkout session created: ${session.id} for ${formatBDT(totalBDT)} (${convertBDTtoUSDCents(totalBDT)} USD cents)`,
+    );
+
+    return {
+      sessionId: session.id,
+      sessionUrl: session.url,
+      totalBDT,
+      totalFormatted: formatBDT(totalBDT),
+      totalUSDCents: convertBDTtoUSDCents(totalBDT),
+    };
+  }
+
   async getPaymentByOrderId(orderId: string) {
     const payment = await this.prisma.payment.findFirst({
       where: { orderId },
