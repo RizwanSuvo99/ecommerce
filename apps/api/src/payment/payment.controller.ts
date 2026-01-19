@@ -4,8 +4,10 @@ import {
   Post,
   Body,
   Param,
-  UseGuards,
+  Headers,
   Req,
+  RawBodyRequest,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
@@ -46,6 +48,24 @@ export class PaymentController {
     return {
       success: true,
       data: session,
+    };
+  }
+
+  @Post('stripe/webhook')
+  async handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    const rawBody = req.rawBody;
+    if (!rawBody) {
+      return { success: false, error: 'Missing raw body' };
+    }
+
+    const result = await this.paymentService.handleWebhook(rawBody, signature);
+
+    return {
+      success: true,
+      data: result,
     };
   }
 

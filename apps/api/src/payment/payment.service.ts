@@ -24,6 +24,7 @@ export function formatBDT(amount: number): string {
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
   private readonly stripe: Stripe;
+  private readonly webhookSecret: string;
 
   constructor(
     private readonly config: ConfigService,
@@ -32,6 +33,7 @@ export class PaymentService {
     this.stripe = new Stripe(this.config.get<string>('STRIPE_SECRET_KEY')!, {
       apiVersion: '2024-04-10',
     });
+    this.webhookSecret = this.config.get<string>('STRIPE_WEBHOOK_SECRET')!;
   }
 
   getStripeInstance(): Stripe {
@@ -127,6 +129,111 @@ export class PaymentService {
       totalFormatted: formatBDT(totalBDT),
       totalUSDCents: convertBDTtoUSDCents(totalBDT),
     };
+  }
+
+  async handleWebhook(payload: Buffer, signature: string) {
+    let event: Stripe.Event;
+
+    try {
+      event = this.stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        this.webhookSecret,
+      );
+    } catch (err) {
+      this.logger.error(`Webhook signature verification failed: ${err.message}`);
+      throw new BadRequestException('Invalid webhook signature');
+    }
+
+    this.logger.log(`Processing webhook event: ${event.type} (${event.id})`);
+
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        await this.handleCheckoutSessionCompleted(session);
+        break;
+      }
+
+      case 'payment_intent.succeeded': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        await this.handlePaymentIntentSucceeded(paymentIntent);
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        await this.handlePaymentIntentFailed(paymentIntent);
+        break;
+      }
+
+      default:
+        this.logger.log(`Unhandled webhook event type: ${event.type}`);
+    }
+
+    return { received: true, eventType: event.type };
+  }
+
+  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+    const orderId = session.metadata?.orderId;
+    if (!orderId) {
+      this.logger.warn('Checkout session completed without orderId in metadata');
+      return;
+    }
+
+    this.logger.log(`Checkout session completed for order ${orderId}`);
+
+    const payment = await this.prisma.payment.findFirst({
+      where: { stripeSessionId: session.id },
+    });
+
+    if (payment) {
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'COMPLETED',
+          stripePaymentIntentId: session.payment_intent as string,
+          updatedAt: new Date(),
+        },
+      });
+
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: {
+          paymentStatus: 'PAID',
+          status: 'CONFIRMED',
+          updatedAt: new Date(),
+        },
+      });
+
+      this.logger.log(`Order ${orderId} payment marked as PAID`);
+    }
+  }
+
+  private async handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+    this.logger.log(`Payment intent succeeded: ${paymentIntent.id}`);
+
+    const payment = await this.prisma.payment.findFirst({
+      where: { stripePaymentIntentId: paymentIntent.id },
+    });
+
+    if (payment && payment.status !== 'COMPLETED') {
+      await this.updatePaymentStatus(payment.id, 'COMPLETED');
+    }
+  }
+
+  private async handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
+    this.logger.warn(`Payment intent failed: ${paymentIntent.id}`);
+
+    const payment = await this.prisma.payment.findFirst({
+      where: { stripePaymentIntentId: paymentIntent.id },
+    });
+
+    if (payment) {
+      await this.updatePaymentStatus(payment.id, 'FAILED', {
+        failureMessage: paymentIntent.last_payment_error?.message,
+        failureCode: paymentIntent.last_payment_error?.code,
+      });
+    }
   }
 
   async getPaymentByOrderId(orderId: string) {
