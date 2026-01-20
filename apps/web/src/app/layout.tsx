@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_Bengali } from 'next/font/google';
 
+import { Providers } from '@/providers';
+
 import './globals.css';
 
 const inter = Inter({
@@ -99,7 +101,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="E-Commerce" />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
