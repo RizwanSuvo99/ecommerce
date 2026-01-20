@@ -37,7 +37,7 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
     { score: 0, label: 'Very Weak', color: 'text-red-600', bg: 'bg-red-500' },
     { score: 1, label: 'Weak', color: 'text-orange-600', bg: 'bg-orange-500' },
     { score: 2, label: 'Fair', color: 'text-yellow-600', bg: 'bg-yellow-500' },
-    { score: 3, label: 'Strong', color: 'text-blue-600', bg: 'bg-blue-500' },
+    { score: 3, label: 'Strong', color: 'text-teal-600', bg: 'bg-teal-500' },
     { score: 4, label: 'Very Strong', color: 'text-green-600', bg: 'bg-green-500' },
   ];
 
@@ -165,7 +165,7 @@ export default function ChangePasswordPage() {
         className="bg-white rounded-xl border border-gray-200 shadow-sm p-6"
       >
         <div className="flex items-center gap-2 mb-6">
-          <Shield className="w-5 h-5 text-blue-600" />
+          <Shield className="w-5 h-5 text-teal-600" />
           <h3 className="text-sm font-semibold text-gray-900">
             Password Settings
           </h3>
@@ -189,7 +189,7 @@ export default function ChangePasswordPage() {
                   }))
                 }
                 placeholder="Enter current password"
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
               <button
                 type="button"
@@ -222,7 +222,7 @@ export default function ChangePasswordPage() {
                   }))
                 }
                 placeholder="Enter new password"
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
               <button
                 type="button"
@@ -305,7 +305,7 @@ export default function ChangePasswordPage() {
                 }
                 placeholder="Confirm new password"
                 className={cn(
-                  'w-full px-3 py-2 pr-10 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+                  'w-full px-3 py-2 pr-10 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
                   formData.confirmPassword.length > 0
                     ? passwordsMatch
                       ? 'border-green-300'
@@ -346,7 +346,7 @@ export default function ChangePasswordPage() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -359,11 +359,11 @@ export default function ChangePasswordPage() {
       </form>
 
       {/* Security Tip */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-1">
+      <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+        <h4 className="text-sm font-semibold text-teal-900 mb-1">
           Security Tips
         </h4>
-        <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+        <ul className="text-xs text-teal-700 space-y-1 list-disc list-inside">
           <li>Use a unique password that you don&apos;t use on other sites</li>
           <li>Mix uppercase, lowercase, numbers, and special characters</li>
           <li>Avoid using personal information like name or birthday</li>
