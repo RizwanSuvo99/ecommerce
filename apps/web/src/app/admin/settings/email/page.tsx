@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { getSettingsByGroup, sendTestEmail, updateSettings } from '@/lib/api/settings';
 
@@ -38,7 +39,6 @@ export default function EmailSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     getSettingsByGroup('email')
@@ -54,12 +54,11 @@ export default function EmailSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
     try {
       await updateSettings('email', form as unknown as Record<string, string>);
-      setMessage('Email settings saved successfully.');
+      toast.success('Email settings saved');
     } catch {
-      setMessage('Failed to save email settings.');
+      toast.error('Failed to save email settings');
     } finally {
       setSaving(false);
     }
@@ -70,9 +69,9 @@ export default function EmailSettingsPage() {
     setSendingTest(true);
     try {
       await sendTestEmail(testEmail);
-      setMessage('Test email sent successfully!');
+      toast.success('Test email sent');
     } catch {
-      setMessage('Failed to send test email. Check your SMTP settings.');
+      toast.error('Failed to send test email');
     } finally {
       setSendingTest(false);
     }
@@ -188,12 +187,6 @@ export default function EmailSettingsPage() {
           </button>
         </div>
       </div>
-
-      {message && (
-        <p className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
 
       <div className="flex justify-end">
         <button

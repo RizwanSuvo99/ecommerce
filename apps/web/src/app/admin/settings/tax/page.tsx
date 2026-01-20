@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
@@ -26,7 +27,6 @@ export default function TaxSettingsPage() {
   const [form, setForm] = useState<TaxSettings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     getSettingsByGroup('tax')
@@ -42,12 +42,11 @@ export default function TaxSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
     try {
       await updateSettings('tax', form as unknown as Record<string, string>);
-      setMessage('Tax settings saved successfully.');
+      toast.success('Tax settings saved');
     } catch {
-      setMessage('Failed to save tax settings.');
+      toast.error('Failed to save tax settings');
     } finally {
       setSaving(false);
     }
@@ -147,12 +146,6 @@ export default function TaxSettingsPage() {
           </span>
         </label>
       </div>
-
-      {message && (
-        <p className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
 
       <div className="flex justify-end">
         <button

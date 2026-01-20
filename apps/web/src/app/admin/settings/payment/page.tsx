@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
@@ -32,7 +33,6 @@ export default function PaymentSettingsPage() {
   const [form, setForm] = useState<PaymentSettings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     getSettingsByGroup('payment')
@@ -48,12 +48,11 @@ export default function PaymentSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
     try {
       await updateSettings('payment', form as unknown as Record<string, string>);
-      setMessage('Payment settings saved successfully.');
+      toast.success('Payment settings saved');
     } catch {
-      setMessage('Failed to save payment settings.');
+      toast.error('Failed to save payment settings');
     } finally {
       setSaving(false);
     }
@@ -192,12 +191,6 @@ export default function PaymentSettingsPage() {
           </label>
         </div>
       </section>
-
-      {message && (
-        <p className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
 
       <div className="flex justify-end">
         <button

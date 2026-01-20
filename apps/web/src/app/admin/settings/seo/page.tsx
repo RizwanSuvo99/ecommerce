@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
@@ -32,7 +33,6 @@ export default function SeoSettingsPage() {
   const [form, setForm] = useState<SeoSettings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     getSettingsByGroup('seo')
@@ -48,12 +48,11 @@ export default function SeoSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
     try {
       await updateSettings('seo', form as unknown as Record<string, string>);
-      setMessage('SEO settings saved successfully.');
+      toast.success('SEO settings saved');
     } catch {
-      setMessage('Failed to save SEO settings.');
+      toast.error('Failed to save SEO settings');
     } finally {
       setSaving(false);
     }
@@ -200,12 +199,6 @@ export default function SeoSettingsPage() {
           placeholder="https://www.example.com"
         />
       </section>
-
-      {message && (
-        <p className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
 
       <div className="flex justify-end">
         <button

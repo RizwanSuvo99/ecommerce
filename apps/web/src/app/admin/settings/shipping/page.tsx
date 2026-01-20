@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
@@ -49,7 +50,6 @@ export default function ShippingSettingsPage() {
   const [freeThreshold, setFreeThreshold] = useState(2000);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     getSettingsByGroup('shipping')
@@ -84,7 +84,6 @@ export default function ShippingSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
     try {
       await updateSettings('shipping', {
         methods: JSON.stringify(methods),
@@ -92,9 +91,9 @@ export default function ShippingSettingsPage() {
         enableFreeShipping: String(enableFreeShipping),
         freeShippingThreshold: String(freeThreshold),
       });
-      setMessage('Shipping settings saved successfully.');
+      toast.success('Shipping settings saved');
     } catch {
-      setMessage('Failed to save shipping settings.');
+      toast.error('Failed to save shipping settings');
     } finally {
       setSaving(false);
     }
@@ -191,12 +190,6 @@ export default function ShippingSettingsPage() {
           </div>
         )}
       </section>
-
-      {message && (
-        <p className={`text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
-          {message}
-        </p>
-      )}
 
       <div className="flex justify-end">
         <button

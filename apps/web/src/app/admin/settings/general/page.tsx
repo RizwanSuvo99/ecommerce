@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
@@ -36,7 +37,6 @@ export default function GeneralSettingsPage() {
   const [form, setForm] = useState<GeneralSettings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     getSettingsByGroup('general')
@@ -52,13 +52,12 @@ export default function GeneralSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
 
     try {
       await updateSettings('general', form as unknown as Record<string, string>);
-      setMessage('General settings saved successfully.');
+      toast.success('General settings saved');
     } catch {
-      setMessage('Failed to save settings. Please try again.');
+      toast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -185,16 +184,6 @@ export default function GeneralSettingsPage() {
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
-
-      {message && (
-        <p
-          className={`text-sm ${
-            message.includes('success') ? 'text-green-600' : 'text-red-600'
-          }`}
-        >
-          {message}
-        </p>
-      )}
 
       <div className="flex justify-end">
         <button
