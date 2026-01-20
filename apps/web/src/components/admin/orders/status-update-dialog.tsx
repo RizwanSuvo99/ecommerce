@@ -263,7 +263,7 @@ export default function StatusUpdateDialog({
                       key={option.value}
                       className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
                         selectedStatus === option.value
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-teal-500 bg-teal-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -276,7 +276,7 @@ export default function StatusUpdateDialog({
                           setSelectedStatus(e.target.value as OrderStatus);
                           setError('');
                         }}
-                        className="mt-0.5 text-blue-600 focus:ring-blue-500"
+                        className="mt-0.5 text-teal-600 focus:ring-teal-500"
                       />
                       <div>
                         <span className="text-sm font-medium text-gray-900">
@@ -302,7 +302,7 @@ export default function StatusUpdateDialog({
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
                     placeholder="Enter tracking number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                   />
                 </div>
                 <div>
@@ -312,7 +312,7 @@ export default function StatusUpdateDialog({
                   <select
                     value={trackingProvider}
                     onChange={(e) => setTrackingProvider(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select provider</option>
                     <option value="pathao">Pathao Courier</option>
@@ -335,7 +335,7 @@ export default function StatusUpdateDialog({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add a note about this status change..."
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none"
               />
             </div>
 
@@ -345,7 +345,7 @@ export default function StatusUpdateDialog({
                 type="checkbox"
                 checked={notifyCustomer}
                 onChange={(e) => setNotifyCustomer(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
               />
               <span className="text-sm text-gray-700">Notify customer via email and SMS</span>
             </label>
@@ -369,7 +369,7 @@ export default function StatusUpdateDialog({
               <button
                 onClick={handleSubmitClick}
                 disabled={!selectedStatus || submitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Updating...' : 'Update Status'}
               </button>

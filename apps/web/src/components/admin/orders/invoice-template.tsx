@@ -82,13 +82,13 @@ export default function InvoiceTemplate({ data, showActions = true }: InvoiceTem
       {/* Print Actions */}
       {showActions && (
         <div className="print:hidden mb-6 flex items-center justify-between">
-          <a href="/admin/orders" className="text-sm text-blue-600 hover:text-blue-800">
+          <a href="/admin/orders" className="text-sm text-teal-600 hover:text-teal-800">
             &larr; Back to Orders
           </a>
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
             >
               Print Invoice
             </button>

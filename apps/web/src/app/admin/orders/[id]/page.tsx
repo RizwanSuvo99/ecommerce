@@ -79,7 +79,7 @@ interface TimelineEvent {
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string }> = {
   PENDING: { label: 'Pending', color: 'yellow' },
   CONFIRMED: { label: 'Confirmed', color: 'blue' },
-  PROCESSING: { label: 'Processing', color: 'indigo' },
+  PROCESSING: { label: 'Processing', color: 'teal' },
   SHIPPED: { label: 'Shipped', color: 'purple' },
   DELIVERED: { label: 'Delivered', color: 'green' },
   CANCELLED: { label: 'Cancelled', color: 'red' },
@@ -178,7 +178,7 @@ export default function AdminOrderDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -197,7 +197,7 @@ export default function AdminOrderDetailPage() {
         <p className="text-gray-500 mt-2 max-w-md mx-auto">
           {error ?? 'The order you are looking for does not exist.'}
         </p>
-        <a href="/admin/orders" className="inline-flex items-center mt-4 text-blue-600 hover:text-blue-800">
+        <a href="/admin/orders" className="inline-flex items-center mt-4 text-teal-600 hover:text-teal-800">
           &larr; Back to Orders
         </a>
       </div>
@@ -235,7 +235,7 @@ export default function AdminOrderDetailPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowStatusDialog(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
           >
             Update Status
           </button>
@@ -347,8 +347,8 @@ export default function AdminOrderDetailPage() {
                         )}
                         <div className="relative flex space-x-3">
                           <div>
-                            <span className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center ring-4 ring-white">
-                              <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <span className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center ring-4 ring-white">
+                              <svg className="w-4 h-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
                             </span>
@@ -388,7 +388,7 @@ export default function AdminOrderDetailPage() {
               </div>
               <a
                 href={`/admin/customers/${order.customer.id}`}
-                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+                className="inline-flex items-center text-sm text-teal-600 hover:text-teal-800"
               >
                 View Customer Profile &rarr;
               </a>

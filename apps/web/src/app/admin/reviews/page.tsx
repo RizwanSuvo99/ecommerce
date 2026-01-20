@@ -114,7 +114,7 @@ export default function AdminReviewsPage() {
             onClick={() => { setStatus(tab); setPage(1); }}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               status === tab
-                ? 'bg-blue-600 text-white'
+                ? 'bg-teal-600 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -183,9 +183,9 @@ export default function AdminReviewsPage() {
               </div>
 
               {review.adminReply && (
-                <div className="mt-3 rounded-md bg-blue-50 p-3">
-                  <p className="text-xs font-medium text-blue-700">Your Response</p>
-                  <p className="text-sm text-blue-600">{review.adminReply}</p>
+                <div className="mt-3 rounded-md bg-teal-50 p-3">
+                  <p className="text-xs font-medium text-teal-700">Your Response</p>
+                  <p className="text-sm text-teal-600">{review.adminReply}</p>
                 </div>
               )}
 
@@ -201,7 +201,7 @@ export default function AdminReviewsPage() {
                   />
                   <button
                     onClick={() => submitResponse(review.id)}
-                    className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
+                    className="rounded-md bg-teal-600 px-3 py-1 text-sm text-white hover:bg-teal-700"
                   >
                     Send
                   </button>

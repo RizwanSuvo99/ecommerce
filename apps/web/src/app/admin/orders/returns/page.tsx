@@ -220,7 +220,7 @@ export default function AdminReturnsPage() {
             placeholder="Search by order number, customer name, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           />
         </div>
       </div>
@@ -247,7 +247,7 @@ export default function AdminReturnsPage() {
                 <tr>
                   <td colSpan={9} className="px-4 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
                       <span className="ml-3 text-gray-500">Loading returns...</span>
                     </div>
                   </td>
@@ -265,7 +265,7 @@ export default function AdminReturnsPage() {
                   return (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
-                        <a href={`/admin/orders/${order.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                        <a href={`/admin/orders/${order.id}`} className="text-sm font-medium text-teal-600 hover:text-teal-800">
                           #{order.orderNumber}
                         </a>
                       </td>
@@ -298,7 +298,7 @@ export default function AdminReturnsPage() {
                         })}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <a href={`/admin/orders/${order.id}`} className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        <a href={`/admin/orders/${order.id}`} className="text-sm text-teal-600 hover:text-teal-800 font-medium">
                           View
                         </a>
                       </td>
@@ -331,7 +331,7 @@ function SummaryCard({
     <button
       onClick={onClick}
       className={`rounded-lg border p-4 text-left transition-all ${className} ${
-        active ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-white hover:shadow-sm'
+        active ? 'ring-2 ring-teal-500 bg-teal-50' : 'bg-white hover:shadow-sm'
       }`}
     >
       <p className="text-sm text-gray-500">{label}</p>

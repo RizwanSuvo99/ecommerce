@@ -47,8 +47,8 @@ interface PaginationInfo {
 
 const STATUS_BADGES: Record<OrderStatus, { label: string; className: string }> = {
   PENDING: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  CONFIRMED: { label: 'Confirmed', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  PROCESSING: { label: 'Processing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+  CONFIRMED: { label: 'Confirmed', className: 'bg-teal-100 text-teal-800 border-teal-200' },
+  PROCESSING: { label: 'Processing', className: 'bg-teal-100 text-teal-800 border-teal-200' },
   SHIPPED: { label: 'Shipped', className: 'bg-purple-100 text-purple-800 border-purple-200' },
   DELIVERED: { label: 'Delivered', className: 'bg-green-100 text-green-800 border-green-200' },
   CANCELLED: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200' },
@@ -261,13 +261,13 @@ export default function AdminOrdersPage() {
               placeholder="Search by order number, customer name, email, or phone..."
               value={filters.search}
               onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
           <select
             value={filters.status}
             onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value as OrderStatus | '' }))}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">All Status</option>
             {Object.entries(STATUS_BADGES).map(([key, val]) => (
@@ -277,7 +277,7 @@ export default function AdminOrdersPage() {
           <select
             value={filters.paymentStatus}
             onChange={(e) => setFilters((prev) => ({ ...prev, paymentStatus: e.target.value as PaymentStatus | '' }))}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">All Payments</option>
             {Object.entries(PAYMENT_BADGES).map(([key, val]) => (
@@ -287,7 +287,7 @@ export default function AdminOrdersPage() {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`inline-flex items-center px-3 py-2 border rounded-lg text-sm font-medium ${
-              showFilters ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+              showFilters ? 'border-teal-500 text-teal-600 bg-teal-50' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
             }`}
           >
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -339,7 +339,7 @@ export default function AdminOrdersPage() {
               />
             </div>
             <div className="col-span-full flex justify-end">
-              <button onClick={resetFilters} className="text-sm text-blue-600 hover:text-blue-800">
+              <button onClick={resetFilters} className="text-sm text-teal-600 hover:text-teal-800">
                 Reset all filters
               </button>
             </div>
@@ -358,7 +358,7 @@ export default function AdminOrdersPage() {
                     type="checkbox"
                     checked={selectedOrders.size === orders.length && orders.length > 0}
                     onChange={toggleSelectAll}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
@@ -376,7 +376,7 @@ export default function AdminOrdersPage() {
                 <tr>
                   <td colSpan={9} className="px-4 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
                       <span className="ml-3 text-gray-500">Loading orders...</span>
                     </div>
                   </td>
@@ -395,11 +395,11 @@ export default function AdminOrdersPage() {
                         type="checkbox"
                         checked={selectedOrders.has(order.id)}
                         onChange={() => toggleSelect(order.id)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <a href={`/admin/orders/${order.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                      <a href={`/admin/orders/${order.id}`} className="text-sm font-medium text-teal-600 hover:text-teal-800">
                         #{order.orderNumber}
                       </a>
                     </td>
@@ -427,7 +427,7 @@ export default function AdminOrdersPage() {
                       })}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <a href={`/admin/orders/${order.id}`} className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                      <a href={`/admin/orders/${order.id}`} className="text-sm text-teal-600 hover:text-teal-800 font-medium">
                         View
                       </a>
                     </td>
@@ -463,7 +463,7 @@ export default function AdminOrdersPage() {
                     onClick={() => handlePageChange(page)}
                     className={`px-3 py-1 border rounded text-sm ${
                       page === pagination.page
-                        ? 'bg-blue-600 text-white border-blue-600'
+                        ? 'bg-teal-600 text-white border-teal-600'
                         : 'border-gray-300 hover:bg-white'
                     }`}
                   >
@@ -487,7 +487,7 @@ export default function AdminOrdersPage() {
       {selectedOrders.size > 0 && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-4">
           <span className="text-sm">{selectedOrders.size} order(s) selected</span>
-          <button className="px-3 py-1 bg-blue-600 rounded text-sm hover:bg-blue-700">Update Status</button>
+          <button className="px-3 py-1 bg-teal-600 rounded text-sm hover:bg-teal-700">Update Status</button>
           <button className="px-3 py-1 bg-green-600 rounded text-sm hover:bg-green-700">Export Selected</button>
           <button
             onClick={() => setSelectedOrders(new Set())}

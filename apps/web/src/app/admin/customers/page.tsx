@@ -26,7 +26,7 @@ interface PaginationInfo {
 }
 
 const ROLE_BADGES: Record<string, { label: string; className: string }> = {
-  CUSTOMER: { label: 'Customer', className: 'bg-blue-100 text-blue-700 border-blue-200' },
+  CUSTOMER: { label: 'Customer', className: 'bg-teal-100 text-teal-700 border-teal-200' },
   ADMIN: { label: 'Admin', className: 'bg-purple-100 text-purple-700 border-purple-200' },
   SUPER_ADMIN: { label: 'Super Admin', className: 'bg-red-100 text-red-700 border-red-200' },
 };
@@ -142,7 +142,7 @@ export default function AdminCustomersPage() {
                 setSearch(e.target.value);
                 setPagination((prev) => ({ ...prev, page: 1 }));
               }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
           </div>
           <select
@@ -151,7 +151,7 @@ export default function AdminCustomersPage() {
               setRoleFilter(e.target.value);
               setPagination((prev) => ({ ...prev, page: 1 }));
             }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value="">All Roles</option>
             <option value="CUSTOMER">Customer</option>
@@ -182,7 +182,7 @@ export default function AdminCustomersPage() {
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
                       <span className="ml-3 text-gray-500">Loading customers...</span>
                     </div>
                   </td>
@@ -201,7 +201,7 @@ export default function AdminCustomersPage() {
                     <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-700">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-teal-700">
                             {customer.firstName.charAt(0)}{customer.lastName.charAt(0)}
                           </div>
                           <div>
@@ -289,7 +289,7 @@ export default function AdminCustomersPage() {
                     onClick={() => handlePageChange(p)}
                     className={`px-3 py-1 border rounded text-sm ${
                       p === pagination.page
-                        ? 'bg-blue-600 text-white border-blue-600'
+                        ? 'bg-teal-600 text-white border-teal-600'
                         : 'border-gray-300 hover:bg-white'
                     }`}
                   >

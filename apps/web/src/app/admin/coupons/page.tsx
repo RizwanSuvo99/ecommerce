@@ -68,7 +68,7 @@ function getCouponStatus(coupon: Coupon): { label: string; color: string } {
     return { label: 'Expired', color: 'bg-red-100 text-red-700' };
   }
   if (new Date(coupon.startDate) > new Date()) {
-    return { label: 'Scheduled', color: 'bg-blue-100 text-blue-700' };
+    return { label: 'Scheduled', color: 'bg-teal-100 text-teal-700' };
   }
   return { label: 'Active', color: 'bg-green-100 text-green-700' };
 }
@@ -278,7 +278,7 @@ function CouponFormDialog({
                   'flex-1 rounded-lg border px-4 py-2.5 text-sm uppercase focus:outline-none focus:ring-1',
                   errors.code
                     ? 'border-red-300 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-indigo-500',
+                    : 'border-gray-300 focus:ring-teal-500',
                 )}
               />
               <button
@@ -302,7 +302,7 @@ function CouponFormDialog({
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
               placeholder="e.g., 20% off on all electronics"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
           </div>
 
@@ -320,7 +320,7 @@ function CouponFormDialog({
                     discountType: e.target.value as 'PERCENTAGE' | 'FIXED_AMOUNT',
                   }))
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
                 <option value="FIXED_AMOUNT">Fixed Amount (৳)</option>
@@ -330,7 +330,7 @@ function CouponFormDialog({
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
                 Discount Value <span className="text-red-500">*</span>
               </label>
-              <div className="flex rounded-lg border border-gray-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+              <div className="flex rounded-lg border border-gray-300 focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500">
                 <span className="inline-flex items-center border-r border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
                   {formData.discountType === 'PERCENTAGE' ? '%' : '৳'}
                 </span>
@@ -373,7 +373,7 @@ function CouponFormDialog({
                   }))
                 }
                 placeholder="No minimum"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
             {formData.discountType === 'PERCENTAGE' && (
@@ -394,7 +394,7 @@ function CouponFormDialog({
                     }))
                   }
                   placeholder="No cap"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
               </div>
             )}
@@ -419,7 +419,7 @@ function CouponFormDialog({
                   }))
                 }
                 placeholder="Unlimited"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
             <div>
@@ -436,7 +436,7 @@ function CouponFormDialog({
                     usageLimitPerUser: parseInt(e.target.value, 10) || 1,
                   }))
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
           </div>
@@ -453,7 +453,7 @@ function CouponFormDialog({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, startDate: e.target.value }))
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
             <div>
@@ -466,7 +466,7 @@ function CouponFormDialog({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, endDate: e.target.value }))
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
           </div>
@@ -479,7 +479,7 @@ function CouponFormDialog({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, isActive: e.target.checked }))
               }
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
             />
             <span className="text-sm font-medium text-gray-700">Active</span>
           </label>
@@ -495,7 +495,7 @@ function CouponFormDialog({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
           >
             {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
             {isEditing ? 'Save Changes' : 'Create Coupon'}
@@ -588,7 +588,7 @@ export default function AdminCouponsPage() {
             setEditingCoupon(null);
             setShowDialog(true);
           }}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700"
         >
           <Plus className="h-4 w-4" />
           Create Coupon
@@ -607,7 +607,7 @@ export default function AdminCouponsPage() {
               setSearchQuery(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
         </div>
         <select
@@ -616,7 +616,7 @@ export default function AdminCouponsPage() {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
