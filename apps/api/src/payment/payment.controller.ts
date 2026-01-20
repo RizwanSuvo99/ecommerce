@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 
 import { PaymentService } from './payment.service';
+import { RefundDto } from './dto/refund.dto';
 
 interface CreateCheckoutSessionDto {
   orderId: string;
@@ -62,6 +63,25 @@ export class PaymentController {
     }
 
     const result = await this.paymentService.handleWebhook(rawBody, signature);
+
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  @Post('admin/payment/refund/:orderId')
+  @UseGuards(AuthGuard('jwt'))
+  async processRefund(
+    @Param('orderId') orderId: string,
+    @Body() refundDto: RefundDto,
+  ) {
+    const result = await this.paymentService.processRefund(
+      orderId,
+      refundDto.type,
+      refundDto.amountBDT,
+      refundDto.reason,
+    );
 
     return {
       success: true,

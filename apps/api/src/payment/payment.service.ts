@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { RefundType } from './dto/refund.dto';
 
 const BDT_TO_USD_RATE = 0.0091;
 
@@ -171,6 +172,102 @@ export class PaymentService {
     }
 
     return { received: true, eventType: event.type };
+  }
+
+  async processRefund(
+    orderId: string,
+    type: RefundType,
+    amountBDT?: number,
+    reason?: string,
+  ) {
+    const payment = await this.getPaymentByOrderId(orderId);
+
+    if (payment.status !== 'COMPLETED') {
+      throw new BadRequestException(
+        `Cannot refund payment with status ${payment.status}. Only COMPLETED payments can be refunded.`,
+      );
+    }
+
+    if (payment.method !== 'STRIPE' || !payment.stripePaymentIntentId) {
+      throw new BadRequestException(
+        'Only Stripe payments with a payment intent can be refunded',
+      );
+    }
+
+    let refundAmountBDT: number;
+
+    if (type === RefundType.FULL) {
+      refundAmountBDT = payment.amount;
+    } else {
+      if (!amountBDT || amountBDT <= 0) {
+        throw new BadRequestException(
+          'Partial refund requires a valid amount in ৳ (BDT)',
+        );
+      }
+      if (amountBDT > payment.amount) {
+        throw new BadRequestException(
+          `Refund amount ${formatBDT(amountBDT)} exceeds payment amount ${formatBDT(payment.amount)}`,
+        );
+      }
+      refundAmountBDT = amountBDT;
+    }
+
+    const refundAmountUSDCents = convertBDTtoUSDCents(refundAmountBDT);
+
+    this.logger.log(
+      `Processing ${type} refund for order ${orderId}: ${formatBDT(refundAmountBDT)} (${refundAmountUSDCents} USD cents)`,
+    );
+
+    const refund = await this.stripe.refunds.create({
+      payment_intent: payment.stripePaymentIntentId,
+      amount: type === RefundType.PARTIAL ? refundAmountUSDCents : undefined,
+      reason: 'requested_by_customer',
+      metadata: {
+        orderId,
+        refundType: type,
+        refundAmountBDT: refundAmountBDT.toString(),
+        refundReason: reason || 'No reason provided',
+      },
+    });
+
+    const newStatus = type === RefundType.FULL ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
+
+    await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: newStatus,
+        metadata: {
+          refundId: refund.id,
+          refundType: type,
+          refundAmountBDT,
+          refundReason: reason,
+          refundedAt: new Date().toISOString(),
+        },
+        updatedAt: new Date(),
+      },
+    });
+
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        paymentStatus: newStatus,
+        ...(type === RefundType.FULL && { status: 'CANCELLED' }),
+        updatedAt: new Date(),
+      },
+    });
+
+    this.logger.log(
+      `Refund ${refund.id} processed for order ${orderId}: ${formatBDT(refundAmountBDT)}`,
+    );
+
+    return {
+      refundId: refund.id,
+      type,
+      amountBDT: refundAmountBDT,
+      amountFormatted: formatBDT(refundAmountBDT),
+      status: refund.status,
+      reason,
+    };
   }
 
   private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
