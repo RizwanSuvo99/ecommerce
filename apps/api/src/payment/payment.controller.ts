@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Headers,
@@ -25,6 +26,11 @@ interface CreateCheckoutSessionDto {
     priceBDT: number;
   }>;
   shippingCostBDT?: number;
+}
+
+interface CreateCODPaymentDto {
+  orderId: string;
+  amountBDT: number;
 }
 
 @Controller('payment')
@@ -82,6 +88,31 @@ export class PaymentController {
       refundDto.amountBDT,
       refundDto.reason,
     );
+
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  @Post('cod/create')
+  @UseGuards(AuthGuard('jwt'))
+  async createCODPayment(@Body() body: CreateCODPaymentDto) {
+    const result = await this.paymentService.createCODPayment(
+      body.orderId,
+      body.amountBDT,
+    );
+
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  @Patch('admin/payment/cod/:orderId/paid')
+  @UseGuards(AuthGuard('jwt'))
+  async markCODPaid(@Param('orderId') orderId: string) {
+    const result = await this.paymentService.markCODPaid(orderId);
 
     return {
       success: true,

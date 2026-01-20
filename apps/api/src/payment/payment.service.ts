@@ -270,6 +270,101 @@ export class PaymentService {
     };
   }
 
+  async createCODPayment(orderId: string, amountBDT: number) {
+    this.logger.log(
+      `Creating Cash on Delivery payment for order ${orderId}: ${formatBDT(amountBDT)}`,
+    );
+
+    this.validateAmount(amountBDT);
+
+    const existingPayment = await this.prisma.payment.findFirst({
+      where: { orderId },
+    });
+
+    if (existingPayment) {
+      throw new BadRequestException(
+        `Payment already exists for order ${orderId}`,
+      );
+    }
+
+    const payment = await this.createPaymentRecord({
+      orderId,
+      method: 'COD',
+      amount: amountBDT,
+      currency: 'BDT',
+      status: 'PENDING',
+    });
+
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        paymentStatus: 'PENDING',
+        status: 'CONFIRMED',
+        updatedAt: new Date(),
+      },
+    });
+
+    this.logger.log(
+      `COD payment created for order ${orderId}: ${formatBDT(amountBDT)}`,
+    );
+
+    return {
+      paymentId: payment.id,
+      method: 'COD',
+      amountBDT,
+      amountFormatted: formatBDT(amountBDT),
+      status: 'PENDING',
+      message: `Cash on Delivery: ${formatBDT(amountBDT)} to be collected upon delivery`,
+    };
+  }
+
+  async markCODPaid(orderId: string) {
+    const payment = await this.getPaymentByOrderId(orderId);
+
+    if (payment.method !== 'COD') {
+      throw new BadRequestException(
+        'This payment is not a Cash on Delivery payment',
+      );
+    }
+
+    if (payment.status === 'COMPLETED') {
+      throw new BadRequestException('This COD payment is already marked as paid');
+    }
+
+    await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: 'COMPLETED',
+        metadata: {
+          collectedAt: new Date().toISOString(),
+          collectionMethod: 'CASH',
+        },
+        updatedAt: new Date(),
+      },
+    });
+
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        paymentStatus: 'PAID',
+        updatedAt: new Date(),
+      },
+    });
+
+    this.logger.log(
+      `COD payment for order ${orderId} marked as PAID: ${formatBDT(payment.amount)}`,
+    );
+
+    return {
+      paymentId: payment.id,
+      orderId,
+      amountBDT: payment.amount,
+      amountFormatted: formatBDT(payment.amount),
+      status: 'COMPLETED',
+      message: `Cash on Delivery payment of ${formatBDT(payment.amount)} collected successfully`,
+    };
+  }
+
   private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
     const orderId = session.metadata?.orderId;
     if (!orderId) {
