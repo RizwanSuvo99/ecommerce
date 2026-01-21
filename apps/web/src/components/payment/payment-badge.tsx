@@ -1,0 +1,98 @@
+import { cn } from '@/lib/utils';
+
+type PaymentStatus =
+  | 'PENDING'
+  | 'COMPLETED'
+  | 'PAID'
+  | 'FAILED'
+  | 'REFUNDED'
+  | 'PARTIALLY_REFUNDED'
+  | 'CANCELLED';
+
+interface PaymentBadgeProps {
+  status: PaymentStatus | string;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}
+
+const statusConfig: Record<
+  string,
+  { label: string; bg: string; text: string; dot: string }
+> = {
+  PENDING: {
+    label: 'Pending',
+    bg: 'bg-yellow-100',
+    text: 'text-yellow-800',
+    dot: 'bg-yellow-500',
+  },
+  COMPLETED: {
+    label: 'Paid',
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    dot: 'bg-green-500',
+  },
+  PAID: {
+    label: 'Paid',
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    dot: 'bg-green-500',
+  },
+  FAILED: {
+    label: 'Failed',
+    bg: 'bg-red-100',
+    text: 'text-red-800',
+    dot: 'bg-red-500',
+  },
+  REFUNDED: {
+    label: 'Refunded',
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+    dot: 'bg-purple-500',
+  },
+  PARTIALLY_REFUNDED: {
+    label: 'Partial Refund',
+    bg: 'bg-orange-100',
+    text: 'text-orange-800',
+    dot: 'bg-orange-500',
+  },
+  CANCELLED: {
+    label: 'Cancelled',
+    bg: 'bg-gray-100',
+    text: 'text-gray-800',
+    dot: 'bg-gray-500',
+  },
+};
+
+const sizeClasses = {
+  sm: 'px-2 py-0.5 text-xs',
+  md: 'px-2.5 py-1 text-xs',
+  lg: 'px-3 py-1.5 text-sm',
+};
+
+export function PaymentBadge({
+  status,
+  size = 'md',
+  className,
+}: PaymentBadgeProps) {
+  const config = statusConfig[status] ?? {
+    label: status,
+    bg: 'bg-gray-100',
+    text: 'text-gray-800',
+    dot: 'bg-gray-500',
+  };
+
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full font-medium',
+        config.bg,
+        config.text,
+        sizeClasses[size],
+        className,
+      )}
+    >
+      <span className={cn('w-1.5 h-1.5 rounded-full', config.dot)} />
+      {config.label}
+    </span>
+  );
+}
