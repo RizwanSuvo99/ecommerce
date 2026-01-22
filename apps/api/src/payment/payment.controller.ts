@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Headers,
+  Query,
   Req,
   RawBodyRequest,
   UseGuards,
@@ -15,6 +16,7 @@ import { Request } from 'express';
 
 import { PaymentService } from './payment.service';
 import { RefundDto } from './dto/refund.dto';
+import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 
 interface CreateCheckoutSessionDto {
   orderId: string;
@@ -26,6 +28,7 @@ interface CreateCheckoutSessionDto {
     priceBDT: number;
   }>;
   shippingCostBDT?: number;
+  customerEmail?: string;
 }
 
 interface CreateCODPaymentDto {
@@ -38,17 +41,19 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('stripe/create-session')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(OptionalAuthGuard)
   async createCheckoutSession(
     @Body() body: CreateCheckoutSessionDto,
     @Req() req: Request,
   ) {
     const user = req.user as any;
+    // Use user email for authenticated, or body.customerEmail for guests
+    const customerEmail = user?.email || body.customerEmail || '';
 
     const session = await this.paymentService.createCheckoutSession({
       orderId: body.orderId,
       items: body.items,
-      customerEmail: user.email,
+      customerEmail,
       shippingCostBDT: body.shippingCostBDT,
     });
 
@@ -96,7 +101,7 @@ export class PaymentController {
   }
 
   @Post('cod/create')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(OptionalAuthGuard)
   async createCODPayment(@Body() body: CreateCODPaymentDto) {
     const result = await this.paymentService.createCODPayment(
       body.orderId,
@@ -121,7 +126,7 @@ export class PaymentController {
   }
 
   @Get('order/:orderId')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(OptionalAuthGuard)
   async getPaymentByOrder(@Param('orderId') orderId: string) {
     const payment = await this.paymentService.getPaymentByOrderId(orderId);
 

@@ -100,12 +100,13 @@ export class ShippingService {
    */
   async calculateShipping(
     addressId: string,
-    userId: string,
+    userId?: string,
   ): Promise<ShippingCalculation> {
-    // Fetch the address
-    const address = await this.prisma.address.findFirst({
-      where: { id: addressId, userId },
-    });
+    // Fetch the address (for guests, userId may be null)
+    const where: any = { id: addressId };
+    if (userId) where.userId = userId;
+
+    const address = await this.prisma.address.findFirst({ where });
 
     if (!address) {
       throw new NotFoundException('Address not found');
@@ -168,5 +169,45 @@ export class ShippingService {
       subtotal,
       qualifiesForFreeShipping,
     };
+  }
+
+  /**
+   * Calculate shipping methods by division name (for guests without a saved address).
+   */
+  calculateShippingByDivision(division: string): Omit<ShippingCalculation, 'subtotal'> & { subtotal: number } {
+    const zone = DHAKA_DISTRICTS.some(
+      (d) => d.toLowerCase() === division.trim().toLowerCase(),
+    )
+      ? ShippingZone.INSIDE_DHAKA
+      : ShippingZone.OUTSIDE_DHAKA;
+
+    const rates = SHIPPING_RATES[zone];
+
+    const methods: ShippingMethod[] = [
+      {
+        id: 'standard',
+        name: zone === ShippingZone.INSIDE_DHAKA
+          ? 'Standard Delivery (Inside Dhaka)'
+          : 'Standard Delivery (Outside Dhaka)',
+        zone,
+        cost: rates.standard,
+        estimatedDays: zone === ShippingZone.INSIDE_DHAKA ? '1-2 days' : '3-5 days',
+        freeAbove: FREE_SHIPPING_THRESHOLD,
+        isFree: false,
+      },
+      {
+        id: 'express',
+        name: zone === ShippingZone.INSIDE_DHAKA
+          ? 'Express Delivery (Inside Dhaka)'
+          : 'Express Delivery (Outside Dhaka)',
+        zone,
+        cost: rates.express,
+        estimatedDays: zone === ShippingZone.INSIDE_DHAKA ? 'Same day' : '1-2 days',
+        freeAbove: 0,
+        isFree: false,
+      },
+    ];
+
+    return { zone, methods, subtotal: 0, qualifiesForFreeShipping: false };
   }
 }
