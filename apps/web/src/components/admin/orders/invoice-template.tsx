@@ -70,22 +70,6 @@ function formatBDT(amount: number): string {
   return `৳ ${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-function numberToBanglaWords(num: number): string {
-  const units = ['', 'এক', 'দুই', 'তিন', 'চার', 'পাঁচ', 'ছয়', 'সাত', 'আট', 'নয়'];
-  const teens = ['দশ', 'এগারো', 'বারো', 'তেরো', 'চৌদ্দ', 'পনেরো', 'ষোলো', 'সতেরো', 'আঠারো', 'উনিশ'];
-  const tens = ['', '', 'বিশ', 'ত্রিশ', 'চল্লিশ', 'পঞ্চাশ', 'ষাট', 'সত্তর', 'আশি', 'নব্বই'];
-
-  if (num === 0) return 'শূন্য';
-  if (num < 10) return units[num];
-  if (num < 20) return teens[num - 10];
-  if (num < 100) {
-    const t = Math.floor(num / 10);
-    const u = num % 10;
-    return tens[t] + (u ? ' ' + units[u] : '');
-  }
-  return num.toString();
-}
-
 export default function InvoiceTemplate({ data, showActions = true }: InvoiceTemplateProps) {
   const printRef = useRef<HTMLDivElement>(null);
 

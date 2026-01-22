@@ -124,6 +124,7 @@ export default function StatusUpdateDialog({
     setNotifyCustomer(true);
     setShowConfirmation(false);
     setError('');
+    setSubmitting(false);
   }, []);
 
   const handleClose = () => {

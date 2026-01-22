@@ -5,9 +5,10 @@ import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import StatusUpdateDialog from '@/components/admin/orders/status-update-dialog';
 
-type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
-type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
+type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'RETURNED';
+type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
 
 interface OrderItem {
   id: string;
@@ -76,21 +77,21 @@ interface TimelineEvent {
 }
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string }> = {
-  pending: { label: 'Pending', color: 'yellow' },
-  confirmed: { label: 'Confirmed', color: 'blue' },
-  processing: { label: 'Processing', color: 'indigo' },
-  shipped: { label: 'Shipped', color: 'purple' },
-  delivered: { label: 'Delivered', color: 'green' },
-  cancelled: { label: 'Cancelled', color: 'red' },
-  returned: { label: 'Returned', color: 'gray' },
+  PENDING: { label: 'Pending', color: 'yellow' },
+  CONFIRMED: { label: 'Confirmed', color: 'blue' },
+  PROCESSING: { label: 'Processing', color: 'indigo' },
+  SHIPPED: { label: 'Shipped', color: 'purple' },
+  DELIVERED: { label: 'Delivered', color: 'green' },
+  CANCELLED: { label: 'Cancelled', color: 'red' },
+  RETURNED: { label: 'Returned', color: 'gray' },
 };
 
 const PAYMENT_CONFIG: Record<PaymentStatus, { label: string; color: string }> = {
-  pending: { label: 'Pending', color: 'yellow' },
-  paid: { label: 'Paid', color: 'green' },
-  failed: { label: 'Failed', color: 'red' },
-  refunded: { label: 'Refunded', color: 'orange' },
-  partially_refunded: { label: 'Partially Refunded', color: 'amber' },
+  PENDING: { label: 'Pending', color: 'yellow' },
+  PAID: { label: 'Paid', color: 'green' },
+  FAILED: { label: 'Failed', color: 'red' },
+  REFUNDED: { label: 'Refunded', color: 'orange' },
+  PARTIALLY_REFUNDED: { label: 'Partially Refunded', color: 'amber' },
 };
 
 function formatBDT(amount: number): string {
@@ -110,15 +111,33 @@ export default function AdminOrderDetailPage() {
   const orderId = params.id as string;
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
 
   useEffect(() => {
     async function fetchOrder() {
       try {
         const { data } = await apiClient.get(`/admin/orders/${orderId}`);
-        setOrder(data.data ?? data);
-      } catch (error) {
-        console.error('Error fetching order:', error);
+        const raw = data.data ?? data;
+        // Ensure required nested fields have safe defaults
+        setOrder({
+          ...raw,
+          items: raw.items ?? [],
+          timeline: raw.timeline ?? [],
+          customer: raw.customer ?? { id: '', name: 'Unknown', email: '', phone: '', totalOrders: 0 },
+          shippingAddress: raw.shippingAddress ?? { name: '', phone: '', address: '', city: '', area: '', postalCode: '' },
+          billingAddress: raw.billingAddress ?? raw.shippingAddress ?? { name: '', phone: '', address: '', city: '', area: '', postalCode: '' },
+          tax: raw.tax ?? 0,
+          discount: raw.discount ?? 0,
+        });
+      } catch (err: any) {
+        console.error('Error fetching order:', err);
+        const status = err?.response?.status;
+        if (status === 404) {
+          setError('This order could not be found. The admin order detail endpoint may not be available yet.');
+        } else {
+          setError('Failed to load order details. Please try again later.');
+        }
         toast.error('Failed to load order details');
       } finally {
         setLoading(false);
@@ -126,6 +145,13 @@ export default function AdminOrderDetailPage() {
     }
     fetchOrder();
   }, [orderId]);
+
+  const handleStatusUpdated = (newStatus: string) => {
+    const upperStatus = newStatus.toUpperCase() as OrderStatus;
+    setOrder((prev) => prev ? { ...prev, status: upperStatus } : prev);
+    setShowStatusDialog(false);
+    toast.success(`Order status updated to ${newStatus}`);
+  };
 
   const handlePrintInvoice = () => {
     window.open(`/admin/orders/${orderId}/invoice`, '_blank');
@@ -157,11 +183,20 @@ export default function AdminOrderDetailPage() {
     );
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-xl font-semibold text-gray-900">Order not found</h2>
-        <p className="text-gray-500 mt-2">The order you are looking for does not exist.</p>
+        <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {error ? 'Unable to load order' : 'Order not found'}
+        </h2>
+        <p className="text-gray-500 mt-2 max-w-md mx-auto">
+          {error ?? 'The order you are looking for does not exist.'}
+        </p>
         <a href="/admin/orders" className="inline-flex items-center mt-4 text-blue-600 hover:text-blue-800">
           &larr; Back to Orders
         </a>
@@ -169,8 +204,8 @@ export default function AdminOrderDetailPage() {
     );
   }
 
-  const statusConfig = STATUS_CONFIG[order.status];
-  const paymentConfig = PAYMENT_CONFIG[order.paymentStatus];
+  const statusConfig = STATUS_CONFIG[order.status] ?? { label: order.status, color: 'gray' };
+  const paymentConfig = PAYMENT_CONFIG[order.paymentStatus] ?? { label: order.paymentStatus, color: 'gray' };
 
   return (
     <div className="space-y-6">
@@ -432,6 +467,16 @@ export default function AdminOrderDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Status Update Dialog */}
+      <StatusUpdateDialog
+        orderId={orderId}
+        orderNumber={order.orderNumber}
+        currentStatus={order.status.toLowerCase() as 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned'}
+        isOpen={showStatusDialog}
+        onClose={() => setShowStatusDialog(false)}
+        onStatusUpdated={handleStatusUpdated}
+      />
     </div>
   );
 }

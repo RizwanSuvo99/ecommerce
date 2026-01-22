@@ -23,8 +23,8 @@ interface Order {
   updatedAt: string;
 }
 
-type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
-type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
+type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'RETURNED';
+type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
 
 interface OrderFilters {
   search: string;
@@ -46,21 +46,21 @@ interface PaginationInfo {
 }
 
 const STATUS_BADGES: Record<OrderStatus, { label: string; className: string }> = {
-  pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  confirmed: { label: 'Confirmed', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  processing: { label: 'Processing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-  shipped: { label: 'Shipped', className: 'bg-purple-100 text-purple-800 border-purple-200' },
-  delivered: { label: 'Delivered', className: 'bg-green-100 text-green-800 border-green-200' },
-  cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200' },
-  returned: { label: 'Returned', className: 'bg-gray-100 text-gray-800 border-gray-200' },
+  PENDING: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+  CONFIRMED: { label: 'Confirmed', className: 'bg-blue-100 text-blue-800 border-blue-200' },
+  PROCESSING: { label: 'Processing', className: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+  SHIPPED: { label: 'Shipped', className: 'bg-purple-100 text-purple-800 border-purple-200' },
+  DELIVERED: { label: 'Delivered', className: 'bg-green-100 text-green-800 border-green-200' },
+  CANCELLED: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200' },
+  RETURNED: { label: 'Returned', className: 'bg-gray-100 text-gray-800 border-gray-200' },
 };
 
 const PAYMENT_BADGES: Record<PaymentStatus, { label: string; className: string }> = {
-  pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  paid: { label: 'Paid', className: 'bg-green-100 text-green-800 border-green-200' },
-  failed: { label: 'Failed', className: 'bg-red-100 text-red-800 border-red-200' },
-  refunded: { label: 'Refunded', className: 'bg-orange-100 text-orange-800 border-orange-200' },
-  partially_refunded: { label: 'Partial Refund', className: 'bg-amber-100 text-amber-800 border-amber-200' },
+  PENDING: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+  PAID: { label: 'Paid', className: 'bg-green-100 text-green-800 border-green-200' },
+  FAILED: { label: 'Failed', className: 'bg-red-100 text-red-800 border-red-200' },
+  REFUNDED: { label: 'Refunded', className: 'bg-orange-100 text-orange-800 border-orange-200' },
+  PARTIALLY_REFUNDED: { label: 'Partial Refund', className: 'bg-amber-100 text-amber-800 border-amber-200' },
 };
 
 function formatBDT(amount: number): string {
@@ -68,7 +68,7 @@ function formatBDT(amount: number): string {
 }
 
 function StatusBadge({ status }: { status: OrderStatus }) {
-  const badge = STATUS_BADGES[status];
+  const badge = STATUS_BADGES[status] ?? { label: status, className: 'bg-gray-100 text-gray-800 border-gray-200' };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badge.className}`}>
       {badge.label}
@@ -77,7 +77,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
 }
 
 function PaymentBadge({ status }: { status: PaymentStatus }) {
-  const badge = PAYMENT_BADGES[status];
+  const badge = PAYMENT_BADGES[status] ?? { label: status, className: 'bg-gray-100 text-gray-800 border-gray-200' };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badge.className}`}>
       {badge.label}
@@ -127,11 +127,30 @@ export default function AdminOrdersPage() {
 
       const { data } = await apiClient.get(`/admin/orders?${params.toString()}`);
       const result = data.data ?? data;
-      setOrders(result.orders ?? result.data ?? []);
+      const rawOrders = result.orders ?? result.data ?? (Array.isArray(result) ? result : []);
+      const mappedOrders = rawOrders.map((o: any) => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        customer: o.customer ?? {
+          name: o.user ? `${o.user.firstName ?? ''} ${o.user.lastName ?? ''}`.trim() : 'Unknown',
+          email: o.user?.email ?? '',
+          phone: o.user?.phone ?? '',
+        },
+        items: typeof o.items === 'number' ? o.items : (o._count?.items ?? o.items?.length ?? 0),
+        totalAmount: o.totalAmount ?? o.total ?? 0,
+        status: o.status,
+        paymentStatus: o.paymentStatus ?? 'PENDING',
+        paymentMethod: o.paymentMethod ?? '',
+        shippingMethod: o.shippingMethod ?? '',
+        createdAt: o.createdAt,
+        updatedAt: o.updatedAt,
+      }));
+      setOrders(mappedOrders);
+      const meta = result.meta ?? result;
       setPagination((prev) => ({
         ...prev,
-        total: result.total ?? result.meta?.total ?? 0,
-        totalPages: result.totalPages ?? result.meta?.totalPages ?? 0,
+        total: meta.total ?? 0,
+        totalPages: meta.totalPages ?? 0,
       }));
     } catch (error) {
       console.error('Error fetching orders:', error);
