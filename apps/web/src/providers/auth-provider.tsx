@@ -43,6 +43,12 @@ export interface AuthContextValue {
   login: (payload: LoginRequest) => Promise<void>;
   /** Create a new account and auto-login. */
   register: (payload: RegisterRequest) => Promise<void>;
+  /** Log in with a Google ID token. */
+  loginWithGoogle: (idToken: string) => Promise<void>;
+  /** Log in with a Facebook access token. */
+  loginWithFacebook: (accessToken: string) => Promise<void>;
+  /** Log in with a Firebase phone ID token. */
+  loginWithPhone: (idToken: string) => Promise<void>;
   /** Log out and clear tokens. */
   logout: () => Promise<void>;
   /** Re-fetch the user profile from the server. */
@@ -169,6 +175,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [startAutoRefresh],
   );
 
+  const loginWithGoogle = useCallback(
+    async (token: string) => {
+      setIsSubmitting(true);
+      try {
+        const response = await authApi.googleLogin(token, 'accessToken');
+        const { tokens, user: authUser } = response;
+        setTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn);
+        setUser(authUser);
+        startAutoRefresh();
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [startAutoRefresh],
+  );
+
+  const loginWithFacebook = useCallback(
+    async (accessToken: string) => {
+      setIsSubmitting(true);
+      try {
+        const response = await authApi.facebookLogin(accessToken);
+        const { tokens, user: authUser } = response;
+        setTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn);
+        setUser(authUser);
+        startAutoRefresh();
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [startAutoRefresh],
+  );
+
+  const loginWithPhone = useCallback(
+    async (idToken: string) => {
+      setIsSubmitting(true);
+      try {
+        const response = await authApi.phoneLogin(idToken);
+        const { tokens, user: authUser } = response;
+        setTokens(tokens.accessToken, tokens.refreshToken, tokens.expiresIn);
+        setUser(authUser);
+        startAutoRefresh();
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [startAutoRefresh],
+  );
+
   const logout = useCallback(async () => {
     setIsSubmitting(true);
     try {
@@ -205,10 +259,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated: user !== null,
       login,
       register,
+      loginWithGoogle,
+      loginWithFacebook,
+      loginWithPhone,
       logout,
       refreshUser,
     }),
-    [user, isLoading, isSubmitting, login, register, logout, refreshUser],
+    [user, isLoading, isSubmitting, login, register, loginWithGoogle, loginWithFacebook, loginWithPhone, logout, refreshUser],
   );
 
   return (
