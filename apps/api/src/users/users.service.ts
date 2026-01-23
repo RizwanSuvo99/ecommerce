@@ -4,6 +4,9 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import * as sharp from 'sharp';
+import * as path from 'path';
+import * as fs from 'fs/promises';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAddressDto } from './dto/create-address.dto';
@@ -12,8 +15,107 @@ import { UpdateAddressDto } from './dto/update-address.dto';
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
+  private readonly uploadDir = path.join(process.cwd(), 'uploads', 'avatars');
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+    this.ensureUploadDir();
+  }
+
+  private async ensureUploadDir() {
+    try {
+      await fs.mkdir(this.uploadDir, { recursive: true });
+    } catch (error) {
+      this.logger.warn(`Could not create avatar upload directory: ${error.message}`);
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Avatar Upload
+  // ──────────────────────────────────────────────────────────
+
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No image file provided');
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Invalid file type. Only JPEG, PNG, and WebP are allowed.',
+      );
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      throw new BadRequestException('File size must not exceed 5MB');
+    }
+
+    const timestamp = Date.now();
+    const ext = 'webp';
+
+    // Generate two sizes: 200x200 (profile) and 50x50 (thumbnail)
+    const avatarFilename = `avatar_${userId}_${timestamp}.${ext}`;
+    const thumbFilename = `avatar_${userId}_${timestamp}_thumb.${ext}`;
+
+    const avatarPath = path.join(this.uploadDir, avatarFilename);
+    const thumbPath = path.join(this.uploadDir, thumbFilename);
+
+    // Resize to 200x200 for profile display
+    await sharp(file.buffer)
+      .resize(200, 200, {
+        fit: 'cover',
+        position: 'centre',
+      })
+      .webp({ quality: 85 })
+      .toFile(avatarPath);
+
+    // Resize to 50x50 for thumbnail/navbar
+    await sharp(file.buffer)
+      .resize(50, 50, {
+        fit: 'cover',
+        position: 'centre',
+      })
+      .webp({ quality: 80 })
+      .toFile(thumbPath);
+
+    // Delete old avatar files if they exist
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatar: true },
+    });
+
+    if (user?.avatar) {
+      const oldFilename = path.basename(user.avatar);
+      const oldThumbFilename = oldFilename.replace('.webp', '_thumb.webp');
+
+      try {
+        await fs.unlink(path.join(this.uploadDir, oldFilename));
+        await fs.unlink(path.join(this.uploadDir, oldThumbFilename));
+      } catch {
+        // Old files may not exist — ignore
+      }
+    }
+
+    const avatarUrl = `/uploads/avatars/${avatarFilename}`;
+    const thumbUrl = `/uploads/avatars/${thumbFilename}`;
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        avatar: avatarUrl,
+        avatarThumb: thumbUrl,
+        updatedAt: new Date(),
+      },
+    });
+
+    this.logger.log(`Avatar uploaded for user ${userId}: ${avatarFilename}`);
+
+    return {
+      avatar: avatarUrl,
+      thumbnail: thumbUrl,
+      message: 'Avatar uploaded successfully',
+    };
+  }
 
   // ──────────────────────────────────────────────────────────
   // Address Management

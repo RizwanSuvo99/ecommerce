@@ -9,9 +9,12 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 
 import { UsersService } from './users.service';
@@ -22,6 +25,29 @@ import { UpdateAddressDto } from './dto/update-address.dto';
 @UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  // ──────────────────────────────────────────────────────────
+  // Avatar Upload
+  // ──────────────────────────────────────────────────────────
+
+  @Post('avatar')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadAvatar(
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const userId = (req.user as any).id;
+    const result = await this.usersService.uploadAvatar(userId, file);
+
+    return {
+      success: true,
+      data: result,
+    };
+  }
 
   // ──────────────────────────────────────────────────────────
   // Address Endpoints
