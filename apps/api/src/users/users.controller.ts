@@ -7,6 +7,7 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -100,6 +101,42 @@ export class UsersController {
       success: true,
       data: address,
       message: 'Default address updated',
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Order History Endpoints
+  // ──────────────────────────────────────────────────────────
+
+  @Get('orders')
+  async getOrderHistory(
+    @Req() req: Request,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('status') status?: string,
+  ) {
+    const userId = (req.user as any).id;
+    const result = await this.usersService.getOrderHistory(userId, {
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 10,
+      status,
+    });
+
+    return {
+      success: true,
+      data: result.orders,
+      pagination: result.pagination,
+    };
+  }
+
+  @Get('orders/stats')
+  async getOrderStats(@Req() req: Request) {
+    const userId = (req.user as any).id;
+    const stats = await this.usersService.getOrderStats(userId);
+
+    return {
+      success: true,
+      data: stats,
     };
   }
 }

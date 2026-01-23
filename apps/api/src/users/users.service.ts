@@ -53,7 +53,6 @@ export class UsersService {
       );
     }
 
-    // If this is the first address or marked as default, update others
     if (dto.isDefault || existingCount === 0) {
       await this.prisma.address.updateMany({
         where: { userId, isDefault: true },
@@ -113,7 +112,6 @@ export class UsersService {
       where: { id: addressId },
     });
 
-    // If deleted address was default, set the most recent one as default
     if (address.isDefault) {
       const nextDefault = await this.prisma.address.findFirst({
         where: { userId },
@@ -147,5 +145,110 @@ export class UsersService {
     });
 
     return updated;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Order History
+  // ──────────────────────────────────────────────────────────
+
+  async getOrderHistory(
+    userId: string,
+    params: { page?: number; limit?: number; status?: string },
+  ) {
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const where: any = { userId };
+    if (params.status) {
+      where.status = params.status;
+    }
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        include: {
+          items: {
+            include: {
+              product: {
+                include: {
+                  images: { take: 1 },
+                },
+              },
+            },
+          },
+          payment: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.payment?.method ?? null,
+      subtotal: order.subtotal,
+      shippingCost: order.shippingCost,
+      total: order.total,
+      totalFormatted: `৳${order.total.toLocaleString('en-BD')}`,
+      itemCount: order.items.length,
+      items: order.items.map((item) => ({
+        id: item.id,
+        productName: item.product.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.product.images[0]?.url ?? null,
+      })),
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    }));
+
+    return {
+      orders: formattedOrders,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasMore: page * limit < total,
+      },
+    };
+  }
+
+  async getOrderStats(userId: string) {
+    const [totalOrders, totalSpent, statusCounts] = await Promise.all([
+      this.prisma.order.count({ where: { userId } }),
+      this.prisma.order.aggregate({
+        _sum: { total: true },
+        where: { userId, paymentStatus: 'PAID' },
+      }),
+      this.prisma.order.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: { id: true },
+      }),
+    ]);
+
+    const statusMap: Record<string, number> = {};
+    statusCounts.forEach((item) => {
+      statusMap[item.status] = item._count.id;
+    });
+
+    return {
+      totalOrders,
+      totalSpent: totalSpent._sum.total || 0,
+      totalSpentFormatted: `৳${(totalSpent._sum.total || 0).toLocaleString('en-BD')}`,
+      pending: statusMap['PENDING'] || 0,
+      confirmed: statusMap['CONFIRMED'] || 0,
+      processing: statusMap['PROCESSING'] || 0,
+      shipped: statusMap['SHIPPED'] || 0,
+      delivered: statusMap['DELIVERED'] || 0,
+      cancelled: statusMap['CANCELLED'] || 0,
+    };
   }
 }
