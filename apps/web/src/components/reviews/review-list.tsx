@@ -12,7 +12,7 @@ interface Review {
   images: string[];
   createdAt: string;
   adminResponse: string | null;
-  user: { id: string; name: string };
+  user: { id: string; firstName: string; lastName: string };
 }
 
 interface ReviewStats {
@@ -172,7 +172,7 @@ export function ReviewList({ productId }: Props) {
               )}
 
               <p className="mt-2 text-xs text-gray-400">
-                By {review.user.name}
+                By {review.user.firstName} {review.user.lastName}
               </p>
 
               {review.adminResponse && (

@@ -6,7 +6,6 @@ import {
   Package,
   Truck,
   CheckCircle,
-  Clock,
   CreditCard,
   MapPin,
   Heart,
@@ -130,7 +129,7 @@ export default function AccountDashboardPage() {
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h2 className="text-xl font-bold">
-          Welcome back, {user?.name?.split(' ')[0] || 'there'}!
+          Welcome back, {user?.firstName || 'there'}!
         </h2>
         <p className="text-blue-100 text-sm mt-1">
           Here&apos;s a summary of your account activity.

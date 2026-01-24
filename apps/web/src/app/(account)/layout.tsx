@@ -70,7 +70,7 @@ export default function AccountLayout({
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">My Account</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Welcome back, {user?.name || 'User'}
+            Welcome back, {user?.fullName || 'User'}
           </p>
         </div>
 
@@ -148,7 +148,7 @@ export default function AccountLayout({
                     {user?.avatar ? (
                       <img
                         src={user.avatar}
-                        alt={user.name}
+                        alt={user.fullName}
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
@@ -157,7 +157,7 @@ export default function AccountLayout({
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">
-                      {user?.name || 'User'}
+                      {user?.fullName || 'User'}
                     </p>
                     <p className="text-xs text-gray-500 truncate">
                       {user?.email || ''}

@@ -19,7 +19,7 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: user?.fullName || '',
     phone: user?.phone || '',
   });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -139,7 +139,7 @@ export default function ProfilePage() {
               {avatarSrc ? (
                 <img
                   src={avatarSrc}
-                  alt={user?.name || 'Profile'}
+                  alt={user?.fullName || 'Profile'}
                   className="w-full h-full object-cover"
                 />
               ) : (

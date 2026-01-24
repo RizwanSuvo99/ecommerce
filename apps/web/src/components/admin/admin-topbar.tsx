@@ -100,11 +100,11 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
             className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-gray-100"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-medium text-indigo-700">
-              {user?.name?.charAt(0)?.toUpperCase() ?? 'A'}
+              {user?.fullName?.charAt(0)?.toUpperCase() ?? 'A'}
             </div>
             <div className="hidden text-left md:block">
               <p className="text-sm font-medium text-gray-700">
-                {user?.name ?? 'Admin'}
+                {user?.fullName ?? 'Admin'}
               </p>
               <p className="text-xs text-gray-500">Administrator</p>
             </div>
