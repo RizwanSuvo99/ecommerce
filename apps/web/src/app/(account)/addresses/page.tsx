@@ -124,7 +124,7 @@ export default function AddressesPage() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Address
@@ -158,7 +158,7 @@ export default function AddressesPage() {
           </p>
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Your First Address
@@ -174,7 +174,7 @@ export default function AddressesPage() {
                 key={address.id}
                 className={`bg-white rounded-xl border shadow-sm p-5 ${
                   address.isDefault
-                    ? 'border-blue-300 ring-1 ring-blue-100'
+                    ? 'border-teal-300 ring-1 ring-teal-100'
                     : 'border-gray-200'
                 }`}
               >
@@ -186,7 +186,7 @@ export default function AddressesPage() {
                       {address.label}
                     </span>
                     {address.isDefault && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 text-teal-700 text-xs font-medium rounded-full">
                         <Star className="w-3 h-3" />
                         Default
                       </span>
@@ -196,7 +196,7 @@ export default function AddressesPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setEditingAddress(address)}
-                      className="p-1.5 text-gray-400 hover:text-blue-600 rounded"
+                      className="p-1.5 text-gray-400 hover:text-teal-600 rounded"
                       title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -238,7 +238,7 @@ export default function AddressesPage() {
                 {!address.isDefault && (
                   <button
                     onClick={() => handleSetDefault(address.id)}
-                    className="mt-3 text-xs text-blue-600 hover:text-blue-700 font-medium"
+                    className="mt-3 text-xs text-teal-600 hover:text-teal-700 font-medium"
                   >
                     Set as default
                   </button>
