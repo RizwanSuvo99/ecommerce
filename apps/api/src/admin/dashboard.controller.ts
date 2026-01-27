@@ -42,4 +42,24 @@ export class DashboardController {
       data: stats,
     };
   }
+
+  // ─── Charts Data ──────────────────────────────────────────────────────────
+
+  /**
+   * Get chart data for the admin dashboard.
+   *
+   * Returns revenue/orders over time, top-selling products, and
+   * revenue breakdown by category. All values in BDT (৳).
+   *
+   * GET /admin/dashboard/charts
+   */
+  @Get('charts')
+  async getChartsData() {
+    const charts = await this.dashboardService.getChartsData();
+
+    return {
+      success: true,
+      data: charts,
+    };
+  }
 }
