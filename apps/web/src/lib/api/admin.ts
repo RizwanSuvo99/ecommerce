@@ -106,6 +106,109 @@ export async function fetchDashboardActivity(): Promise<ActivityData> {
 }
 
 // ──────────────────────────────────────────────────────────
+// Analytics Types
+// ──────────────────────────────────────────────────────────
+
+export interface AnalyticsQueryParams {
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+}
+
+export interface MostViewedProduct {
+  productId: string;
+  name: string;
+  image: string | null;
+  viewCount: number;
+}
+
+export interface MostSearchedTerm {
+  term: string;
+  searchCount: number;
+}
+
+export interface MostOrderedProduct {
+  productId: string;
+  name: string;
+  image: string | null;
+  totalQuantity: number;
+  totalRevenue: number;
+}
+
+export interface MostCartedProduct {
+  productId: string;
+  name: string;
+  image: string | null;
+  cartAddCount: number;
+}
+
+export interface MostWishlistedProduct {
+  productId: string;
+  name: string;
+  image: string | null;
+  wishlistCount: number;
+}
+
+export interface ConversionFunnel {
+  totalViews: number;
+  totalCartAdds: number;
+  totalOrders: number;
+  viewToCartRate: number;
+  cartToOrderRate: number;
+  overallConversionRate: number;
+}
+
+export interface AnalyticsOverview {
+  mostViewed: MostViewedProduct[];
+  mostSearched: MostSearchedTerm[];
+  mostOrdered: MostOrderedProduct[];
+  mostCarted: MostCartedProduct[];
+  mostWishlisted: MostWishlistedProduct[];
+  funnel: ConversionFunnel;
+}
+
+// ──────────────────────────────────────────────────────────
+// Analytics API
+// ──────────────────────────────────────────────────────────
+
+export async function fetchAnalyticsOverview(
+  params?: AnalyticsQueryParams,
+): Promise<AnalyticsOverview> {
+  const { data } = await apiClient.get('/admin/analytics/overview', { params });
+  return data.data ?? data;
+}
+
+export async function fetchMostViewed(params?: AnalyticsQueryParams): Promise<MostViewedProduct[]> {
+  const { data } = await apiClient.get('/admin/analytics/most-viewed', { params });
+  return data.data ?? data;
+}
+
+export async function fetchMostSearched(params?: AnalyticsQueryParams): Promise<MostSearchedTerm[]> {
+  const { data } = await apiClient.get('/admin/analytics/most-searched', { params });
+  return data.data ?? data;
+}
+
+export async function fetchMostOrdered(params?: AnalyticsQueryParams): Promise<MostOrderedProduct[]> {
+  const { data } = await apiClient.get('/admin/analytics/most-ordered', { params });
+  return data.data ?? data;
+}
+
+export async function fetchMostCarted(params?: AnalyticsQueryParams): Promise<MostCartedProduct[]> {
+  const { data } = await apiClient.get('/admin/analytics/most-carted', { params });
+  return data.data ?? data;
+}
+
+export async function fetchMostWishlisted(params?: AnalyticsQueryParams): Promise<MostWishlistedProduct[]> {
+  const { data } = await apiClient.get('/admin/analytics/most-wishlisted', { params });
+  return data.data ?? data;
+}
+
+export async function fetchConversionFunnel(params?: AnalyticsQueryParams): Promise<ConversionFunnel> {
+  const { data } = await apiClient.get('/admin/analytics/funnel', { params });
+  return data.data ?? data;
+}
+
+// ──────────────────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────────────────
 
