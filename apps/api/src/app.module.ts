@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { BannersModule } from './banners/banners.module';
 import { BrandsModule } from './brands/brands.module';
 import { CartModule } from './cart/cart.module';
+import { ChatModule } from './chat/chat.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { EmailModule } from './email/email.module';
@@ -45,6 +46,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     BannersModule,
     BrandsModule,
     CartModule,
+    ChatModule,
     CategoriesModule,
     CouponsModule,
     EmailModule,
