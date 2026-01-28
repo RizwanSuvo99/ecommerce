@@ -62,4 +62,23 @@ export class DashboardController {
       data: charts,
     };
   }
+
+  // ─── Activity Feed ────────────────────────────────────────────────────────
+
+  /**
+   * Get recent activity for the admin dashboard.
+   *
+   * Returns recent orders, new customer registrations, and low stock alerts.
+   *
+   * GET /admin/dashboard/activity
+   */
+  @Get('activity')
+  async getActivity() {
+    const activity = await this.dashboardService.getActivity();
+
+    return {
+      success: true,
+      data: activity,
+    };
+  }
 }

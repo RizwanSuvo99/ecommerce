@@ -45,6 +45,39 @@ export interface ChartsData {
   revenueByCategory: CategoryRevenue[];
 }
 
+export interface RecentOrder {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  totalAmount: number;
+  status: string;
+  createdAt: Date;
+  itemCount: number;
+}
+
+export interface RecentRegistration {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+}
+
+export interface LowStockAlert {
+  id: string;
+  name: string;
+  sku: string;
+  stock: number;
+  lowStockThreshold: number;
+  image: string | null;
+}
+
+export interface ActivityData {
+  recentOrders: RecentOrder[];
+  recentRegistrations: RecentRegistration[];
+  lowStockAlerts: LowStockAlert[];
+}
+
 // ──────────────────────────────────────────────────────────
 // Service
 // ──────────────────────────────────────────────────────────
@@ -175,6 +208,117 @@ export class DashboardService {
     };
   }
 
+  // ─── Activity Feed ─────────────────────────────────────────────────────────
+
+  /**
+   * Get recent activity for the admin dashboard.
+   *
+   * Includes recent orders, new customer registrations, and low stock alerts.
+   * All monetary values in BDT (৳).
+   */
+  async getActivity(): Promise<ActivityData> {
+    const [recentOrders, recentRegistrations, lowStockAlerts] = await Promise.all([
+      this.getRecentOrders(),
+      this.getRecentRegistrations(),
+      this.getLowStockAlerts(),
+    ]);
+
+    return {
+      recentOrders,
+      recentRegistrations,
+      lowStockAlerts,
+    };
+  }
+
+  /**
+   * Get the 10 most recent orders.
+   */
+  private async getRecentOrders(): Promise<RecentOrder[]> {
+    const orders = await this.prisma.order.findMany({
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        orderNumber: true,
+        totalAmount: true,
+        status: true,
+        createdAt: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        _count: {
+          select: { items: true },
+        },
+      },
+    });
+
+    return orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customerName: order.user.name,
+      customerEmail: order.user.email,
+      totalAmount: order.totalAmount.toNumber(),
+      status: order.status,
+      createdAt: order.createdAt,
+      itemCount: order._count.items,
+    }));
+  }
+
+  /**
+   * Get the 10 most recent customer registrations.
+   */
+  private async getRecentRegistrations(): Promise<RecentRegistration[]> {
+    const users = await this.prisma.user.findMany({
+      take: 10,
+      where: { role: 'CUSTOMER' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
+    });
+
+    return users;
+  }
+
+  /**
+   * Get products with stock at or below their low stock threshold.
+   */
+  private async getLowStockAlerts(): Promise<LowStockAlert[]> {
+    const products = await this.prisma.product.findMany({
+      where: {
+        isActive: true,
+        stock: { lte: 10 },
+      },
+      take: 20,
+      orderBy: { stock: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        stock: true,
+        lowStockThreshold: true,
+        images: true,
+      },
+    });
+
+    return products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      stock: product.stock,
+      lowStockThreshold: product.lowStockThreshold,
+      image: product.images?.[0] ?? null,
+    }));
+  }
+
+  // ─── Chart Data Helpers ─────────────────────────────────────────────────────
+
   /**
    * Get daily revenue and order counts for the given date range.
    */
@@ -244,7 +388,6 @@ export class DashboardService {
       take: 10,
     });
 
-    // Fetch product names
     const productIds = orderItems.map((item) => item.productId);
     const products = await this.prisma.product.findMany({
       where: { id: { in: productIds } },
@@ -284,7 +427,6 @@ export class DashboardService {
       },
     });
 
-    // Aggregate revenue by category
     const categoryMap = new Map<string, number>();
     let totalRevenue = 0;
 
