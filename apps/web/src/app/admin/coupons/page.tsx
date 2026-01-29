@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Plus,
   Search,
@@ -10,13 +10,9 @@ import {
   Copy,
   Check,
   X,
-  Calendar,
-  Users,
-  ShoppingCart,
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Tag,
 } from 'lucide-react';
 
 import { toast } from 'sonner';
@@ -148,7 +144,7 @@ function CouponFormDialog({
     maximumDiscount: null,
     usageLimit: null,
     usageLimitPerUser: 1,
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: new Date().toISOString().split('T')[0] ?? '',
     endDate: '',
     isActive: true,
   });
@@ -166,7 +162,7 @@ function CouponFormDialog({
         maximumDiscount: editCoupon.maximumDiscount,
         usageLimit: editCoupon.usageLimit,
         usageLimitPerUser: editCoupon.usageLimitPerUser,
-        startDate: editCoupon.startDate.split('T')[0],
+        startDate: editCoupon.startDate.split('T')[0] ?? '',
         endDate: editCoupon.endDate?.split('T')[0] ?? '',
         isActive: editCoupon.isActive,
       });
@@ -180,7 +176,7 @@ function CouponFormDialog({
         maximumDiscount: null,
         usageLimit: null,
         usageLimitPerUser: 1,
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: new Date().toISOString().split('T')[0] ?? '',
         endDate: '',
         isActive: true,
       });
@@ -534,8 +530,8 @@ export default function AdminCouponsPage() {
       if (statusFilter !== 'all') params.set('status', statusFilter);
 
       const { data } = await apiClient.get(`/admin/coupons?${params.toString()}`);
-      setCoupons(data.data);
-      setMeta(data.meta);
+      setCoupons(data.data ?? data ?? []);
+      setMeta(data.meta ?? { total: 0, page: 1, limit: 20, totalPages: 0 });
     } catch (err) {
       console.error('Failed to load coupons:', err);
     } finally {

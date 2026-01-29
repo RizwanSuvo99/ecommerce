@@ -13,7 +13,6 @@ import {
   Building2,
   X,
   Loader2,
-  ExternalLink,
   Package,
 } from 'lucide-react';
 
@@ -34,7 +33,7 @@ interface Brand {
   logo: string | null;
   website: string | null;
   isActive: boolean;
-  _count: { products: number };
+  productCount: number;
 }
 
 interface BrandFormData {
@@ -115,7 +114,7 @@ function BrandCard({ brand, onEdit, onDelete }: BrandCardProps) {
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1 text-xs text-gray-500">
           <Package className="h-3.5 w-3.5" />
-          {brand._count.products} products
+          {brand.productCount} products
         </div>
         <span
           className={cn(
@@ -178,7 +177,7 @@ function BrandRow({ brand, onEdit, onDelete }: BrandCardProps) {
 
       <div className="flex items-center gap-1.5 text-xs text-gray-500">
         <Package className="h-3.5 w-3.5" />
-        {brand._count.products}
+        {brand.productCount}
       </div>
 
       <span
@@ -286,7 +285,8 @@ function BrandFormDialog({
       const { data } = await apiClient.post('/upload/image', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setFormData((prev) => ({ ...prev, logo: data.data.url }));
+      const result = data.data ?? data;
+      setFormData((prev) => ({ ...prev, logo: result.url }));
     } catch (err) {
       console.error('Logo upload failed:', err);
       toast.error('Failed to upload logo');
@@ -488,7 +488,7 @@ export default function AdminBrandsPage() {
     try {
       setIsLoading(true);
       const { data } = await apiClient.get('/brands');
-      setBrands(data.data);
+      setBrands(data.data ?? data ?? []);
     } catch (err) {
       console.error('Failed to load brands:', err);
       toast.error('Failed to load brands');

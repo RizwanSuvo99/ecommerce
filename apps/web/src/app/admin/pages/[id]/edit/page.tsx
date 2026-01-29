@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api/client';
 import { toast } from 'sonner';
 
 export default function AdminEditPagePage() {
   const params = useParams();
-  const router = useRouter();
   const pageId = params.id as string;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

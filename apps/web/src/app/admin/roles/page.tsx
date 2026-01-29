@@ -37,8 +37,8 @@ export default function AdminRolesPage() {
       apiClient.get('/admin/roles/permissions'),
     ])
       .then(([rolesRes, permRes]) => {
-        setRoles(rolesRes.data.data);
-        setPermissions(permRes.data.data);
+        setRoles(rolesRes.data.data ?? rolesRes.data ?? []);
+        setPermissions(permRes.data.data ?? permRes.data ?? []);
       })
       .catch(() => toast.error('Failed to load roles'))
       .finally(() => setLoading(false));
@@ -46,8 +46,7 @@ export default function AdminRolesPage() {
 
   const permissionGroups = permissions.reduce<Record<string, Permission[]>>(
     (acc, p) => {
-      if (!acc[p.group]) acc[p.group] = [];
-      acc[p.group].push(p);
+      (acc[p.group] ??= []).push(p);
       return acc;
     },
     {},
@@ -86,11 +85,14 @@ export default function AdminRolesPage() {
         await apiClient.post('/admin/roles', form);
       }
       const { data } = await apiClient.get('/admin/roles');
-      setRoles(data.data);
+      setRoles(data.data ?? data ?? []);
       setShowForm(false);
       toast.success('Role saved');
-    } catch {
-      toast.error('Failed to save role');
+    } catch (err: any) {
+      const msg = err?.response?.status === 501
+        ? 'Custom roles are not yet supported'
+        : 'Failed to save role';
+      toast.error(msg);
     }
   };
 
@@ -100,8 +102,11 @@ export default function AdminRolesPage() {
       await apiClient.delete(`/admin/roles/${id}`);
       setRoles((prev) => prev.filter((r) => r.id !== id));
       toast.success('Role deleted');
-    } catch {
-      toast.error('Cannot delete role with assigned users');
+    } catch (err: any) {
+      const msg = err?.response?.status === 501
+        ? 'Built-in roles cannot be deleted'
+        : 'Cannot delete role with assigned users';
+      toast.error(msg);
     }
   };
 

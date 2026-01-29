@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/api/client';
 import { toast } from 'sonner';
 
+type BannerPosition = 'HERO' | 'SIDEBAR' | 'FOOTER' | 'POPUP';
+
 interface Banner {
   id: string;
   title: string;
@@ -11,12 +13,13 @@ interface Banner {
   subtitle: string;
   subtitleBn: string;
   image: string;
-  imageMobile: string;
+  mobileImage: string;
   link: string;
-  position: number;
+  position: BannerPosition;
+  sortOrder: number;
   isActive: boolean;
-  startDate: string | null;
-  endDate: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
   createdAt: string;
 }
 
@@ -66,7 +69,8 @@ export default function AdminBannersPage() {
   const fetchBanners = useCallback(async () => {
     try {
       const { data } = await apiClient.get('/admin/banners');
-      setBanners(data.data || data.banners || data);
+      const result = data.data ?? data;
+      setBanners(result.banners ?? result ?? []);
     } catch (error) {
       console.error('Fetch banners error:', error);
       toast.error('Failed to load banners');
@@ -92,11 +96,11 @@ export default function AdminBannersPage() {
       subtitle: banner.subtitle || '',
       subtitleBn: banner.subtitleBn || '',
       image: banner.image || '',
-      imageMobile: banner.imageMobile || '',
+      imageMobile: banner.mobileImage || '',
       link: banner.link || '',
       isActive: banner.isActive,
-      startDate: banner.startDate ? banner.startDate.split('T')[0] : '',
-      endDate: banner.endDate ? banner.endDate.split('T')[0] : '',
+      startDate: banner.startsAt ? (banner.startsAt.split('T')[0] ?? '') : '',
+      endDate: banner.endsAt ? (banner.endsAt.split('T')[0] ?? '') : '',
       buttonText: 'Shop Now',
       buttonTextBn: 'এখনই কিনুন',
       backgroundColor: '#ffffff',
@@ -167,7 +171,8 @@ export default function AdminBannersPage() {
     if (draggedIndex === -1 || targetIndex === -1) return;
 
     const newBanners = [...banners];
-    const [dragged] = newBanners.splice(draggedIndex, 1);
+    const dragged = newBanners.splice(draggedIndex, 1)[0];
+    if (!dragged) return;
     newBanners.splice(targetIndex, 0, dragged);
     setBanners(newBanners);
   };
@@ -244,8 +249,8 @@ export default function AdminBannersPage() {
                   )}
                 </div>
                 <div className="absolute top-2 left-2">
-                  <span className="w-6 h-6 bg-gray-900/70 text-white text-xs flex items-center justify-center rounded">
-                    {banner.position + 1}
+                  <span className="px-1.5 h-6 bg-gray-900/70 text-white text-xs flex items-center justify-center rounded">
+                    {banner.position}
                   </span>
                 </div>
               </div>

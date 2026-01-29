@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface AuditLog {
   id: string;
@@ -47,10 +48,11 @@ export default function AdminAuditLogPage() {
       if (action) params.set('action', action);
 
       const { data } = await apiClient.get(`/admin/audit-logs?${params}`);
-      setLogs(data.data.logs);
-      setPagination(data.data.pagination);
+      const result = data.data ?? data;
+      setLogs(result.logs ?? result ?? []);
+      setPagination(result.pagination ?? null);
     } catch {
-      // handle error
+      toast.error('Failed to load audit logs');
     } finally {
       setLoading(false);
     }
@@ -143,9 +145,8 @@ export default function AdminAuditLogPage() {
               </tr>
             ) : (
               logs.map((log) => (
-                <>
+                <React.Fragment key={log.id}>
                   <tr
-                    key={log.id}
                     onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}
                     className="cursor-pointer hover:bg-gray-50"
                   >
@@ -196,7 +197,7 @@ export default function AdminAuditLogPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))
             )}
           </tbody>

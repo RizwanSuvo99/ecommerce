@@ -19,9 +19,9 @@ import { cn } from '@/lib/utils';
 interface Category {
   id: string;
   name: string;
-  nameBn: string;
+  nameBn: string | null;
   slug: string;
-  description: string;
+  description: string | null;
   image: string | null;
   parentId: string | null;
   isActive: boolean;
@@ -131,7 +131,8 @@ export function CategoryFormDialog({
     async function loadParents() {
       try {
         const { data } = await apiClient.get('/categories/flat');
-        const options: CategoryOption[] = data.data.map(
+        const flat = data.data ?? data ?? [];
+        const options: CategoryOption[] = flat.map(
           (cat: { id: string; name: string; depth: number }) => ({
             id: cat.id,
             name: cat.name,
@@ -165,7 +166,8 @@ export function CategoryFormDialog({
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      setImage(data.data.url);
+      const result = data.data ?? data;
+      setImage(result.url);
     } catch (err) {
       console.error('Image upload failed:', err);
     } finally {

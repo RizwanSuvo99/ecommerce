@@ -43,8 +43,9 @@ export default function AdminUsersPage() {
       params.set('limit', '20');
 
       const { data } = await apiClient.get(`/admin/users?${params}`);
-      setUsers(data.data.users);
-      setPagination(data.data.pagination);
+      const result = data.data ?? data;
+      setUsers(result.users ?? result ?? []);
+      setPagination(result.pagination ?? { total: 0, page: 1, limit: 20, pages: 0 });
     } catch {
       toast.error('Failed to load users');
     } finally {

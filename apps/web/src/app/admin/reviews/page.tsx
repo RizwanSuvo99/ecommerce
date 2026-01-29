@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { apiClient } from '@/lib/api/client';
+import { toast } from 'sonner';
 
 interface Review {
   id: string;
@@ -10,8 +11,7 @@ interface Review {
   title: string | null;
   comment: string | null;
   status: string;
-  adminNote: string | null;
-  adminResponse: string | null;
+  adminReply: string | null;
   createdAt: string;
   user: { id: string; firstName: string; lastName: string; email: string };
   product: { id: string; name: string; slug: string; images: string[] };
@@ -44,10 +44,11 @@ export default function AdminReviewsPage() {
       if (status !== 'ALL') params.set('status', status);
 
       const { data } = await apiClient.get(`/admin/reviews?${params}`);
-      setReviews(data.data.reviews);
-      setPagination(data.data.pagination);
+      const result = data.data ?? data;
+      setReviews(result.reviews ?? result ?? []);
+      setPagination(result.pagination ?? null);
     } catch {
-      // handle error
+      toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
     }
@@ -62,7 +63,7 @@ export default function AdminReviewsPage() {
       await apiClient.patch(`/admin/reviews/${id}/moderate`, { status: newStatus });
       fetchReviews();
     } catch {
-      // handle error
+      toast.error('Failed to update review status');
     }
   };
 
@@ -74,7 +75,7 @@ export default function AdminReviewsPage() {
       setResponseText('');
       fetchReviews();
     } catch {
-      // handle error
+      toast.error('Failed to submit response');
     }
   };
 
@@ -84,7 +85,7 @@ export default function AdminReviewsPage() {
       await apiClient.delete(`/admin/reviews/${id}`);
       fetchReviews();
     } catch {
-      // handle error
+      toast.error('Failed to delete review');
     }
   };
 
@@ -181,10 +182,10 @@ export default function AdminReviewsPage() {
                 )}
               </div>
 
-              {review.adminResponse && (
+              {review.adminReply && (
                 <div className="mt-3 rounded-md bg-blue-50 p-3">
                   <p className="text-xs font-medium text-blue-700">Your Response</p>
-                  <p className="text-sm text-blue-600">{review.adminResponse}</p>
+                  <p className="text-sm text-blue-600">{review.adminReply}</p>
                 </div>
               )}
 

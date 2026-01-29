@@ -49,7 +49,7 @@ export default function AdminUserDetailPage() {
     apiClient
       .get(`/admin/users/${id}`)
       .then(({ data }) => {
-        const u = data.data;
+        const u = data.data ?? data;
         setUser(u);
         setForm({ firstName: u.firstName, lastName: u.lastName, email: u.email, phone: u.phone ?? '', role: u.role });
       })
@@ -64,7 +64,7 @@ export default function AdminUserDetailPage() {
       toast.success('User updated');
       setEditing(false);
       const { data } = await apiClient.get(`/admin/users/${id}`);
-      setUser(data.data);
+      setUser(data.data ?? data);
     } catch {
       toast.error('Failed to update user');
     } finally {

@@ -29,7 +29,7 @@ export default function AdminPagesPage() {
         if (statusFilter) params.set('status', statusFilter);
 
         const { data } = await apiClient.get(`/admin/pages?${params.toString()}`);
-        setPages(data.data || data.pages || data);
+        setPages(data.data?.pages ?? data.data ?? []);
       } catch (error) {
         console.error('Error fetching pages:', error);
         toast.error('Failed to load pages');

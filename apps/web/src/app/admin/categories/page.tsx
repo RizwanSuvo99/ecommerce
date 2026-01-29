@@ -10,15 +10,14 @@ import {
   Trash2,
   GripVertical,
   Package,
-  MoreHorizontal,
   Search,
-  ImageIcon,
   Loader2,
 } from 'lucide-react';
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { CategoryFormDialog } from '@/components/admin/categories/category-form-dialog';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -27,15 +26,15 @@ import { toast } from 'sonner';
 interface Category {
   id: string;
   name: string;
-  nameBn: string;
+  nameBn: string | null;
   slug: string;
-  description: string;
+  description: string | null;
   image: string | null;
   parentId: string | null;
   sortOrder: number;
   isActive: boolean;
   children: Category[];
-  _count: { products: number };
+  productCount: number;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -143,7 +142,7 @@ function CategoryTreeNode({
         {/* Product Count */}
         <div className="flex items-center gap-1.5 text-xs text-gray-500">
           <Package className="h-3.5 w-3.5" />
-          <span>{category._count.products} products</span>
+          <span>{category.productCount} products</span>
         </div>
 
         {/* Actions */}
@@ -218,8 +217,8 @@ export default function AdminCategoriesPage() {
   const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true);
-      const { data } = await apiClient.get('/categories/tree');
-      setCategories(data.data);
+      const { data } = await apiClient.get('/categories');
+      setCategories(data.data ?? data);
     } catch (err) {
       console.error('Failed to load categories:', err);
       toast.error('Failed to load categories');
@@ -400,6 +399,19 @@ export default function AdminCategoriesPage() {
           )}
         </div>
       </div>
+
+      {/* Create/Edit Category Dialog */}
+      <CategoryFormDialog
+        isOpen={showCreateDialog}
+        onClose={() => {
+          setShowCreateDialog(false);
+          setEditingCategory(null);
+          setParentIdForNew(null);
+        }}
+        onSuccess={fetchCategories}
+        editCategory={editingCategory}
+        parentId={parentIdForNew}
+      />
     </div>
   );
 }

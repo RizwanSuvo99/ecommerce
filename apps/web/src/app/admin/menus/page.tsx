@@ -251,7 +251,7 @@ export default function AdminMenusPage() {
 
   const handleDragStart = (id: string) => setDraggedId(id);
 
-  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+  const handleDragOver = (e: React.DragEvent, _targetId: string) => {
     e.preventDefault();
   };
 
