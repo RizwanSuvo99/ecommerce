@@ -106,7 +106,7 @@ export default function WishlistPage() {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
           >
             <Package className="w-5 h-5" />
             Browse Products
@@ -169,7 +169,7 @@ export default function WishlistPage() {
                   )}
 
                   <Link href={`/products/${product.slug}`}>
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors">
+                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-teal-600 transition-colors">
                       {product.name}
                     </h3>
                   </Link>
@@ -198,7 +198,7 @@ export default function WishlistPage() {
                     <button
                       onClick={() => handleAddToCart(item)}
                       disabled={!product.inStock}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-teal-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       Add to Cart
