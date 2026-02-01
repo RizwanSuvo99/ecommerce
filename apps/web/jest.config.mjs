@@ -1,12 +1,11 @@
-import type { Config } from 'jest';
 import nextJest from 'next/jest';
 
 const createJestConfig = nextJest({ dir: './' });
 
-const config: Config = {
+const config = {
   displayName: 'web',
   testEnvironment: 'jsdom',
-  setupFilesAfterSetup: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/test/**/*.test.{ts,tsx}'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -20,7 +19,7 @@ const config: Config = {
     '!src/**/index.ts',
     '!src/app/layout.tsx',
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: { branches: 60, functions: 65, lines: 70, statements: 70 },
   },
 };

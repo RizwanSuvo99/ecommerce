@@ -8,7 +8,7 @@ const BENGALI_MONTHS = [
 export type Locale = 'en' | 'bn';
 
 function toBengaliDigits(num: string | number): string {
-  return String(num).replace(/[0-9]/g, (d) => BENGALI_DIGITS[parseInt(d)]);
+  return String(num).replace(/[0-9]/g, (d) => BENGALI_DIGITS[parseInt(d)] ?? d);
 }
 
 function toEnglishDigits(str: string): string {
@@ -35,7 +35,7 @@ export function formatPrice(
   const [intPart, decPart] = fixed.split('.');
 
   // Bangladesh uses Indian numbering system (lakh, crore)
-  const int = parseInt(intPart).toLocaleString('en-IN');
+  const int = parseInt(intPart || '0').toLocaleString('en-IN');
   const formatted = decPart ? `${int}.${decPart}` : int;
 
   if (locale === 'bn') {
@@ -118,7 +118,7 @@ export function formatPhone(phone: string, locale: Locale = 'en'): string {
 
 export function formatOrderNumber(orderNumber: string, locale: Locale = 'en'): string {
   if (locale === 'bn') {
-    return orderNumber.replace(/[0-9]/g, (d) => BENGALI_DIGITS[parseInt(d)]);
+    return orderNumber.replace(/[0-9]/g, (d) => BENGALI_DIGITS[parseInt(d)] ?? d);
   }
   return orderNumber;
 }

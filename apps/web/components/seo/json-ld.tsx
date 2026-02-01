@@ -29,7 +29,7 @@ interface ProductJsonLdProps {
 
 export function ProductJsonLd({
   name, description, image, sku, brand, price,
-  originalPrice, currency = 'BDT', inStock, rating,
+  originalPrice: _originalPrice, currency = 'BDT', inStock, rating,
   reviewCount, url, category,
 }: ProductJsonLdProps) {
   const data: Record<string, any> = {

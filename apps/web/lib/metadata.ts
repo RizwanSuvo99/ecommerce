@@ -50,7 +50,7 @@ export function generateSiteMetadata(options: SeoMetadata): Metadata {
       siteName: SITE_NAME,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
       locale: locale === 'bn' ? 'bn_BD' : 'en_US',
-      type,
+      type: type === 'product' ? 'website' : type,
     },
     twitter: {
       card: 'summary_large_image',
