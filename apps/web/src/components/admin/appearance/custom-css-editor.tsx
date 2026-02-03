@@ -112,7 +112,7 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
             onClick={() => setShowPreview(!showPreview)}
             className={`px-3 py-1.5 border rounded-lg text-xs font-medium ${
               showPreview
-                ? 'border-blue-500 text-blue-600 bg-blue-50'
+                ? 'border-teal-500 text-teal-600 bg-teal-50'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
@@ -142,7 +142,7 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
 
       {/* Editor */}
       <div className="relative">
-        <div className="flex border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+        <div className="flex border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-500">
           {/* Line Numbers */}
           <div className="bg-gray-50 border-r border-gray-300 px-3 py-3 select-none">
             {Array.from({ length: lineCount }, (_, i) => (
@@ -202,7 +202,7 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
                   textarea.focus();
                 }
               }}
-              className="text-xs font-mono text-blue-600 hover:text-blue-800 text-left px-2 py-1 hover:bg-blue-50 rounded"
+              className="text-xs font-mono text-teal-600 hover:text-teal-800 text-left px-2 py-1 hover:bg-teal-50 rounded"
             >
               {varName}
             </button>

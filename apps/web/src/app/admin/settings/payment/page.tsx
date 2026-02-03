@@ -80,7 +80,7 @@ export default function PaymentSettingsPage() {
               type="checkbox"
               checked={form.enable_cod === 'true'}
               onChange={(e) => handleChange('enable_cod', String(e.target.checked))}
-              className="rounded border-gray-300 text-blue-600"
+              className="rounded border-gray-300 text-teal-600"
             />
             <span className="text-sm text-gray-600">Enabled</span>
           </label>
@@ -161,7 +161,7 @@ export default function PaymentSettingsPage() {
               type="checkbox"
               checked={form.enable_stripe === 'true'}
               onChange={(e) => handleChange('enable_stripe', String(e.target.checked))}
-              className="rounded border-gray-300 text-blue-600"
+              className="rounded border-gray-300 text-teal-600"
             />
             <span className="text-sm text-gray-600">Enabled</span>
           </label>
@@ -175,7 +175,7 @@ export default function PaymentSettingsPage() {
                 type="text"
                 value={form.stripe_public_key}
                 onChange={(e) => handleChange('stripe_public_key', e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="pk_live_..."
               />
             </div>
@@ -185,7 +185,7 @@ export default function PaymentSettingsPage() {
                 type="password"
                 value={form.stripe_secret_key}
                 onChange={(e) => handleChange('stripe_secret_key', e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="sk_live_..."
               />
             </div>
@@ -195,7 +195,7 @@ export default function PaymentSettingsPage() {
                 type="password"
                 value={form.stripe_webhook_secret}
                 onChange={(e) => handleChange('stripe_webhook_secret', e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 placeholder="whsec_..."
               />
             </div>
@@ -226,7 +226,7 @@ export default function PaymentSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Payment Settings'}
         </button>

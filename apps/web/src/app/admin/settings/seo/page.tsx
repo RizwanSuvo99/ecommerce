@@ -78,7 +78,7 @@ export default function SeoSettingsPage() {
               maxLength={70}
               value={form.meta_title}
               onChange={(e) => handleChange('meta_title', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-400">{form.meta_title.length}/70 characters</p>
           </div>
@@ -89,7 +89,7 @@ export default function SeoSettingsPage() {
               maxLength={70}
               value={form.meta_title_bn}
               onChange={(e) => handleChange('meta_title_bn', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-400">{form.meta_title_bn.length}/70 characters</p>
           </div>
@@ -100,7 +100,7 @@ export default function SeoSettingsPage() {
               rows={3}
               value={form.meta_description}
               onChange={(e) => handleChange('meta_description', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-400">{form.meta_description.length}/160 characters</p>
           </div>
@@ -111,7 +111,7 @@ export default function SeoSettingsPage() {
               rows={3}
               value={form.meta_description_bn}
               onChange={(e) => handleChange('meta_description_bn', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-400">{form.meta_description_bn.length}/160 characters</p>
           </div>
@@ -122,7 +122,7 @@ export default function SeoSettingsPage() {
             type="text"
             value={form.meta_keywords}
             onChange={(e) => handleChange('meta_keywords', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             placeholder="online shopping, bangladesh, ecommerce"
           />
           <p className="mt-1 text-xs text-gray-400">Comma-separated keywords</p>
@@ -136,7 +136,7 @@ export default function SeoSettingsPage() {
           type="url"
           value={form.og_image}
           onChange={(e) => handleChange('og_image', e.target.value)}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           placeholder="https://example.com/og-image.jpg"
         />
         <p className="text-xs text-gray-400">Recommended: 1200 x 630 pixels</p>
@@ -152,7 +152,7 @@ export default function SeoSettingsPage() {
               type="text"
               value={form.google_analytics_id}
               onChange={(e) => handleChange('google_analytics_id', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="G-XXXXXXXXXX"
             />
           </div>
@@ -162,7 +162,7 @@ export default function SeoSettingsPage() {
               type="text"
               value={form.facebook_pixel_id}
               onChange={(e) => handleChange('facebook_pixel_id', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="123456789012345"
             />
           </div>
@@ -176,7 +176,7 @@ export default function SeoSettingsPage() {
           rows={5}
           value={form.robots_txt}
           onChange={(e) => handleChange('robots_txt', e.target.value)}
-          className="block w-full font-mono text-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="block w-full font-mono text-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-teal-500 focus:ring-teal-500"
         />
       </section>
 
@@ -187,7 +187,7 @@ export default function SeoSettingsPage() {
           type="url"
           value={form.canonical_url}
           onChange={(e) => handleChange('canonical_url', e.target.value)}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           placeholder="https://www.example.com"
         />
       </section>
@@ -196,7 +196,7 @@ export default function SeoSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save SEO Settings'}
         </button>

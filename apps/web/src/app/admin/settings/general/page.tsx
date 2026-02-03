@@ -84,7 +84,7 @@ export default function GeneralSettingsPage() {
             type="text"
             value={form.site_name}
             onChange={(e) => handleChange('site_name', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             placeholder="My E-Commerce Store"
           />
         </div>
@@ -97,7 +97,7 @@ export default function GeneralSettingsPage() {
             type="text"
             value={form.site_name_bn}
             onChange={(e) => handleChange('site_name_bn', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             placeholder="আমার ই-কমার্স স্টোর"
           />
         </div>
@@ -110,7 +110,7 @@ export default function GeneralSettingsPage() {
             type="text"
             value={form.site_tagline}
             onChange={(e) => handleChange('site_tagline', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -122,7 +122,7 @@ export default function GeneralSettingsPage() {
             type="text"
             value={form.site_tagline_bn}
             onChange={(e) => handleChange('site_tagline_bn', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -132,7 +132,7 @@ export default function GeneralSettingsPage() {
             <select
               value={form.currency}
               onChange={(e) => handleChange('currency', e.target.value)}
-              className="block rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             >
               <option value="BDT">BDT - Bangladeshi Taka</option>
               <option value="USD">USD - US Dollar</option>
@@ -148,7 +148,7 @@ export default function GeneralSettingsPage() {
           <select
             value={form.timezone}
             onChange={(e) => handleChange('timezone', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           >
             <option value="Asia/Dhaka">Asia/Dhaka (BST +06:00)</option>
             <option value="UTC">UTC</option>
@@ -160,7 +160,7 @@ export default function GeneralSettingsPage() {
           <select
             value={form.default_language}
             onChange={(e) => handleChange('default_language', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           >
             <option value="en">English</option>
             <option value="bn">বাংলা (Bengali)</option>
@@ -172,7 +172,7 @@ export default function GeneralSettingsPage() {
           <select
             value={form.date_format}
             onChange={(e) => handleChange('date_format', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           >
             <option value="DD/MM/YYYY">DD/MM/YYYY</option>
             <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -186,7 +186,7 @@ export default function GeneralSettingsPage() {
             type="email"
             value={form.support_email}
             onChange={(e) => handleChange('support_email', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -196,7 +196,7 @@ export default function GeneralSettingsPage() {
             type="tel"
             value={form.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             placeholder="+880 1XXX-XXXXXX"
           />
         </div>
@@ -208,7 +208,7 @@ export default function GeneralSettingsPage() {
           value={form.address}
           onChange={(e) => handleChange('address', e.target.value)}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
         />
       </div>
 
@@ -216,7 +216,7 @@ export default function GeneralSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save General Settings'}
         </button>

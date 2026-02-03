@@ -75,7 +75,7 @@ export default function AdminPagesPage() {
         </div>
         <a
           href="/admin/pages/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
         >
           + Create Page
         </a>
@@ -155,7 +155,7 @@ export default function AdminPagesPage() {
                     {new Date(page.updatedAt).toLocaleDateString('en-BD')}
                   </td>
                   <td className="px-6 py-4 text-right space-x-3">
-                    <a href={`/admin/pages/${page.id}/edit`} className="text-sm text-blue-600 hover:text-blue-800">
+                    <a href={`/admin/pages/${page.id}/edit`} className="text-sm text-teal-600 hover:text-teal-800">
                       Edit
                     </a>
                     <button

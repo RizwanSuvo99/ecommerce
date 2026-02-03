@@ -200,7 +200,7 @@ export default function AdminBannersPage() {
         </div>
         <button
           onClick={handleCreate}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
         >
           + Add Banner
         </button>
@@ -262,13 +262,13 @@ export default function AdminBannersPage() {
                   <p className="text-xs text-gray-500 mt-0.5">{banner.titleBn}</p>
                 )}
                 {banner.link && (
-                  <p className="text-xs text-blue-600 mt-1 truncate">{banner.link}</p>
+                  <p className="text-xs text-teal-600 mt-1 truncate">{banner.link}</p>
                 )}
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEdit(banner)}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      className="text-xs text-teal-600 hover:text-teal-800 font-medium"
                     >
                       Edit
                     </button>
@@ -457,7 +457,7 @@ export default function AdminBannersPage() {
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600"
+                  className="rounded border-gray-300 text-teal-600"
                 />
                 <span className="text-sm text-gray-700">Active</span>
               </label>
@@ -473,7 +473,7 @@ export default function AdminBannersPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : editingId ? 'Update Banner' : 'Create Banner'}
                 </button>

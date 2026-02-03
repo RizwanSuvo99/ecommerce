@@ -179,7 +179,7 @@ export default function ColorSettings({ colors, onChange }: ColorSettingsProps) 
             <button
               key={preset.name}
               onClick={() => applyPreset(preset)}
-              className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left"
+              className="p-3 border border-gray-200 rounded-lg hover:border-teal-300 hover:bg-teal-50 transition-colors text-left"
             >
               <div className="flex gap-1 mb-2">
                 {Object.values(preset.colors).map((color, i) => (

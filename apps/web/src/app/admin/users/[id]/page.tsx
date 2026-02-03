@@ -171,7 +171,7 @@ export default function AdminUserDetailPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -231,7 +231,7 @@ export default function AdminUserDetailPage() {
               <tbody className="divide-y bg-white">
                 {user.orders.map((order) => (
                   <tr key={order.id}>
-                    <td className="px-4 py-2 text-sm font-medium text-blue-600">
+                    <td className="px-4 py-2 text-sm font-medium text-teal-600">
                       {order.orderNumber}
                     </td>
                     <td className="px-4 py-2 text-sm">৳{order.total.toLocaleString()}</td>

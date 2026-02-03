@@ -92,7 +92,7 @@ export default function AdminAppearancePage() {
   if (loading || !theme) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -115,7 +115,7 @@ export default function AdminAppearancePage() {
           <button
             onClick={handleSave}
             disabled={!hasChanges || saving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
@@ -142,7 +142,7 @@ export default function AdminAppearancePage() {
                 onClick={() => setActiveTab(key as SettingsTab)}
                 className={`px-6 py-3 text-sm font-medium border-b-2 whitespace-nowrap ${
                   activeTab === key
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-teal-500 text-teal-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >

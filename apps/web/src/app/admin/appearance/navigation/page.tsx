@@ -180,7 +180,7 @@ export default function AdminNavigationPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -195,7 +195,7 @@ export default function AdminNavigationPage() {
         </div>
         <button
           onClick={() => setShowAddMenu(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
         >
           Create Menu
         </button>
@@ -231,7 +231,7 @@ export default function AdminNavigationPage() {
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <button onClick={createMenu} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">Create</button>
+            <button onClick={createMenu} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700">Create</button>
             <button onClick={() => setShowAddMenu(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function AdminNavigationPage() {
                     key={menu.id}
                     onClick={() => setSelectedMenuId(menu.id)}
                     className={`w-full px-4 py-3 text-left flex items-center justify-between transition-colors ${
-                      selectedMenuId === menu.id ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'
+                      selectedMenuId === menu.id ? 'bg-teal-50 text-teal-700' : 'hover:bg-gray-50'
                     }`}
                   >
                     <div>
@@ -287,7 +287,7 @@ export default function AdminNavigationPage() {
                 </div>
                 <button
                   onClick={() => setShowAddItem(true)}
-                  className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                  className="px-3 py-1.5 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700"
                 >
                   Add Item
                 </button>
@@ -295,7 +295,7 @@ export default function AdminNavigationPage() {
 
               {/* Add Item Form */}
               {showAddItem && (
-                <div className="px-6 py-4 bg-blue-50 border-b border-blue-100">
+                <div className="px-6 py-4 bg-teal-50 border-b border-teal-100">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">New Menu Item</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input
@@ -345,7 +345,7 @@ export default function AdminNavigationPage() {
                     </select>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={addMenuItem} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">Add</button>
+                    <button onClick={addMenuItem} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700">Add</button>
                     <button onClick={() => setShowAddItem(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
                   </div>
                 </div>
@@ -428,7 +428,7 @@ function MenuItemRow({
               className="px-2 py-1 border border-gray-300 rounded text-sm"
             />
             <div className="flex gap-1">
-              <button onClick={onSave} className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">Save</button>
+              <button onClick={onSave} className="px-3 py-1 bg-teal-600 text-white rounded text-xs hover:bg-teal-700">Save</button>
               <button onClick={onCancelEdit} className="px-3 py-1 border rounded text-xs hover:bg-gray-50">Cancel</button>
             </div>
           </div>
@@ -455,7 +455,7 @@ function MenuItemRow({
             </button>
             <button
               onClick={() => onEdit({ ...item })}
-              className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+              className="p-1 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded"
               title="Edit"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

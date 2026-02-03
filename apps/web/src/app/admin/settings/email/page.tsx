@@ -76,7 +76,7 @@ export default function EmailSettingsPage() {
             type="text"
             value={form.smtp_host}
             onChange={(e) => handleChange('smtp_host', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             placeholder="smtp.gmail.com"
           />
         </div>
@@ -87,7 +87,7 @@ export default function EmailSettingsPage() {
             type="number"
             value={form.smtp_port}
             onChange={(e) => handleChange('smtp_port', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -97,7 +97,7 @@ export default function EmailSettingsPage() {
             type="text"
             value={form.smtp_user}
             onChange={(e) => handleChange('smtp_user', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -107,7 +107,7 @@ export default function EmailSettingsPage() {
             type="password"
             value={form.smtp_pass}
             onChange={(e) => handleChange('smtp_pass', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -117,7 +117,7 @@ export default function EmailSettingsPage() {
             type="email"
             value={form.from_email}
             onChange={(e) => handleChange('from_email', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -127,7 +127,7 @@ export default function EmailSettingsPage() {
             type="text"
             value={form.from_name}
             onChange={(e) => handleChange('from_name', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -137,7 +137,7 @@ export default function EmailSettingsPage() {
             type="email"
             value={form.reply_to_email}
             onChange={(e) => handleChange('reply_to_email', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           />
         </div>
 
@@ -146,7 +146,7 @@ export default function EmailSettingsPage() {
           <select
             value={form.smtp_secure}
             onChange={(e) => handleChange('smtp_secure', e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
           >
             <option value="true">TLS</option>
             <option value="false">None</option>
@@ -166,7 +166,7 @@ export default function EmailSettingsPage() {
               type="checkbox"
               checked={form[key] === 'true'}
               onChange={(e) => handleChange(key, String(e.target.checked))}
-              className="rounded border-gray-300 text-blue-600"
+              className="rounded border-gray-300 text-teal-600"
             />
             <span className="text-sm text-gray-700">{label}</span>
           </label>
@@ -177,7 +177,7 @@ export default function EmailSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Email Settings'}
         </button>

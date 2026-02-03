@@ -102,7 +102,7 @@ function MenuItemNode({
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span className={`text-xs px-1.5 py-0.5 rounded ${
-              item.type === 'category' ? 'bg-blue-100 text-blue-700' :
+              item.type === 'category' ? 'bg-teal-100 text-teal-700' :
               item.type === 'page' ? 'bg-green-100 text-green-700' :
               item.type === 'link' ? 'bg-purple-100 text-purple-700' :
               'bg-gray-100 text-gray-700'
@@ -122,7 +122,7 @@ function MenuItemNode({
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(item)}
-            className="p-1 text-gray-400 hover:text-blue-600"
+            className="p-1 text-gray-400 hover:text-teal-600"
             title="Edit"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -300,7 +300,7 @@ export default function AdminMenusPage() {
         </div>
         <button
           onClick={handleCreateMenu}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
         >
           + Create Menu
         </button>
@@ -322,7 +322,7 @@ export default function AdminMenusPage() {
                   onClick={() => setActiveMenuId(menu.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                     activeMenuId === menu.id
-                      ? 'bg-blue-50 text-blue-700 font-medium'
+                      ? 'bg-teal-50 text-teal-700 font-medium'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -345,7 +345,7 @@ export default function AdminMenusPage() {
                 </div>
                 <button
                   onClick={handleAddItem}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
                 >
                   + Add Item
                 </button>
@@ -466,7 +466,7 @@ export default function AdminMenusPage() {
                   type="checkbox"
                   checked={itemForm.isVisible}
                   onChange={(e) => setItemForm((prev) => ({ ...prev, isVisible: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600"
+                  className="rounded border-gray-300 text-teal-600"
                 />
                 <span className="text-sm text-gray-700">Visible</span>
               </label>
@@ -482,7 +482,7 @@ export default function AdminMenusPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : editingItem ? 'Update' : 'Add Item'}
                 </button>

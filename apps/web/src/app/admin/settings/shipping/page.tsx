@@ -110,7 +110,7 @@ export default function ShippingSettingsPage() {
                 type="checkbox"
                 checked={method.enabled}
                 onChange={() => toggleMethod(method.id)}
-                className="rounded border-gray-300 text-blue-600"
+                className="rounded border-gray-300 text-teal-600"
               />
               <span className="flex-1 text-sm font-medium">{method.name}</span>
               <div className="flex items-center gap-1">
@@ -165,7 +165,7 @@ export default function ShippingSettingsPage() {
             type="checkbox"
             checked={enableFreeShipping}
             onChange={(e) => setEnableFreeShipping(e.target.checked)}
-            className="rounded border-gray-300 text-blue-600"
+            className="rounded border-gray-300 text-teal-600"
           />
           <span className="text-sm font-medium text-gray-700">
             Enable free shipping above threshold
@@ -201,7 +201,7 @@ export default function ShippingSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Shipping Settings'}
         </button>

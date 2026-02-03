@@ -123,7 +123,7 @@ export default function AdminRolesPage() {
         </div>
         <button
           onClick={handleNew}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
         >
           Create Role
         </button>
@@ -146,7 +146,7 @@ export default function AdminRolesPage() {
             </div>
             <div className="mt-3 flex flex-wrap gap-1">
               {role.permissions.slice(0, 5).map((p) => (
-                <span key={p} className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
+                <span key={p} className="rounded bg-teal-50 px-1.5 py-0.5 text-xs text-teal-600">
                   {p}
                 </span>
               ))}
@@ -157,7 +157,7 @@ export default function AdminRolesPage() {
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => handleEdit(role)}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className="text-sm text-teal-600 hover:text-teal-800"
               >
                 Edit
               </button>
@@ -210,7 +210,7 @@ export default function AdminRolesPage() {
                             type="checkbox"
                             checked={form.permissions.includes(p.value)}
                             onChange={() => togglePermission(p.value)}
-                            className="rounded border-gray-300 text-blue-600"
+                            className="rounded border-gray-300 text-teal-600"
                           />
                           <span className="text-xs text-gray-600">{p.value}</span>
                         </label>
@@ -230,7 +230,7 @@ export default function AdminRolesPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
               >
                 {editingRole ? 'Update Role' : 'Create Role'}
               </button>

@@ -77,7 +77,7 @@ export default function AdminUsersPage() {
     const colors: Record<string, string> = {
       SUPER_ADMIN: 'bg-red-100 text-red-700',
       ADMIN: 'bg-purple-100 text-purple-700',
-      EDITOR: 'bg-blue-100 text-blue-700',
+      EDITOR: 'bg-teal-100 text-teal-700',
       CUSTOMER: 'bg-gray-100 text-gray-700',
     };
     return (
@@ -98,7 +98,7 @@ export default function AdminUsersPage() {
         </div>
         <Link
           href="/admin/users/new"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
         >
           Add User
         </Link>
@@ -187,7 +187,7 @@ export default function AdminUsersPage() {
                   <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-teal-600 hover:text-teal-800"
                     >
                       View
                     </Link>

@@ -47,10 +47,10 @@ export default function BorderSettings({ borders, onChange }: BorderSettingsProp
             <button
               key={preset.name}
               onClick={() => applyPreset(preset)}
-              className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-center"
+              className="p-4 border border-gray-200 rounded-lg hover:border-teal-300 hover:bg-teal-50 transition-colors text-center"
             >
               <div
-                className="w-12 h-12 bg-blue-500 mx-auto mb-2"
+                className="w-12 h-12 bg-teal-500 mx-auto mb-2"
                 style={{ borderRadius: preset.values.radius }}
               />
               <span className="text-xs font-medium text-gray-700">{preset.name}</span>
@@ -135,7 +135,7 @@ export default function BorderSettings({ borders, onChange }: BorderSettingsProp
                   onClick={() => handleChange('width', width)}
                   className={`flex-1 py-2 border-2 rounded-lg text-xs font-medium transition-colors ${
                     borders.width === width
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-teal-500 bg-teal-50 text-teal-700'
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
                   }`}
                 >
@@ -203,7 +203,7 @@ export default function BorderSettings({ borders, onChange }: BorderSettingsProp
 
           <div className="flex gap-3">
             <button
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium"
+              className="px-4 py-2 bg-teal-600 text-white text-sm font-medium"
               style={{ borderRadius: borders.radiusSm }}
             >
               Primary Button

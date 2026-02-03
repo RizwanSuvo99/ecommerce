@@ -69,7 +69,7 @@ export default function TaxSettingsPage() {
             type="checkbox"
             checked={form.enable_tax === 'true'}
             onChange={(e) => handleChange('enable_tax', String(e.target.checked))}
-            className="rounded border-gray-300 text-blue-600"
+            className="rounded border-gray-300 text-teal-600"
           />
           <span className="text-sm font-medium text-gray-700">Enable Tax Collection</span>
         </label>
@@ -85,7 +85,7 @@ export default function TaxSettingsPage() {
                 step="0.5"
                 value={form.vat_percentage}
                 onChange={(e) => handleChange('vat_percentage', e.target.value)}
-                className="block w-24 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="block w-24 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
               />
               <span className="text-sm text-gray-500">%</span>
             </div>
@@ -98,7 +98,7 @@ export default function TaxSettingsPage() {
               type="text"
               value={form.tax_label}
               onChange={(e) => handleChange('tax_label', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="VAT"
             />
           </div>
@@ -111,7 +111,7 @@ export default function TaxSettingsPage() {
               type="text"
               value={form.vat_registration_number}
               onChange={(e) => handleChange('vat_registration_number', e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
               placeholder="Enter your BIN number"
             />
           </div>
@@ -122,7 +122,7 @@ export default function TaxSettingsPage() {
             type="checkbox"
             checked={form.vat_included_in_price === 'true'}
             onChange={(e) => handleChange('vat_included_in_price', String(e.target.checked))}
-            className="rounded border-gray-300 text-blue-600"
+            className="rounded border-gray-300 text-teal-600"
           />
           <span className="text-sm text-gray-700">Product prices include tax</span>
         </label>
@@ -132,7 +132,7 @@ export default function TaxSettingsPage() {
             type="checkbox"
             checked={form.show_tax_breakdown === 'true'}
             onChange={(e) => handleChange('show_tax_breakdown', String(e.target.checked))}
-            className="rounded border-gray-300 text-blue-600"
+            className="rounded border-gray-300 text-teal-600"
           />
           <span className="text-sm text-gray-700">
             Show tax breakdown on invoices and checkout
@@ -144,7 +144,7 @@ export default function TaxSettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
         >
           {saving ? 'Saving...' : 'Save Tax Settings'}
         </button>

@@ -93,7 +93,7 @@ const HEADER_STYLES: StyleOption[] = [
           </div>
         </div>
         <div className="flex gap-1">
-          <div className="w-8 h-2 bg-blue-400 rounded" />
+          <div className="w-8 h-2 bg-teal-400 rounded" />
           <div className="w-8 h-2 bg-gray-600 rounded" />
           <div className="w-8 h-2 bg-gray-600 rounded" />
           <div className="w-8 h-2 bg-gray-600 rounded" />
@@ -162,8 +162,8 @@ const HERO_STYLES: StyleOption[] = [
     label: 'Slider',
     description: 'Auto-rotating image slider with navigation',
     preview: (
-      <div className="bg-blue-100 p-3 rounded relative">
-        <div className="w-full h-8 bg-blue-200 rounded" />
+      <div className="bg-teal-100 p-3 rounded relative">
+        <div className="w-full h-8 bg-teal-200 rounded" />
         <div className="absolute left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full" />
         <div className="absolute right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full" />
       </div>
@@ -174,13 +174,13 @@ const HERO_STYLES: StyleOption[] = [
     label: 'Split',
     description: 'Text on left, image on right',
     preview: (
-      <div className="bg-blue-100 p-2 rounded flex gap-1">
+      <div className="bg-teal-100 p-2 rounded flex gap-1">
         <div className="flex-1 space-y-0.5">
-          <div className="w-full h-2 bg-blue-300 rounded" />
-          <div className="w-3/4 h-1.5 bg-blue-200 rounded" />
-          <div className="w-8 h-2 bg-blue-500 rounded mt-1" />
+          <div className="w-full h-2 bg-teal-300 rounded" />
+          <div className="w-3/4 h-1.5 bg-teal-200 rounded" />
+          <div className="w-8 h-2 bg-teal-500 rounded mt-1" />
         </div>
-        <div className="flex-1 h-10 bg-blue-200 rounded" />
+        <div className="flex-1 h-10 bg-teal-200 rounded" />
       </div>
     ),
   },
@@ -193,7 +193,7 @@ const HERO_STYLES: StyleOption[] = [
         <div className="text-center space-y-0.5">
           <div className="w-16 h-2 bg-white rounded mx-auto" />
           <div className="w-12 h-1.5 bg-gray-400 rounded mx-auto" />
-          <div className="w-8 h-2 bg-blue-500 rounded mx-auto mt-1" />
+          <div className="w-8 h-2 bg-teal-500 rounded mx-auto mt-1" />
         </div>
       </div>
     ),
@@ -204,7 +204,7 @@ const HERO_STYLES: StyleOption[] = [
     description: 'Grid of featured banners',
     preview: (
       <div className="grid grid-cols-3 gap-0.5">
-        <div className="col-span-2 row-span-2 bg-blue-200 rounded h-10" />
+        <div className="col-span-2 row-span-2 bg-teal-200 rounded h-10" />
         <div className="bg-green-200 rounded h-5" />
         <div className="bg-orange-200 rounded h-5" />
       </div>
@@ -222,7 +222,7 @@ const PRODUCT_CARD_STYLES: StyleOption[] = [
         <div className="h-8 bg-gray-100" />
         <div className="p-1.5 space-y-0.5">
           <div className="w-full h-1.5 bg-gray-200 rounded" />
-          <div className="w-2/3 h-1.5 bg-blue-200 rounded" />
+          <div className="w-2/3 h-1.5 bg-teal-200 rounded" />
         </div>
       </div>
     ),
@@ -249,7 +249,7 @@ const PRODUCT_CARD_STYLES: StyleOption[] = [
         <div className="w-8 h-10 bg-gray-100" />
         <div className="p-1.5 flex-1 space-y-0.5">
           <div className="w-full h-1.5 bg-gray-200 rounded" />
-          <div className="w-2/3 h-1.5 bg-blue-200 rounded" />
+          <div className="w-2/3 h-1.5 bg-teal-200 rounded" />
         </div>
       </div>
     ),
@@ -300,7 +300,7 @@ function StyleSelector({
             onClick={() => onChange(option.value)}
             className={`p-3 border-2 rounded-lg text-left transition-colors ${
               value === option.value
-                ? 'border-blue-500 bg-blue-50'
+                ? 'border-teal-500 bg-teal-50'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
@@ -374,7 +374,7 @@ export default function LayoutSettings({ layout, onChange }: LayoutSettingsProps
                   onClick={() => handleChange('sidebarPosition', pos)}
                   className={`flex-1 py-2 border-2 rounded-lg text-xs font-medium capitalize transition-colors ${
                     layout.sidebarPosition === pos
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-teal-500 bg-teal-50 text-teal-700'
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
                   }`}
                 >
