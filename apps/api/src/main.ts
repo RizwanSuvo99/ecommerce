@@ -23,8 +23,10 @@ async function bootstrap(): Promise<void> {
   });
 
   // CORS configuration
+  const corsOrigin = configService.get<string>('CORS_ORIGIN', 'http://localhost:3000');
+  const allowedOrigins = corsOrigin.split(',').map((o) => o.trim()).filter(Boolean);
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN', 'http://localhost:3000'),
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Session-Id'],
     credentials: true,
