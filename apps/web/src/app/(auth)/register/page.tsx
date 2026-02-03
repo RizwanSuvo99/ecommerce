@@ -23,6 +23,7 @@ import {
 
 import { useAuth } from '@/hooks/use-auth';
 import { ApiClientError } from '@/lib/api/client';
+import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
 
 // ──────────────────────────────────────────────────────────
 // Validation schema
@@ -168,6 +169,9 @@ export default function RegisterPage() {
         </p>
       </div>
 
+      {/* Social login buttons */}
+      <SocialLoginButtons mode="register" />
+
       {/* Server error */}
       {serverError && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -175,7 +179,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      {/* Form */}
+      {/* Email/Password Form */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           {/* Name row */}

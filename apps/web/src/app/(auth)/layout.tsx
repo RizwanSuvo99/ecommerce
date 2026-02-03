@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ShoppingBag } from 'lucide-react';
+import { GoogleAuthWrapper } from '@/components/auth/google-auth-wrapper';
 
 // ──────────────────────────────────────────────────────────
 // Metadata
@@ -135,7 +136,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Centered form area */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 sm:px-8 lg:px-12">
-          {children}
+          <GoogleAuthWrapper>{children}</GoogleAuthWrapper>
         </div>
 
         {/* Mobile footer */}
