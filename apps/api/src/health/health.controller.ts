@@ -30,7 +30,7 @@ interface MemoryStatus {
 @ApiTags('Health')
 @Controller()
 export class HealthController {
-  @Get('api/health')
+  @Get('health')
   @ApiOperation({ summary: 'Comprehensive health check' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
   @ApiResponse({ status: 503, description: 'Service is unhealthy' })
@@ -56,7 +56,7 @@ export class HealthController {
     };
   }
 
-  @Get('api/healthz')
+  @Get('healthz')
   @ApiOperation({ summary: 'Simple liveness probe' })
   @ApiResponse({ status: 200, description: 'Service is alive' })
   async livenessCheck(): Promise<{ status: string; timestamp: string }> {
