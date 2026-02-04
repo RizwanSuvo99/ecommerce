@@ -88,7 +88,7 @@ export default function OrderHistoryPage() {
                 onClick={() => handleTabChange(tab.key)}
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700'
+                    ? 'bg-teal-50 text-teal-700'
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -132,7 +132,7 @@ export default function OrderHistoryPage() {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
           >
             <ShoppingBag className="w-5 h-5" />
             Start Shopping
@@ -143,8 +143,8 @@ export default function OrderHistoryPage() {
           {orders.map((order) => (
             <Link
               key={order.id}
-              href={`/orders/${order.id}/tracking`}
-              className="block bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
+              href={`/orders/${order.orderNumber}`}
+              className="block bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all"
             >
               {/* Order Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
