@@ -76,7 +76,7 @@ export class PaymentController {
     };
   }
 
-  @Post('admin/payment/refund/:orderId')
+  @Post('admin/refund/:orderId')
   @UseGuards(AuthGuard('jwt'))
   async processRefund(
     @Param('orderId') orderId: string,
@@ -109,7 +109,7 @@ export class PaymentController {
     };
   }
 
-  @Patch('admin/payment/cod/:orderId/paid')
+  @Patch('admin/cod/:orderId/paid')
   @UseGuards(AuthGuard('jwt'))
   async markCODPaid(@Param('orderId') orderId: string) {
     const result = await this.paymentService.markCODPaid(orderId);
