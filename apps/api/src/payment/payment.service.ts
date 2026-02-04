@@ -43,7 +43,16 @@ export class PaymentService {
     this.webhookSecret = this.config.get<string>('STRIPE_WEBHOOK_SECRET') ?? '';
   }
 
-  getStripeInstance(): Stripe {
+  getStripeInstance(): Stripe | null {
+    return this.stripe;
+  }
+
+  private ensureStripe(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException(
+        'Stripe is not configured. Set STRIPE_SECRET_KEY in environment variables.',
+      );
+    }
     return this.stripe;
   }
 
@@ -102,7 +111,8 @@ export class PaymentService {
     const successUrl = `${this.config.get('FRONTEND_URL')}/checkout/payment/success?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`;
     const cancelUrl = `${this.config.get('FRONTEND_URL')}/checkout/payment/cancel?order_id=${orderId}`;
 
-    const session = await this.stripe.checkout.sessions.create({
+    const stripe = this.ensureStripe();
+    const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
       customer_email: customerEmail,
@@ -141,8 +151,9 @@ export class PaymentService {
   async handleWebhook(payload: Buffer, signature: string) {
     let event: Stripe.Event;
 
+    const stripe = this.ensureStripe();
     try {
-      event = this.stripe.webhooks.constructEvent(
+      event = stripe.webhooks.constructEvent(
         payload,
         signature,
         this.webhookSecret,
@@ -224,7 +235,8 @@ export class PaymentService {
       `Processing ${type} refund for order ${orderId}: ${formatBDT(refundAmountBDT)} (${refundAmountUSDCents} USD cents)`,
     );
 
-    const refund = await this.stripe.refunds.create({
+    const stripe = this.ensureStripe();
+    const refund = await stripe.refunds.create({
       payment_intent: payment.stripePaymentIntentId,
       amount: type === RefundType.PARTIAL ? refundAmountUSDCents : undefined,
       reason: 'requested_by_customer',
