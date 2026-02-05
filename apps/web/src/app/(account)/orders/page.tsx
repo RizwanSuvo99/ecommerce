@@ -164,7 +164,7 @@ export default function OrderHistoryPage() {
                 <div className="flex items-center gap-4">
                   {/* Product Thumbnails */}
                   <div className="flex -space-x-2">
-                    {order.items.slice(0, 3).map((item, i) => (
+                    {order.items.slice(0, 3).map((item) => (
                       <div
                         key={item.id}
                         className="w-12 h-12 bg-gray-100 rounded-lg border-2 border-white overflow-hidden"

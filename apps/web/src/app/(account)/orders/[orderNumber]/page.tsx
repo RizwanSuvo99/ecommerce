@@ -320,7 +320,7 @@ export default function OrderTrackingPage() {
   const params = useParams();
   const orderNumber = params.orderNumber as string;
 
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, _setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);

@@ -41,7 +41,7 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
     { score: 4, label: 'Very Strong', color: 'text-green-600', bg: 'bg-green-500' },
   ];
 
-  return levels[score];
+  return levels[score]!;
 }
 
 export default function ChangePasswordPage() {

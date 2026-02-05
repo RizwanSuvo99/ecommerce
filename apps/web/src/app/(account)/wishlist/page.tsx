@@ -8,7 +8,6 @@ import {
   Trash2,
   Package,
   Tag,
-  ExternalLink,
 } from 'lucide-react';
 
 import {
@@ -62,7 +61,7 @@ export default function WishlistPage() {
 
   const handleAddToCart = async (item: WishlistItem) => {
     try {
-      await addItem(item.productId, 1);
+      await addItem({ productId: item.productId, quantity: 1 });
     } catch (error) {
       console.error('Failed to add to cart:', error);
     }

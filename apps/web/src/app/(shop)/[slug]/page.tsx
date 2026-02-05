@@ -76,7 +76,7 @@ export default async function CmsPage({ params }: CmsPageProps) {
   const page = await getCmsPage(params.slug);
   if (!page) notFound();
 
-  const locale = 'en'; // In production, from next-intl
+  const locale: string = 'en'; // In production, from next-intl
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">

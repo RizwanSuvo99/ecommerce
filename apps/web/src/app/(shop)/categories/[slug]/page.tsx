@@ -118,7 +118,7 @@ export default function CategoryPage() {
       params.set('categorySlug', slug);
       params.set('page', String(page));
       params.set('limit', '24');
-      const [sortField, sortOrder] = sortBy.split(':');
+      const [sortField = 'createdAt', sortOrder = 'desc'] = sortBy.split(':');
       params.set('sortBy', sortField);
       params.set('sortOrder', sortOrder);
       if (minPrice) params.set('priceMin', minPrice);
