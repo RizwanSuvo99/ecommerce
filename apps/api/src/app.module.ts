@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { BrandsModule } from './brands/brands.module';
 import { CartModule } from './cart/cart.module';
 import { CategoriesModule } from './categories/categories.module';
+import { CouponsModule } from './coupons/coupons.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -32,6 +33,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     BrandsModule,
     CartModule,
     CategoriesModule,
+    CouponsModule,
     OrdersModule,
     PaymentModule,
     ProductsModule,
