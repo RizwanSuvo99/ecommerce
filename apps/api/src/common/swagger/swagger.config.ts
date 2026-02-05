@@ -84,7 +84,7 @@ export function setupSwagger(
       'support@ecommerce.com.bd',
     )
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    .addServer('http://localhost:4000', 'Local Development')
+    .addServer('http://localhost:3001', 'Local Development')
     .addServer('https://staging-api.ecommerce.com.bd', 'Staging')
     .addServer('https://api.ecommerce.com.bd', 'Production')
     .addTag('Auth', 'Authentication and authorization endpoints')
