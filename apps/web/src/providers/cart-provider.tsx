@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from 'react';
 
+import { toast } from 'sonner';
+
 import * as cartApi from '@/lib/api/cart';
 import type { Cart, CartItem, AddCartItemPayload } from '@/lib/api/cart';
 
@@ -187,9 +189,11 @@ export function CartProvider({ children }: CartProviderProps) {
       try {
         const updatedCart = await cartApi.addCartItem(payload);
         setCart(updatedCart);
-        setIsOpen(true); // Open drawer when adding item
+        setIsOpen(true);
+        toast.success('Added to cart');
       } catch (error) {
         rollback();
+        toast.error('Failed to add item to cart');
         throw error;
       } finally {
         setIsUpdating(false);
@@ -219,6 +223,7 @@ export function CartProvider({ children }: CartProviderProps) {
         setCart(updatedCart);
       } catch (error) {
         rollback();
+        toast.error('Failed to update quantity');
         throw error;
       } finally {
         setIsUpdating(false);
@@ -242,8 +247,10 @@ export function CartProvider({ children }: CartProviderProps) {
       try {
         const updatedCart = await cartApi.removeCartItem(itemId);
         setCart(updatedCart);
+        toast.success('Item removed from cart');
       } catch (error) {
         rollback();
+        toast.error('Failed to remove item');
         throw error;
       } finally {
         setIsUpdating(false);
@@ -274,8 +281,10 @@ export function CartProvider({ children }: CartProviderProps) {
     try {
       const updatedCart = await cartApi.clearCart();
       setCart(updatedCart);
+      toast.success('Cart cleared');
     } catch (error) {
       rollback();
+      toast.error('Failed to clear cart');
       throw error;
     } finally {
       setIsUpdating(false);
@@ -288,7 +297,9 @@ export function CartProvider({ children }: CartProviderProps) {
       try {
         const updatedCart = await cartApi.applyCoupon({ code });
         setCart(updatedCart);
+        toast.success(`Coupon "${code}" applied`);
       } catch (error) {
+        toast.error('Invalid or expired coupon code');
         throw error;
       } finally {
         setIsUpdating(false);
@@ -311,8 +322,10 @@ export function CartProvider({ children }: CartProviderProps) {
     try {
       const updatedCart = await cartApi.removeCoupon();
       setCart(updatedCart);
+      toast.success('Coupon removed');
     } catch (error) {
       rollback();
+      toast.error('Failed to remove coupon');
       throw error;
     } finally {
       setIsUpdating(false);
