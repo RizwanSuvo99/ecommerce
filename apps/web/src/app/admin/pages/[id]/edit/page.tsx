@@ -1,0 +1,289 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+
+export default function AdminEditPagePage() {
+  const params = useParams();
+  const router = useRouter();
+  const pageId = params.id as string;
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'en' | 'bn'>('en');
+  const [formData, setFormData] = useState({
+    title: '',
+    titleBn: '',
+    slug: '',
+    content: '',
+    contentBn: '',
+    metaTitle: '',
+    metaTitleBn: '',
+    metaDescription: '',
+    metaDescriptionBn: '',
+    status: 'draft' as 'draft' | 'published' | 'archived',
+    featuredImage: '',
+    template: 'default',
+  });
+
+  useEffect(() => {
+    async function fetchPage() {
+      try {
+        const response = await fetch(`/api/admin/pages/${pageId}`);
+        if (!response.ok) throw new Error('Failed to fetch page');
+        const data = await response.json();
+        setFormData({
+          title: data.title || '',
+          titleBn: data.titleBn || '',
+          slug: data.slug || '',
+          content: data.content || '',
+          contentBn: data.contentBn || '',
+          metaTitle: data.metaTitle || '',
+          metaTitleBn: data.metaTitleBn || '',
+          metaDescription: data.metaDescription || '',
+          metaDescriptionBn: data.metaDescriptionBn || '',
+          status: data.status || 'draft',
+          featuredImage: data.featuredImage || '',
+          template: data.template || 'default',
+        });
+      } catch (error) {
+        console.error('Fetch page error:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPage();
+  }, [pageId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const response = await fetch(`/api/admin/pages/${pageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Failed to update page');
+      alert('Page updated successfully!');
+    } catch (error) {
+      console.error('Update page error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <a href="/admin/pages" className="text-gray-500 hover:text-gray-700">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </a>
+          <h1 className="text-2xl font-bold text-gray-900">Edit Page</h1>
+        </div>
+        <a
+          href={`/${formData.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-blue-600 hover:text-blue-800"
+        >
+          Preview &rarr;
+        </a>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="border-b border-gray-200">
+                <nav className="flex -mb-px">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('en')}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 ${
+                      activeTab === 'en'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500'
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('bn')}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 ${
+                      activeTab === 'bn'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500'
+                    }`}
+                  >
+                    বাংলা (Bangla)
+                  </button>
+                </nav>
+              </div>
+              <div className="p-6 space-y-4">
+                {activeTab === 'en' ? (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                      <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                      <textarea
+                        value={formData.content}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
+                        rows={20}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">শিরোনাম</label>
+                      <input
+                        type="text"
+                        value={formData.titleBn}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, titleBn: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">বিষয়বস্তু</label>
+                      <textarea
+                        value={formData.contentBn}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, contentBn: e.target.value }))}
+                        rows={20}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900">SEO Settings</h2>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Title</label>
+                <input
+                  type="text"
+                  value={activeTab === 'en' ? formData.metaTitle : formData.metaTitleBn}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      [activeTab === 'en' ? 'metaTitle' : 'metaTitleBn']: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                <textarea
+                  value={activeTab === 'en' ? formData.metaDescription : formData.metaDescriptionBn}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      [activeTab === 'en' ? 'metaDescription' : 'metaDescriptionBn']: e.target.value,
+                    }))
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900">Page Settings</h2>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">URL Slug</label>
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-500 mr-1">/</span>
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as any }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Template</label>
+                <select
+                  value={formData.template}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, template: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                >
+                  <option value="default">Default</option>
+                  <option value="full-width">Full Width</option>
+                  <option value="sidebar">With Sidebar</option>
+                  <option value="landing">Landing Page</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Featured Image</label>
+                <input
+                  type="text"
+                  value={formData.featuredImage}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, featuredImage: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <a
+                href="/admin/pages"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
