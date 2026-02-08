@@ -16,6 +16,8 @@ import type {
   RegisterRequest,
 } from '@ecommerce/types';
 
+import { toast } from 'sonner';
+
 import * as authApi from '@/lib/api/auth';
 import {
   clearTokens,
@@ -178,6 +180,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       stopAutoRefresh();
       setIsSubmitting(false);
+      toast.success('Logged out successfully');
     }
   }, []);
 

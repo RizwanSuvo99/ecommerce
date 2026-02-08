@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -134,6 +135,7 @@ export default function RegisterPage() {
         acceptTerms: values.acceptTerms,
       });
 
+      toast.success('Account created! Please check your email to verify.');
       router.push('/verify-email');
     } catch (error) {
       if (error instanceof ApiClientError) {
@@ -148,6 +150,7 @@ export default function RegisterPage() {
           setServerError(error.message);
         }
       } else {
+        toast.error('An unexpected error occurred');
         setServerError('An unexpected error occurred. Please try again.');
       }
     }

@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -69,13 +70,16 @@ export default function LoginPage() {
         rememberMe: values.rememberMe,
       });
 
+      toast.success('Welcome back!');
       router.push(redirectTo);
       router.refresh();
     } catch (error) {
       if (error instanceof ApiClientError) {
         if (error.status === 401) {
+          toast.error('Invalid email or password');
           setServerError('Invalid email or password. Please try again.');
         } else if (error.status === 403) {
+          toast.error('Account suspended');
           setServerError(
             'Your account has been suspended. Please contact support.',
           );
