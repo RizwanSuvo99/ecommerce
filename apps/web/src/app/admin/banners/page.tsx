@@ -1,0 +1,487 @@
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+
+interface Banner {
+  id: string;
+  title: string;
+  titleBn: string;
+  subtitle: string;
+  subtitleBn: string;
+  image: string;
+  imageMobile: string;
+  link: string;
+  position: number;
+  isActive: boolean;
+  startDate: string | null;
+  endDate: string | null;
+  createdAt: string;
+}
+
+interface BannerFormData {
+  title: string;
+  titleBn: string;
+  subtitle: string;
+  subtitleBn: string;
+  image: string;
+  imageMobile: string;
+  link: string;
+  isActive: boolean;
+  startDate: string;
+  endDate: string;
+  buttonText: string;
+  buttonTextBn: string;
+  backgroundColor: string;
+  textColor: string;
+}
+
+const defaultFormData: BannerFormData = {
+  title: '',
+  titleBn: '',
+  subtitle: '',
+  subtitleBn: '',
+  image: '',
+  imageMobile: '',
+  link: '',
+  isActive: true,
+  startDate: '',
+  endDate: '',
+  buttonText: 'Shop Now',
+  buttonTextBn: 'এখনই কিনুন',
+  backgroundColor: '#ffffff',
+  textColor: '#000000',
+};
+
+export default function AdminBannersPage() {
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<BannerFormData>(defaultFormData);
+  const [saving, setSaving] = useState(false);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+
+  const fetchBanners = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/banners');
+      if (!response.ok) throw new Error('Failed to fetch banners');
+      const data = await response.json();
+      setBanners(data.banners);
+    } catch (error) {
+      console.error('Fetch banners error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBanners();
+  }, [fetchBanners]);
+
+  const handleCreate = () => {
+    setFormData(defaultFormData);
+    setEditingId(null);
+    setShowForm(true);
+  };
+
+  const handleEdit = (banner: Banner) => {
+    setFormData({
+      title: banner.title,
+      titleBn: banner.titleBn || '',
+      subtitle: banner.subtitle || '',
+      subtitleBn: banner.subtitleBn || '',
+      image: banner.image || '',
+      imageMobile: banner.imageMobile || '',
+      link: banner.link || '',
+      isActive: banner.isActive,
+      startDate: banner.startDate ? banner.startDate.split('T')[0] : '',
+      endDate: banner.endDate ? banner.endDate.split('T')[0] : '',
+      buttonText: 'Shop Now',
+      buttonTextBn: 'এখনই কিনুন',
+      backgroundColor: '#ffffff',
+      textColor: '#000000',
+    });
+    setEditingId(banner.id);
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const url = editingId ? `/api/admin/banners/${editingId}` : '/api/admin/banners';
+      const method = editingId ? 'PATCH' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Failed to save banner');
+
+      setShowForm(false);
+      fetchBanners();
+    } catch (error) {
+      console.error('Save banner error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this banner?')) return;
+    try {
+      await fetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
+      setBanners((prev) => prev.filter((b) => b.id !== id));
+    } catch (error) {
+      console.error('Delete banner error:', error);
+    }
+  };
+
+  const handleToggleActive = async (banner: Banner) => {
+    try {
+      await fetch(`/api/admin/banners/${banner.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !banner.isActive }),
+      });
+      setBanners((prev) =>
+        prev.map((b) => (b.id === banner.id ? { ...b, isActive: !b.isActive } : b)),
+      );
+    } catch (error) {
+      console.error('Toggle active error:', error);
+    }
+  };
+
+  const handleDragStart = (id: string) => {
+    setDraggedId(id);
+  };
+
+  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedId || draggedId === targetId) return;
+
+    const draggedIndex = banners.findIndex((b) => b.id === draggedId);
+    const targetIndex = banners.findIndex((b) => b.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const newBanners = [...banners];
+    const [dragged] = newBanners.splice(draggedIndex, 1);
+    newBanners.splice(targetIndex, 0, dragged);
+    setBanners(newBanners);
+  };
+
+  const handleDragEnd = async () => {
+    if (!draggedId) return;
+    setDraggedId(null);
+
+    try {
+      const positions = banners.map((b, i) => ({ id: b.id, position: i }));
+      await fetch('/api/admin/banners/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ positions }),
+      });
+    } catch (error) {
+      console.error('Reorder error:', error);
+      fetchBanners(); // Revert on error
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Banners</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage homepage and promotional banners</p>
+        </div>
+        <button
+          onClick={handleCreate}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+        >
+          + Add Banner
+        </button>
+      </div>
+
+      {/* Banner Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {loading ? (
+          <div className="col-span-full text-center py-12 text-gray-500">Loading banners...</div>
+        ) : banners.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-gray-500">
+            No banners yet. Create your first banner!
+          </div>
+        ) : (
+          banners.map((banner) => (
+            <div
+              key={banner.id}
+              draggable
+              onDragStart={() => handleDragStart(banner.id)}
+              onDragOver={(e) => handleDragOver(e, banner.id)}
+              onDragEnd={handleDragEnd}
+              className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-grab active:cursor-grabbing ${
+                draggedId === banner.id ? 'opacity-50' : ''
+              }`}
+            >
+              {/* Banner Preview */}
+              <div className="relative aspect-[16/6] bg-gray-100 overflow-hidden">
+                {banner.image ? (
+                  <img
+                    src={banner.image}
+                    alt={banner.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                )}
+                <div className="absolute top-2 right-2 flex gap-2">
+                  {banner.isActive ? (
+                    <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">Active</span>
+                  ) : (
+                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">Inactive</span>
+                  )}
+                </div>
+                <div className="absolute top-2 left-2">
+                  <span className="w-6 h-6 bg-gray-900/70 text-white text-xs flex items-center justify-center rounded">
+                    {banner.position + 1}
+                  </span>
+                </div>
+              </div>
+
+              {/* Banner Info */}
+              <div className="p-4">
+                <h3 className="text-sm font-semibold text-gray-900">{banner.title}</h3>
+                {banner.titleBn && (
+                  <p className="text-xs text-gray-500 mt-0.5">{banner.titleBn}</p>
+                )}
+                {banner.link && (
+                  <p className="text-xs text-blue-600 mt-1 truncate">{banner.link}</p>
+                )}
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEdit(banner)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleToggleActive(banner)}
+                      className="text-xs text-gray-600 hover:text-gray-800 font-medium"
+                    >
+                      {banner.isActive ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(banner.id)}
+                      className="text-xs text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Create/Edit Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowForm(false)} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {editingId ? 'Edit Banner' : 'Create Banner'}
+              </h2>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title (English)</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">শিরোনাম (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={formData.titleBn}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, titleBn: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
+                  <input
+                    type="text"
+                    value={formData.subtitle}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, subtitle: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">সাবটাইটেল (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={formData.subtitleBn}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, subtitleBn: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Desktop Image URL</label>
+                <input
+                  type="text"
+                  value={formData.image}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, image: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Image URL (optional)</label>
+                <input
+                  type="text"
+                  value={formData.imageMobile}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, imageMobile: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                <input
+                  type="text"
+                  value={formData.link}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, link: e.target.value }))}
+                  placeholder="/collections/summer-sale"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+                  <input
+                    type="text"
+                    value={formData.buttonText}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, buttonText: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">বাটন টেক্সট (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={formData.buttonTextBn}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, buttonTextBn: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
+                  <input
+                    type="color"
+                    value={formData.backgroundColor}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
+                  <input
+                    type="color"
+                    value={formData.textColor}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, textColor: e.target.value }))}
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
+                  className="rounded border-gray-300 text-blue-600"
+                />
+                <span className="text-sm text-gray-700">Active</span>
+              </label>
+
+              <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : editingId ? 'Update Banner' : 'Create Banner'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
