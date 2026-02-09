@@ -43,10 +43,6 @@ const AUTH_ROUTES = [
  */
 const PROTECTED_PREFIXES = [
   '/account',
-  '/orders',
-  '/dashboard',
-  '/wishlist',
-  '/settings',
 ];
 
 /**

@@ -18,36 +18,38 @@ import {
 
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
 
 const sidebarLinks = [
   {
     label: 'Dashboard',
-    href: '/dashboard',
+    href: '/account/dashboard',
     icon: LayoutDashboard,
   },
   {
     label: 'My Orders',
-    href: '/orders',
+    href: '/account/orders',
     icon: Package,
   },
   {
     label: 'Addresses',
-    href: '/addresses',
+    href: '/account/addresses',
     icon: MapPin,
   },
   {
     label: 'Wishlist',
-    href: '/wishlist',
+    href: '/account/wishlist',
     icon: Heart,
   },
   {
     label: 'Profile',
-    href: '/profile',
+    href: '/account/profile',
     icon: User,
   },
   {
     label: 'Change Password',
-    href: '/change-password',
+    href: '/account/change-password',
     icon: Lock,
   },
 ];
@@ -64,8 +66,9 @@ export default function AccountLayout({
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Header />
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">My Account</h1>
@@ -207,6 +210,7 @@ export default function AccountLayout({
           <main className="flex-1 min-w-0">{children}</main>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

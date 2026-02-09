@@ -118,10 +118,10 @@ export default function AccountDashboardPage() {
   ];
 
   const quickActions = [
-    { label: 'My Orders', href: '/orders', icon: Package },
-    { label: 'Addresses', href: '/addresses', icon: MapPin },
-    { label: 'Wishlist', href: '/wishlist', icon: Heart },
-    { label: 'Settings', href: '/profile', icon: Settings },
+    { label: 'My Orders', href: '/account/orders', icon: Package },
+    { label: 'Addresses', href: '/account/addresses', icon: MapPin },
+    { label: 'Wishlist', href: '/account/wishlist', icon: Heart },
+    { label: 'Settings', href: '/account/profile', icon: Settings },
   ];
 
   return (
@@ -172,7 +172,7 @@ export default function AccountDashboardPage() {
             Recent Orders
           </h3>
           <Link
-            href="/orders"
+            href="/account/orders"
             className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
           >
             View All
@@ -185,7 +185,7 @@ export default function AccountDashboardPage() {
             {recentOrders.map((order) => (
               <Link
                 key={order.id}
-                href={`/orders/${order.orderNumber}`}
+                href={`/account/orders/${order.orderNumber}`}
                 className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-4">

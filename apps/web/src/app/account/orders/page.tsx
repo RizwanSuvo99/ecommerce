@@ -143,7 +143,7 @@ export default function OrderHistoryPage() {
           {orders.map((order) => (
             <Link
               key={order.id}
-              href={`/orders/${order.orderNumber}`}
+              href={`/account/orders/${order.orderNumber}`}
               className="block bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all"
             >
               {/* Order Header */}
