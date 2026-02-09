@@ -4,70 +4,28 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
-// ──────────────────────────────────────────────────────────
-// Types
-// ──────────────────────────────────────────────────────────
-
-interface OrderItem {
-  id: string;
-  name: string;
-  sku: string;
-  quantity: number;
-  price: number;
-  total: number;
-  imageUrl: string | null;
-}
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  status: string;
-  paymentMethod: string;
-  paymentStatus: string;
-  subtotal: number;
-  discount: number;
-  shippingCost: number;
-  tax: number;
-  total: number;
-  couponCode: string | null;
-  shippingName: string;
-  shippingPhone: string;
-  shippingAddress: string;
-  shippingAddress2: string | null;
-  shippingCity: string;
-  shippingDistrict: string;
-  shippingDivision: string;
-  shippingPostalCode: string;
-  statusNote: string | null;
-  createdAt: string;
-  confirmedAt: string | null;
-  shippedAt: string | null;
-  deliveredAt: string | null;
-  cancelledAt: string | null;
-  items: OrderItem[];
-}
+import {
+  getOrderByNumber,
+  cancelOrder,
+  type OrderDetail,
+} from '@/lib/api/orders';
 
 // ──────────────────────────────────────────────────────────
 // Order Status Timeline
 // ──────────────────────────────────────────────────────────
 
-/**
- * Order status steps in chronological order.
- */
 const STATUS_STEPS = [
-  { key: 'PENDING', label: 'Order Placed', icon: '📋' },
-  { key: 'CONFIRMED', label: 'Confirmed', icon: '✓' },
-  { key: 'PROCESSING', label: 'Processing', icon: '⚙' },
-  { key: 'SHIPPED', label: 'Shipped', icon: '🚚' },
-  { key: 'DELIVERED', label: 'Delivered', icon: '📦' },
+  { key: 'PENDING', label: 'Order Placed' },
+  { key: 'CONFIRMED', label: 'Confirmed' },
+  { key: 'PROCESSING', label: 'Processing' },
+  { key: 'SHIPPED', label: 'Shipped' },
+  { key: 'DELIVERED', label: 'Delivered' },
 ];
 
-const CANCELLED_STATUS = { key: 'CANCELLED', label: 'Cancelled', icon: '✕' };
+const CANCELLED_STATUS = { key: 'CANCELLED', label: 'Cancelled' };
 
-/**
- * Determine which statuses have been reached.
- */
 function getReachedStatuses(currentStatus: string): string[] {
   if (currentStatus === 'CANCELLED' || currentStatus === 'REFUNDED') {
     return ['CANCELLED'];
@@ -84,8 +42,6 @@ function getReachedStatuses(currentStatus: string): string[] {
 interface StatusTimelineProps {
   currentStatus: string;
   createdAt: string;
-  confirmedAt: string | null;
-  shippedAt: string | null;
   deliveredAt: string | null;
   cancelledAt: string | null;
 }
@@ -93,8 +49,6 @@ interface StatusTimelineProps {
 function StatusTimeline({
   currentStatus,
   createdAt,
-  confirmedAt,
-  shippedAt,
   deliveredAt,
   cancelledAt,
 }: StatusTimelineProps) {
@@ -105,8 +59,6 @@ function StatusTimeline({
   const getTimestamp = (key: string): string | null => {
     switch (key) {
       case 'PENDING': return createdAt;
-      case 'CONFIRMED': return confirmedAt;
-      case 'SHIPPED': return shippedAt;
       case 'DELIVERED': return deliveredAt;
       case 'CANCELLED': return cancelledAt;
       default: return null;
@@ -133,14 +85,13 @@ function StatusTimeline({
 
         return (
           <div key={step.key} className="flex gap-4 pb-8 last:pb-0">
-            {/* Timeline line and dot */}
             <div className="flex flex-col items-center">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
                   isCancelledStep
                     ? 'bg-red-100 text-red-600 ring-4 ring-red-50'
                     : isCurrent
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                      ? 'bg-teal-600 text-white ring-4 ring-teal-100'
                       : isReached
                         ? 'bg-green-500 text-white'
                         : 'bg-gray-200 text-gray-400'
@@ -188,14 +139,13 @@ function StatusTimeline({
               )}
             </div>
 
-            {/* Step content */}
             <div className="pt-2">
               <p
                 className={`font-medium ${
                   isCancelledStep
                     ? 'text-red-600'
                     : isCurrent
-                      ? 'text-blue-600'
+                      ? 'text-teal-600'
                       : isReached
                         ? 'text-gray-900'
                         : 'text-gray-400'
@@ -221,7 +171,7 @@ function StatusTimeline({
 // ──────────────────────────────────────────────────────────
 
 function formatPrice(amount: number): string {
-  return `৳${amount.toLocaleString('en-BD', {
+  return `৳${Number(amount).toLocaleString('en-BD', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
@@ -230,13 +180,22 @@ function formatPrice(amount: number): string {
 function getStatusBadgeColor(status: string): string {
   switch (status) {
     case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-    case 'CONFIRMED': return 'bg-blue-100 text-blue-800';
+    case 'CONFIRMED': return 'bg-teal-100 text-teal-800';
     case 'PROCESSING': return 'bg-indigo-100 text-indigo-800';
     case 'SHIPPED': return 'bg-purple-100 text-purple-800';
     case 'DELIVERED': return 'bg-green-100 text-green-800';
     case 'CANCELLED': return 'bg-red-100 text-red-800';
     case 'REFUNDED': return 'bg-gray-100 text-gray-800';
     default: return 'bg-gray-100 text-gray-600';
+  }
+}
+
+function getPaymentMethodLabel(method: string): string {
+  switch (method) {
+    case 'CARD': return 'Credit/Debit Card';
+    case 'COD': return 'Cash on Delivery';
+    case 'BKASH': return 'bKash';
+    default: return method;
   }
 }
 
@@ -304,34 +263,35 @@ function CancelDialog({ isOpen, onClose, onConfirm, isSubmitting }: CancelDialog
 }
 
 // ──────────────────────────────────────────────────────────
-// Order Tracking Page
+// Order Detail Page
 // ──────────────────────────────────────────────────────────
 
-/**
- * Order tracking page.
- *
- * Displays the order status timeline, full order details, item list,
- * shipping information, and cost breakdown. Includes a cancel button
- * for orders in PENDING or CONFIRMED status.
- *
- * Route: /orders/[orderNumber]
- */
-export default function OrderTrackingPage() {
+export default function OrderDetailPage() {
   const params = useParams();
   const orderNumber = params.orderNumber as string;
 
-  const [order, _setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
-    // TODO: Fetch order from API: GET /orders/:orderNumber
-    const fetchOrder = async () => {
+    async function fetchOrder() {
       setIsLoading(true);
-      // Placeholder — will be connected to the API
-      setIsLoading(false);
-    };
+      setError(null);
+
+      try {
+        const data = await getOrderByNumber(orderNumber);
+        setOrder(data);
+      } catch (err: any) {
+        setError(err.response?.status === 404
+          ? 'Order not found'
+          : 'Failed to load order details');
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
     fetchOrder();
   }, [orderNumber]);
@@ -344,11 +304,12 @@ export default function OrderTrackingPage() {
 
     setIsCancelling(true);
     try {
-      // TODO: POST /orders/:id/cancel
-      console.log('Cancelling order:', order.id, reason);
+      const updated = await cancelOrder(order.id, reason);
+      setOrder(updated);
       setShowCancelDialog(false);
-    } catch (error) {
-      console.error('Failed to cancel order:', error);
+      toast.success('Order cancelled successfully');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to cancel order');
     } finally {
       setIsCancelling(false);
     }
@@ -357,40 +318,42 @@ export default function OrderTrackingPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex items-center justify-center py-20">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
-        </div>
+      <div className="flex items-center justify-center py-20">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-teal-600" />
       </div>
     );
   }
 
-  // Not found state
-  if (!order) {
+  // Error / Not found state
+  if (error || !order) {
     return (
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center py-20">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Order Not Found
-          </h1>
-          <p className="text-gray-500 mb-6">
-            We couldn&apos;t find order {orderNumber}. Please check the order number and try again.
-          </p>
-          <Link
-            href="/orders"
-            className="text-blue-600 hover:underline text-sm font-medium"
-          >
-            View All Orders
-          </Link>
-        </div>
+      <div className="text-center py-20">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          {error === 'Order not found' ? 'Order Not Found' : 'Something went wrong'}
+        </h1>
+        <p className="text-gray-500 mb-6">
+          {error === 'Order not found'
+            ? `We couldn't find order ${orderNumber}. Please check the order number and try again.`
+            : 'Failed to load order details. Please try again later.'}
+        </p>
+        <Link
+          href="/orders"
+          className="text-teal-600 hover:underline text-sm font-medium"
+        >
+          View All Orders
+        </Link>
       </div>
     );
   }
+
+  const paymentMethod = order.payments?.[0]?.method;
+  const paymentStatus = order.payments?.[0]?.status;
+  const addr = order.shippingAddress;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div className="space-y-8">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Link
@@ -418,14 +381,12 @@ export default function OrderTrackingPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Status badge */}
           <span
             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeColor(order.status)}`}
           >
             {order.status}
           </span>
 
-          {/* Cancel button */}
           {canCancel && (
             <button
               type="button"
@@ -449,14 +410,12 @@ export default function OrderTrackingPage() {
             <StatusTimeline
               currentStatus={order.status}
               createdAt={order.createdAt}
-              confirmedAt={order.confirmedAt}
-              shippedAt={order.shippedAt}
               deliveredAt={order.deliveredAt}
               cancelledAt={order.cancelledAt}
             />
-            {order.statusNote && (
-              <div className="mt-4 rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
-                <span className="font-medium">Note:</span> {order.statusNote}
+            {order.cancellationReason && (
+              <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                <span className="font-medium">Cancellation reason:</span> {order.cancellationReason}
               </div>
             )}
           </div>
@@ -471,24 +430,27 @@ export default function OrderTrackingPage() {
                 <div key={item.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                     <Image
-                      src={item.imageUrl || '/placeholder-product.png'}
-                      alt={item.name}
+                      src={item.productImage || '/placeholder-product.png'}
+                      alt={item.productName}
                       fill
                       sizes="64px"
                       className="object-cover"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                      {item.name}
-                    </p>
+                    <Link
+                      href={`/products/${item.productSlug}`}
+                      className="text-sm font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-1"
+                    >
+                      {item.productName}
+                    </Link>
                     <p className="text-xs text-gray-500 mt-0.5">
                       SKU: {item.sku} &middot; Qty: {item.quantity}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-semibold text-gray-900">
-                      {formatPrice(item.total)}
+                      {formatPrice(Number(item.totalPrice))}
                     </p>
                   </div>
                 </div>
@@ -500,25 +462,27 @@ export default function OrderTrackingPage() {
         {/* Right column: Details */}
         <div className="space-y-6">
           {/* Shipping Address */}
-          <div className="rounded-2xl bg-white border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">
-              Shipping Address
-            </h3>
-            <div className="text-sm text-gray-600">
-              <p className="font-medium text-gray-900">{order.shippingName}</p>
-              <p className="mt-1">{order.shippingPhone}</p>
-              <p className="mt-1">
-                {order.shippingAddress}
-                {order.shippingAddress2 && `, ${order.shippingAddress2}`}
-              </p>
-              <p>
-                {order.shippingCity}, {order.shippingDistrict}
-              </p>
-              <p>
-                {order.shippingDivision} {order.shippingPostalCode}
-              </p>
+          {addr && (
+            <div className="rounded-2xl bg-white border border-gray-200 p-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">
+                Shipping Address
+              </h3>
+              <div className="text-sm text-gray-600">
+                <p className="font-medium text-gray-900">{addr.fullName}</p>
+                <p className="mt-1">{addr.phone}</p>
+                <p className="mt-1">
+                  {addr.addressLine1}
+                  {addr.addressLine2 && `, ${addr.addressLine2}`}
+                </p>
+                <p>
+                  {addr.area && `${addr.area}, `}{addr.district}
+                </p>
+                <p>
+                  {addr.division} {addr.postalCode}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Payment Info */}
           <div className="rounded-2xl bg-white border border-gray-200 p-6">
@@ -527,16 +491,14 @@ export default function OrderTrackingPage() {
             </h3>
             <div className="text-sm text-gray-600">
               <p className="font-medium text-gray-900">
-                {order.paymentMethod === 'CARD' ? 'Credit/Debit Card' :
-                 order.paymentMethod === 'COD' ? 'Cash on Delivery' :
-                 order.paymentMethod}
+                {paymentMethod ? getPaymentMethodLabel(paymentMethod) : 'Not specified'}
               </p>
-              <p className="mt-1">
-                Status:{' '}
-                <span className="font-medium">
-                  {order.paymentStatus}
-                </span>
-              </p>
+              {paymentStatus && (
+                <p className="mt-1">
+                  Status:{' '}
+                  <span className="font-medium">{paymentStatus}</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -548,28 +510,28 @@ export default function OrderTrackingPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>{formatPrice(order.subtotal)}</span>
+                <span>{formatPrice(Number(order.subtotal))}</span>
               </div>
-              {order.discount > 0 && (
+              {Number(order.discountAmount) > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount {order.couponCode && `(${order.couponCode})`}</span>
-                  <span>-{formatPrice(order.discount)}</span>
+                  <span>-{formatPrice(Number(order.discountAmount))}</span>
                 </div>
               )}
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
                 <span>
-                  {order.shippingCost === 0 ? 'Free' : formatPrice(order.shippingCost)}
+                  {Number(order.shippingCost) === 0 ? 'Free' : formatPrice(Number(order.shippingCost))}
                 </span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Tax</span>
-                <span>{order.tax > 0 ? formatPrice(order.tax) : 'Included'}</span>
+                <span>{Number(order.taxAmount) > 0 ? formatPrice(Number(order.taxAmount)) : 'Included'}</span>
               </div>
               <div className="border-t border-gray-200 my-2" />
               <div className="flex justify-between font-semibold text-gray-900">
                 <span>Total</span>
-                <span className="text-lg">{formatPrice(order.total)}</span>
+                <span className="text-lg">{formatPrice(Number(order.totalAmount))}</span>
               </div>
               <p className="text-xs text-gray-400 text-right">BDT ৳</p>
             </div>
