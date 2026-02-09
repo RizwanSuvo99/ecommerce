@@ -19,6 +19,8 @@ import {
   Tag,
 } from 'lucide-react';
 
+import { toast } from 'sonner';
+
 import { apiClient } from '@/lib/api/client';
 import { formatBDT } from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
@@ -228,9 +230,11 @@ function CouponFormDialog({
         await apiClient.post('/admin/coupons', payload);
       }
 
+      toast.success(isEditing ? 'Coupon updated' : 'Coupon created');
       onSuccess();
       onClose();
     } catch (err) {
+      toast.error('Failed to save coupon');
       console.error('Failed to save coupon:', err);
     } finally {
       setIsSaving(false);
@@ -552,8 +556,10 @@ export default function AdminCouponsPage() {
     if (!confirm('Delete this coupon?')) return;
     try {
       await apiClient.delete(`/admin/coupons/${id}`);
+      toast.success('Coupon deleted');
       fetchCoupons();
     } catch (err) {
+      toast.error('Failed to delete coupon');
       console.error('Failed to delete coupon:', err);
     }
   };
@@ -563,8 +569,10 @@ export default function AdminCouponsPage() {
       await apiClient.patch(`/admin/coupons/${coupon.id}`, {
         isActive: !coupon.isActive,
       });
+      toast.success(coupon.isActive ? 'Coupon deactivated' : 'Coupon activated');
       fetchCoupons();
     } catch (err) {
+      toast.error('Failed to toggle coupon');
       console.error('Failed to toggle coupon:', err);
     }
   };

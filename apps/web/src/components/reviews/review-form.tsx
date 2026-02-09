@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { toast } from 'sonner';
+
 import { apiClient } from '@/lib/api/client';
 
 interface Props {
@@ -39,6 +41,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
 
       setSuccess(true);
       setMessage('Thank you! Your review has been submitted for moderation.');
+      toast.success('Review submitted successfully');
       setRating(0);
       setTitle('');
       setComment('');
@@ -47,6 +50,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
       const errorMsg =
         err?.message ?? 'Failed to submit review. Please try again.';
       setMessage(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }

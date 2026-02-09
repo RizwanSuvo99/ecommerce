@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { toast } from 'sonner';
 
 type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -44,13 +45,14 @@ export function NewsletterSignup({
 
       setStatus('success');
       setEmail('');
+      toast.success('Subscribed! Check your inbox for confirmation.');
     } catch (error) {
       setStatus('error');
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Something went wrong. Please try again.',
-      );
+      const msg = error instanceof Error
+        ? error.message
+        : 'Something went wrong. Please try again.';
+      setErrorMessage(msg);
+      toast.error(msg);
     }
   };
 
