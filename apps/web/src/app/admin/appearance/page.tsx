@@ -1,0 +1,228 @@
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import ColorSettings from '../../../components/admin/appearance/color-settings';
+
+type SettingsTab = 'colors' | 'typography' | 'borders' | 'layout' | 'custom-css';
+
+interface ThemeSettings {
+  colors: Record<string, string>;
+  typography: Record<string, string>;
+  borders: Record<string, string>;
+  layout: Record<string, string>;
+  customCSS: string;
+  logoUrl: string;
+  faviconUrl: string;
+}
+
+const TAB_LABELS: Record<SettingsTab, string> = {
+  colors: 'Colors',
+  typography: 'Typography',
+  borders: 'Borders & Radius',
+  layout: 'Layout',
+  'custom-css': 'Custom CSS',
+};
+
+export default function AdminAppearancePage() {
+  const [activeTab, setActiveTab] = useState<SettingsTab>('colors');
+  const [theme, setTheme] = useState<ThemeSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const fetchTheme = useCallback(async () => {
+    try {
+      const response = await fetch('/api/theme');
+      if (!response.ok) throw new Error('Failed to fetch theme');
+      const data = await response.json();
+      setTheme(data);
+    } catch (error) {
+      console.error('Fetch theme error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTheme();
+  }, [fetchTheme]);
+
+  const handleSave = async () => {
+    if (!theme) return;
+    setSaving(true);
+
+    try {
+      const response = await fetch('/api/admin/theme', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(theme),
+      });
+
+      if (!response.ok) throw new Error('Failed to save theme');
+
+      const data = await response.json();
+      setTheme(data);
+      setHasChanges(false);
+    } catch (error) {
+      console.error('Save theme error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!confirm('Are you sure you want to reset all appearance settings to defaults?')) return;
+
+    try {
+      const response = await fetch('/api/admin/theme/reset', { method: 'POST' });
+      if (!response.ok) throw new Error('Failed to reset theme');
+      const data = await response.json();
+      setTheme(data);
+      setHasChanges(false);
+    } catch (error) {
+      console.error('Reset theme error:', error);
+    }
+  };
+
+  const updateTheme = (section: string, value: any) => {
+    if (!theme) return;
+    setTheme({ ...theme, [section]: value });
+    setHasChanges(true);
+  };
+
+  if (loading || !theme) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Appearance</h1>
+          <p className="text-sm text-gray-500 mt-1">Customize your store's look and feel</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleReset}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Reset to Defaults
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!hasChanges || saving}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
+
+      {/* Unsaved Changes Banner */}
+      {hasChanges && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-yellow-800">You have unsaved changes.</span>
+          <button onClick={handleSave} className="text-sm font-medium text-yellow-800 hover:text-yellow-900">
+            Save now
+          </button>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="border-b border-gray-200">
+          <nav className="flex -mb-px overflow-x-auto">
+            {Object.entries(TAB_LABELS).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key as SettingsTab)}
+                className={`px-6 py-3 text-sm font-medium border-b-2 whitespace-nowrap ${
+                  activeTab === key
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <div className="p-6">
+          {activeTab === 'colors' && (
+            <ColorSettings
+              colors={theme.colors as any}
+              onChange={(colors) => updateTheme('colors', colors)}
+            />
+          )}
+
+          {activeTab === 'typography' && (
+            <div className="text-center py-12 text-gray-500">
+              Typography settings component will be loaded here.
+            </div>
+          )}
+
+          {activeTab === 'borders' && (
+            <div className="text-center py-12 text-gray-500">
+              Border settings component will be loaded here.
+            </div>
+          )}
+
+          {activeTab === 'layout' && (
+            <div className="text-center py-12 text-gray-500">
+              Layout settings component will be loaded here.
+            </div>
+          )}
+
+          {activeTab === 'custom-css' && (
+            <div className="text-center py-12 text-gray-500">
+              Custom CSS editor component will be loaded here.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Store Identity */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Store Identity</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+            <input
+              type="text"
+              value={theme.logoUrl}
+              onChange={(e) => updateTheme('logoUrl', e.target.value)}
+              placeholder="https://..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
+            {theme.logoUrl && (
+              <div className="mt-2 p-4 bg-gray-50 rounded-lg">
+                <img src={theme.logoUrl} alt="Logo preview" className="h-10" />
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Favicon URL</label>
+            <input
+              type="text"
+              value={theme.faviconUrl}
+              onChange={(e) => updateTheme('faviconUrl', e.target.value)}
+              placeholder="https://..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
+            {theme.faviconUrl && (
+              <div className="mt-2 p-4 bg-gray-50 rounded-lg">
+                <img src={theme.faviconUrl} alt="Favicon preview" className="h-8 w-8" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
