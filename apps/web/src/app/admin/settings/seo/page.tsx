@@ -2,31 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface SeoSettings {
-  metaTitleEn: string;
-  metaTitleBn: string;
-  metaDescriptionEn: string;
-  metaDescriptionBn: string;
-  ogImage: string;
-  googleAnalyticsId: string;
-  fbPixelId: string;
-  robotsTxt: string;
-  canonicalUrl: string;
+  meta_title: string;
+  meta_title_bn: string;
+  meta_description: string;
+  meta_description_bn: string;
+  meta_keywords: string;
+  og_image: string;
+  google_analytics_id: string;
+  facebook_pixel_id: string;
+  robots_txt: string;
+  canonical_url: string;
 }
 
 const DEFAULTS: SeoSettings = {
-  metaTitleEn: '',
-  metaTitleBn: '',
-  metaDescriptionEn: '',
-  metaDescriptionBn: '',
-  ogImage: '',
-  googleAnalyticsId: '',
-  fbPixelId: '',
-  robotsTxt: 'User-agent: *\nAllow: /\nSitemap: /sitemap.xml',
-  canonicalUrl: '',
+  meta_title: '',
+  meta_title_bn: '',
+  meta_description: '',
+  meta_description_bn: '',
+  meta_keywords: '',
+  og_image: '',
+  google_analytics_id: '',
+  facebook_pixel_id: '',
+  robots_txt: 'User-agent: *\nAllow: /\nSitemap: /sitemap.xml',
+  canonical_url: '',
 };
 
 export default function SeoSettingsPage() {
@@ -36,7 +37,7 @@ export default function SeoSettingsPage() {
 
   useEffect(() => {
     getSettingsByGroup('seo')
-      .then((data) => setForm({ ...DEFAULTS, ...data } as unknown as SeoSettings))
+      .then((data) => setForm({ ...DEFAULTS, ...data } as SeoSettings))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -71,65 +72,60 @@ export default function SeoSettingsPage() {
         <h3 className="font-medium text-gray-800">Meta Tags</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Meta Title (English)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Meta Title (English)</label>
             <input
               type="text"
               maxLength={70}
-              value={form.metaTitleEn}
-              onChange={(e) => handleChange('metaTitleEn', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={form.meta_title}
+              onChange={(e) => handleChange('meta_title', e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
-            <p className="mt-1 text-xs text-gray-400">
-              {form.metaTitleEn.length}/70 characters
-            </p>
+            <p className="mt-1 text-xs text-gray-400">{form.meta_title.length}/70 characters</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              মেটা টাইটেল (বাংলা)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">মেটা টাইটেল (বাংলা)</label>
             <input
               type="text"
               maxLength={70}
-              value={form.metaTitleBn}
-              onChange={(e) => handleChange('metaTitleBn', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={form.meta_title_bn}
+              onChange={(e) => handleChange('meta_title_bn', e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
-            <p className="mt-1 text-xs text-gray-400">
-              {form.metaTitleBn.length}/70 characters
-            </p>
+            <p className="mt-1 text-xs text-gray-400">{form.meta_title_bn.length}/70 characters</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Meta Description (English)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Meta Description (English)</label>
             <textarea
               maxLength={160}
               rows={3}
-              value={form.metaDescriptionEn}
-              onChange={(e) => handleChange('metaDescriptionEn', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={form.meta_description}
+              onChange={(e) => handleChange('meta_description', e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
-            <p className="mt-1 text-xs text-gray-400">
-              {form.metaDescriptionEn.length}/160 characters
-            </p>
+            <p className="mt-1 text-xs text-gray-400">{form.meta_description.length}/160 characters</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              মেটা বিবরণ (বাংলা)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">মেটা বিবরণ (বাংলা)</label>
             <textarea
               maxLength={160}
               rows={3}
-              value={form.metaDescriptionBn}
-              onChange={(e) => handleChange('metaDescriptionBn', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={form.meta_description_bn}
+              onChange={(e) => handleChange('meta_description_bn', e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
-            <p className="mt-1 text-xs text-gray-400">
-              {form.metaDescriptionBn.length}/160 characters
-            </p>
+            <p className="mt-1 text-xs text-gray-400">{form.meta_description_bn.length}/160 characters</p>
           </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Keywords</label>
+          <input
+            type="text"
+            value={form.meta_keywords}
+            onChange={(e) => handleChange('meta_keywords', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="online shopping, bangladesh, ecommerce"
+          />
+          <p className="mt-1 text-xs text-gray-400">Comma-separated keywords</p>
         </div>
       </section>
 
@@ -138,9 +134,9 @@ export default function SeoSettingsPage() {
         <h3 className="font-medium text-gray-800">Open Graph Image</h3>
         <input
           type="url"
-          value={form.ogImage}
-          onChange={(e) => handleChange('ogImage', e.target.value)}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          value={form.og_image}
+          onChange={(e) => handleChange('og_image', e.target.value)}
+          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
           placeholder="https://example.com/og-image.jpg"
         />
         <p className="text-xs text-gray-400">Recommended: 1200 x 630 pixels</p>
@@ -151,26 +147,22 @@ export default function SeoSettingsPage() {
         <h3 className="font-medium text-gray-800">Analytics & Tracking</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Google Analytics ID
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Google Analytics ID</label>
             <input
               type="text"
-              value={form.googleAnalyticsId}
-              onChange={(e) => handleChange('googleAnalyticsId', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={form.google_analytics_id}
+              onChange={(e) => handleChange('google_analytics_id', e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="G-XXXXXXXXXX"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Facebook Pixel ID
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Facebook Pixel ID</label>
             <input
               type="text"
-              value={form.fbPixelId}
-              onChange={(e) => handleChange('fbPixelId', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={form.facebook_pixel_id}
+              onChange={(e) => handleChange('facebook_pixel_id', e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="123456789012345"
             />
           </div>
@@ -182,9 +174,9 @@ export default function SeoSettingsPage() {
         <h3 className="font-medium text-gray-800">robots.txt</h3>
         <textarea
           rows={5}
-          value={form.robotsTxt}
-          onChange={(e) => handleChange('robotsTxt', e.target.value)}
-          className="block w-full font-mono text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          value={form.robots_txt}
+          onChange={(e) => handleChange('robots_txt', e.target.value)}
+          className="block w-full font-mono text-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </section>
 
@@ -193,9 +185,9 @@ export default function SeoSettingsPage() {
         <h3 className="font-medium text-gray-800">Canonical URL</h3>
         <input
           type="url"
-          value={form.canonicalUrl}
-          onChange={(e) => handleChange('canonicalUrl', e.target.value)}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          value={form.canonical_url}
+          onChange={(e) => handleChange('canonical_url', e.target.value)}
+          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
           placeholder="https://www.example.com"
         />
       </section>

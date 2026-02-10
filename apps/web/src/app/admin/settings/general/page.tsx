@@ -2,34 +2,39 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface GeneralSettings {
-  siteNameEn: string;
-  siteNameBn: string;
-  logoUrl: string;
-  faviconUrl: string;
+  site_name: string;
+  site_name_bn: string;
+  site_tagline: string;
+  site_tagline_bn: string;
   currency: string;
-  currencySymbol: string;
-  locale: string;
+  currency_symbol: string;
+  currency_position: string;
+  default_language: string;
+  supported_languages: string;
   timezone: string;
-  contactEmail: string;
-  contactPhone: string;
+  date_format: string;
+  support_email: string;
+  phone: string;
   address: string;
 }
 
 const DEFAULTS: GeneralSettings = {
-  siteNameEn: '',
-  siteNameBn: '',
-  logoUrl: '',
-  faviconUrl: '',
+  site_name: '',
+  site_name_bn: '',
+  site_tagline: '',
+  site_tagline_bn: '',
   currency: 'BDT',
-  currencySymbol: '৳',
-  locale: 'bn-BD',
+  currency_symbol: '৳',
+  currency_position: 'before',
+  default_language: 'en',
+  supported_languages: 'en,bn',
   timezone: 'Asia/Dhaka',
-  contactEmail: '',
-  contactPhone: '',
+  date_format: 'DD/MM/YYYY',
+  support_email: '',
+  phone: '',
   address: '',
 };
 
@@ -40,7 +45,7 @@ export default function GeneralSettingsPage() {
 
   useEffect(() => {
     getSettingsByGroup('general')
-      .then((data) => setForm({ ...DEFAULTS, ...data } as unknown as GeneralSettings))
+      .then((data) => setForm({ ...DEFAULTS, ...data } as GeneralSettings))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -52,7 +57,6 @@ export default function GeneralSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-
     try {
       await updateSettings('general', form as unknown as Record<string, string>);
       toast.success('General settings saved');
@@ -78,9 +82,9 @@ export default function GeneralSettingsPage() {
           </label>
           <input
             type="text"
-            value={form.siteNameEn}
-            onChange={(e) => handleChange('siteNameEn', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={form.site_name}
+            onChange={(e) => handleChange('site_name', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="My E-Commerce Store"
           />
         </div>
@@ -91,48 +95,50 @@ export default function GeneralSettingsPage() {
           </label>
           <input
             type="text"
-            value={form.siteNameBn}
-            onChange={(e) => handleChange('siteNameBn', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={form.site_name_bn}
+            onChange={(e) => handleChange('site_name_bn', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="আমার ই-কমার্স স্টোর"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Logo URL</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Tagline (English)
+          </label>
           <input
-            type="url"
-            value={form.logoUrl}
-            onChange={(e) => handleChange('logoUrl', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Favicon URL</label>
-          <input
-            type="url"
-            value={form.faviconUrl}
-            onChange={(e) => handleChange('faviconUrl', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            type="text"
+            value={form.site_tagline}
+            onChange={(e) => handleChange('site_tagline', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Currency
+            ট্যাগলাইন (বাংলা)
           </label>
+          <input
+            type="text"
+            value={form.site_tagline_bn}
+            onChange={(e) => handleChange('site_tagline_bn', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Currency</label>
           <div className="mt-1 flex items-center gap-3">
             <select
               value={form.currency}
               onChange={(e) => handleChange('currency', e.target.value)}
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="BDT">BDT - Bangladeshi Taka</option>
               <option value="USD">USD - US Dollar</option>
             </select>
             <span className="text-lg font-semibold text-gray-600">
-              {form.currencySymbol}
+              {form.currency_symbol}
             </span>
           </div>
         </div>
@@ -142,7 +148,7 @@ export default function GeneralSettingsPage() {
           <select
             value={form.timezone}
             onChange={(e) => handleChange('timezone', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="Asia/Dhaka">Asia/Dhaka (BST +06:00)</option>
             <option value="UTC">UTC</option>
@@ -150,26 +156,47 @@ export default function GeneralSettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Contact Email
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Default Language</label>
+          <select
+            value={form.default_language}
+            onChange={(e) => handleChange('default_language', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="en">English</option>
+            <option value="bn">বাংলা (Bengali)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Date Format</label>
+          <select
+            value={form.date_format}
+            onChange={(e) => handleChange('date_format', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Support Email</label>
           <input
             type="email"
-            value={form.contactEmail}
-            onChange={(e) => handleChange('contactEmail', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={form.support_email}
+            onChange={(e) => handleChange('support_email', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Contact Phone
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Phone</label>
           <input
             type="tel"
-            value={form.contactPhone}
-            onChange={(e) => handleChange('contactPhone', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            value={form.phone}
+            onChange={(e) => handleChange('phone', e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="+880 1XXX-XXXXXX"
           />
         </div>
@@ -181,7 +208,7 @@ export default function GeneralSettingsPage() {
           value={form.address}
           onChange={(e) => handleChange('address', e.target.value)}
           rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 

@@ -2,16 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
-
-interface ShippingZone {
-  name: string;
-  divisions: string[];
-  flatRate: number;
-  freeAbove?: number;
-  estimatedDays?: number;
-}
 
 interface ShippingMethod {
   id: string;
@@ -20,11 +11,12 @@ interface ShippingMethod {
   baseCost: number;
 }
 
-interface ShippingSettings {
-  methods: ShippingMethod[];
-  zones: ShippingZone[];
-  enableFreeShipping: boolean;
-  freeShippingThreshold: number;
+interface ShippingZone {
+  name: string;
+  divisions: string[];
+  flatRate: number;
+  freeAbove?: number;
+  estimatedDays?: number;
 }
 
 const BD_DIVISIONS = [
@@ -48,37 +40,37 @@ export default function ShippingSettingsPage() {
   const [zones, setZones] = useState<ShippingZone[]>(DEFAULT_ZONES);
   const [enableFreeShipping, setEnableFreeShipping] = useState(false);
   const [freeThreshold, setFreeThreshold] = useState(2000);
+  const [defaultWeightUnit, setDefaultWeightUnit] = useState('kg');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     getSettingsByGroup('shipping')
       .then((data) => {
-        if (data.methods) setMethods(JSON.parse(data.methods));
-        if (data.zones) setZones(JSON.parse(data.zones));
-        if (data.enableFreeShipping) setEnableFreeShipping(data.enableFreeShipping === 'true');
-        if (data.freeShippingThreshold) setFreeThreshold(Number(data.freeShippingThreshold));
+        if (data.methods) {
+          try { setMethods(JSON.parse(data.methods)); } catch { /* keep defaults */ }
+        }
+        if (data.zones) {
+          try { setZones(JSON.parse(data.zones)); } catch { /* keep defaults */ }
+        }
+        if (data.enable_free_shipping) setEnableFreeShipping(data.enable_free_shipping === 'true');
+        if (data.free_shipping_threshold) setFreeThreshold(Number(data.free_shipping_threshold));
+        if (data.default_weight_unit) setDefaultWeightUnit(data.default_weight_unit);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   const toggleMethod = (id: string) => {
-    setMethods((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, enabled: !m.enabled } : m)),
-    );
+    setMethods((prev) => prev.map((m) => (m.id === id ? { ...m, enabled: !m.enabled } : m)));
   };
 
   const updateMethodCost = (id: string, cost: number) => {
-    setMethods((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, baseCost: cost } : m)),
-    );
+    setMethods((prev) => prev.map((m) => (m.id === id ? { ...m, baseCost: cost } : m)));
   };
 
   const updateZoneRate = (index: number, rate: number) => {
-    setZones((prev) =>
-      prev.map((z, i) => (i === index ? { ...z, flatRate: rate } : z)),
-    );
+    setZones((prev) => prev.map((z, i) => (i === index ? { ...z, flatRate: rate } : z)));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,8 +80,9 @@ export default function ShippingSettingsPage() {
       await updateSettings('shipping', {
         methods: JSON.stringify(methods),
         zones: JSON.stringify(zones),
-        enableFreeShipping: String(enableFreeShipping),
-        freeShippingThreshold: String(freeThreshold),
+        enable_free_shipping: String(enableFreeShipping),
+        free_shipping_threshold: String(freeThreshold),
+        default_weight_unit: defaultWeightUnit,
       });
       toast.success('Shipping settings saved');
     } catch {
@@ -112,7 +105,7 @@ export default function ShippingSettingsPage() {
         <h3 className="font-medium text-gray-800">Shipping Methods</h3>
         <div className="space-y-3">
           {methods.map((method) => (
-            <div key={method.id} className="flex items-center gap-4 rounded-md border p-3">
+            <div key={method.id} className="flex items-center gap-4 rounded-md border border-gray-200 p-3">
               <input
                 type="checkbox"
                 checked={method.enabled}
@@ -126,7 +119,7 @@ export default function ShippingSettingsPage() {
                   type="number"
                   value={method.baseCost}
                   onChange={(e) => updateMethodCost(method.id, Number(e.target.value))}
-                  className="w-24 rounded-md border-gray-300 text-sm shadow-sm"
+                  className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm shadow-sm"
                 />
               </div>
             </div>
@@ -139,7 +132,7 @@ export default function ShippingSettingsPage() {
         <h3 className="font-medium text-gray-800">Shipping Zones</h3>
         <div className="space-y-4">
           {zones.map((zone, idx) => (
-            <div key={zone.name} className="rounded-md border p-4">
+            <div key={zone.name} className="rounded-md border border-gray-200 p-4">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium text-gray-700">{zone.name}</h4>
                 <div className="flex items-center gap-1">
@@ -148,7 +141,7 @@ export default function ShippingSettingsPage() {
                     type="number"
                     value={zone.flatRate}
                     onChange={(e) => updateZoneRate(idx, Number(e.target.value))}
-                    className="w-24 rounded-md border-gray-300 text-sm shadow-sm"
+                    className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm shadow-sm"
                   />
                 </div>
               </div>
@@ -165,7 +158,7 @@ export default function ShippingSettingsPage() {
         </div>
       </section>
 
-      {/* Free Shipping */}
+      {/* Free Shipping & Weight */}
       <section className="space-y-3">
         <label className="flex items-center gap-2">
           <input
@@ -185,10 +178,23 @@ export default function ShippingSettingsPage() {
               type="number"
               value={freeThreshold}
               onChange={(e) => setFreeThreshold(Number(e.target.value))}
-              className="w-32 rounded-md border-gray-300 text-sm shadow-sm"
+              className="w-32 rounded-md border border-gray-300 px-2 py-1.5 text-sm shadow-sm"
             />
           </div>
         )}
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Default weight unit:</span>
+          <select
+            value={defaultWeightUnit}
+            onChange={(e) => setDefaultWeightUnit(e.target.value)}
+            className="rounded-md border border-gray-300 px-2 py-1.5 text-sm shadow-sm"
+          >
+            <option value="kg">Kilograms (kg)</option>
+            <option value="g">Grams (g)</option>
+            <option value="lb">Pounds (lb)</option>
+          </select>
+        </div>
       </section>
 
       <div className="flex justify-end">
