@@ -116,7 +116,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
             placeholder="First name"
           />
         </div>
@@ -130,7 +130,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.lastName}
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
             placeholder="Last name"
           />
         </div>
@@ -147,7 +147,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
           required
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
           placeholder="+880 1XXX-XXXXXX"
         />
       </div>
@@ -163,7 +163,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
           required
           value={formData.addressLine1}
           onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
           placeholder="House no., road, area"
         />
       </div>
@@ -178,7 +178,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
           type="text"
           value={formData.addressLine2}
           onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
           placeholder="Apartment, suite, floor"
         />
       </div>
@@ -194,7 +194,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={division}
             onChange={(e) => handleDivisionChange(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none bg-white"
           >
             <option value="">Select Division</option>
             {Object.keys(BD_DIVISIONS).map((div) => (
@@ -214,7 +214,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             disabled={!division}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
             <option value="">Select District</option>
             {districts.map((dist) => (
@@ -238,7 +238,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.city}
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
             placeholder="City"
           />
         </div>
@@ -252,7 +252,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.postalCode}
             onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
             placeholder="1000"
           />
         </div>
@@ -269,7 +269,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
         </button>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+          className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
         >
           Save Address
         </button>
@@ -295,7 +295,7 @@ function AddressCard({ address, isSelected, onSelect }: AddressCardProps) {
       onClick={onSelect}
       className={`w-full text-left rounded-xl border-2 p-4 transition-colors ${
         isSelected
-          ? 'border-blue-600 bg-blue-50'
+          ? 'border-teal-600 bg-teal-50'
           : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
@@ -316,18 +316,18 @@ function AddressCard({ address, isSelected, onSelect }: AddressCardProps) {
 
         <div className="flex items-center gap-2">
           {address.isDefault && (
-            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+            <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-teal-700">
               Default
             </span>
           )}
 
           <div
             className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-              isSelected ? 'border-blue-600' : 'border-gray-300'
+              isSelected ? 'border-teal-600' : 'border-gray-300'
             }`}
           >
             {isSelected && (
-              <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+              <div className="h-2.5 w-2.5 rounded-full bg-teal-600" />
             )}
           </div>
         </div>
@@ -399,7 +399,7 @@ export default function AddressStep({
         <button
           type="button"
           onClick={() => setShowNewForm(true)}
-          className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          className="flex items-center gap-2 text-sm font-medium text-teal-600 hover:text-teal-800 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -433,7 +433,7 @@ export default function AddressStep({
           type="button"
           onClick={onContinue}
           disabled={!selectedAddressId}
-          className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Continue to Shipping
         </button>

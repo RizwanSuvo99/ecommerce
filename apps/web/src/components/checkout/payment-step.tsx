@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 // ──────────────────────────────────────────────────────────
 // Types
 // ──────────────────────────────────────────────────────────
@@ -135,7 +133,7 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
         option.disabled
           ? 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-60'
           : isSelected
-            ? 'border-blue-600 bg-blue-50'
+            ? 'border-teal-600 bg-teal-50'
             : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
@@ -146,12 +144,12 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
             option.disabled
               ? 'border-gray-200'
               : isSelected
-                ? 'border-blue-600'
+                ? 'border-teal-600'
                 : 'border-gray-300'
           }`}
         >
           {isSelected && !option.disabled && (
-            <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+            <div className="h-2.5 w-2.5 rounded-full bg-teal-600" />
           )}
         </div>
 
@@ -161,7 +159,7 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
             option.disabled
               ? 'text-gray-300'
               : isSelected
-                ? 'text-blue-600'
+                ? 'text-teal-600'
                 : 'text-gray-400'
           }`}
         >
@@ -177,7 +175,7 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                   option.disabled
                     ? 'bg-gray-100 text-gray-500'
-                    : 'bg-blue-100 text-blue-700'
+                    : 'bg-teal-100 text-teal-700'
                 }`}
               >
                 {option.badge}
@@ -215,7 +213,7 @@ function CardPaymentForm() {
             id="cardNumber"
             type="text"
             placeholder="4242 4242 4242 4242"
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
           />
         </div>
 
@@ -229,7 +227,7 @@ function CardPaymentForm() {
               id="cardExpiry"
               type="text"
               placeholder="MM/YY"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
             />
           </div>
           <div>
@@ -240,7 +238,7 @@ function CardPaymentForm() {
               id="cardCvc"
               type="text"
               placeholder="123"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
             />
           </div>
         </div>
@@ -342,7 +340,7 @@ export default function PaymentStep({
           type="button"
           onClick={onContinue}
           disabled={!selectedMethod}
-          className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Continue to Review
         </button>

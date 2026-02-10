@@ -88,7 +88,7 @@ function SectionHeader({ title, onEdit }: SectionHeaderProps) {
         <button
           type="button"
           onClick={onEdit}
-          className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          className="text-xs text-teal-600 hover:text-teal-800 font-medium transition-colors"
         >
           Edit
         </button>
@@ -295,15 +295,15 @@ export default function ReviewStep({
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
           />
           <span className="text-sm text-gray-600">
             I agree to the{' '}
-            <a href="/terms" className="text-blue-600 hover:underline">
+            <a href="/terms" className="text-teal-600 hover:underline">
               Terms &amp; Conditions
             </a>{' '}
             and{' '}
-            <a href="/privacy" className="text-blue-600 hover:underline">
+            <a href="/privacy" className="text-teal-600 hover:underline">
               Privacy Policy
             </a>
             . I understand that my order is subject to the return and refund policy.

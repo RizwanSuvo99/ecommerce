@@ -52,7 +52,7 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
       onClick={onSelect}
       className={`w-full text-left rounded-xl border-2 p-5 transition-colors ${
         isSelected
-          ? 'border-blue-600 bg-blue-50'
+          ? 'border-teal-600 bg-teal-50'
           : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
@@ -61,11 +61,11 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
           {/* Radio indicator */}
           <div
             className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-              isSelected ? 'border-blue-600' : 'border-gray-300'
+              isSelected ? 'border-teal-600' : 'border-gray-300'
             }`}
           >
             {isSelected && (
-              <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+              <div className="h-2.5 w-2.5 rounded-full bg-teal-600" />
             )}
           </div>
 
@@ -87,7 +87,7 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
 
             {/* Free shipping threshold hint */}
             {!method.isFree && method.freeAbove > 0 && (
-              <p className="mt-1 text-xs text-blue-600">
+              <p className="mt-1 text-xs text-teal-600">
                 Free on orders above {formatPrice(method.freeAbove)}
               </p>
             )}
@@ -129,7 +129,7 @@ function ZoneInfo({ zone }: { zone: 'INSIDE_DHAKA' | 'OUTSIDE_DHAKA' }) {
     <div
       className={`rounded-lg px-4 py-3 text-sm mb-6 ${
         isInsideDhaka
-          ? 'bg-blue-50 text-blue-800 border border-blue-200'
+          ? 'bg-teal-50 text-teal-800 border border-teal-200'
           : 'bg-amber-50 text-amber-800 border border-amber-200'
       }`}
     >
@@ -223,7 +223,7 @@ export default function ShippingStep({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-teal-600" />
       </div>
     );
   }
@@ -276,7 +276,7 @@ export default function ShippingStep({
           type="button"
           onClick={onContinue}
           disabled={!selectedMethodId}
-          className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Continue to Payment
         </button>
