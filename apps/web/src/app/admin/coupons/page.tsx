@@ -6,7 +6,7 @@ import {
   Search,
   Edit,
   Trash2,
-  TicketPercent,
+  Ticket,
   Copy,
   Check,
   X,
@@ -246,7 +246,7 @@ function CouponFormDialog({
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100">
-              <TicketPercent className="h-5 w-5 text-purple-600" />
+              <Ticket className="h-5 w-5 text-purple-600" />
             </div>
             <h2 className="text-lg font-semibold text-gray-900">
               {isEditing ? 'Edit Coupon' : 'Create Coupon'}
@@ -662,7 +662,7 @@ export default function AdminCouponsPage() {
               ) : coupons.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
-                    <TicketPercent className="mx-auto h-8 w-8 text-gray-300" />
+                    <Ticket className="mx-auto h-8 w-8 text-gray-300" />
                     <p className="mt-2 text-sm text-gray-500">
                       No coupons found. Create your first coupon.
                     </p>

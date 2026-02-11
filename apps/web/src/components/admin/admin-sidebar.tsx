@@ -16,7 +16,7 @@ import {
   ChevronDown,
   Tag,
   Layers,
-  TicketPercent,
+  Ticket,
   type LucideIcon,
 } from 'lucide-react';
 
