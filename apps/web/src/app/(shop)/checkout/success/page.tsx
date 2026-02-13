@@ -147,7 +147,7 @@ export default function CheckoutSuccessPage() {
 
             <div className="space-y-4">
               <div className="flex gap-4">
-                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
+                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-semibold">
                   1
                 </div>
                 <div>
@@ -159,7 +159,7 @@ export default function CheckoutSuccessPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
+                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-semibold">
                   2
                 </div>
                 <div>
@@ -171,7 +171,7 @@ export default function CheckoutSuccessPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
+                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-semibold">
                   3
                 </div>
                 <div>
@@ -201,7 +201,7 @@ export default function CheckoutSuccessPage() {
             {orderNumber && (
               <Link
                 href={`/orders/${orderNumber}`}
-                className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors w-full sm:w-auto text-center"
+                className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition-colors w-full sm:w-auto text-center"
               >
                 Track Your Order
               </Link>
@@ -218,7 +218,7 @@ export default function CheckoutSuccessPage() {
           {/* Help text */}
           <p className="mt-8 text-xs text-gray-400">
             Have a question about your order?{' '}
-            <a href="/contact" className="text-blue-600 hover:underline">
+            <a href="/contact" className="text-teal-600 hover:underline">
               Contact our support team
             </a>
           </p>
