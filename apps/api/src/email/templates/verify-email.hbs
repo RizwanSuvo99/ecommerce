@@ -1,0 +1,15 @@
+{{#if (eq locale 'bn')}}
+<h2>ইমেইল যাচাই করুন</h2>
+<p>প্রিয় {{name}},</p>
+<p>আপনার ইমেইল ঠিকানা যাচাই করতে নিচের বাটনে ক্লিক করুন:</p>
+<a href="{{verifyUrl}}" class="btn">ইমেইল যাচাই করুন</a>
+<p>এই লিংকটি {{expiresIn}} পর মেয়াদ উত্তীর্ণ হবে।</p>
+<p>আপনি যদি এই অনুরোধ না করে থাকেন, তাহলে এই ইমেইলটি উপেক্ষা করুন।</p>
+{{else}}
+<h2>Verify Your Email</h2>
+<p>Hi {{name}},</p>
+<p>Please click the button below to verify your email address:</p>
+<a href="{{verifyUrl}}" class="btn">Verify Email</a>
+<p>This link will expire in {{expiresIn}}.</p>
+<p>If you didn't request this, please ignore this email.</p>
+{{/if}}
