@@ -1,0 +1,15 @@
+{{#if (eq locale 'bn')}}
+<h2>অর্ডার বাতিল হয়েছে</h2>
+<p>প্রিয় {{customerName}},</p>
+<p>আপনার অর্ডার <strong>#{{orderNumber}}</strong> বাতিল করা হয়েছে।</p>
+<p><strong>কারণ:</strong> {{reason}}</p>
+<p>পেমেন্ট করা হয়ে থাকলে ৳{{refundAmount}} ৩-৫ কার্যদিবসের মধ্যে ফেরত দেওয়া হবে।</p>
+<a href="{{shopUrl}}" class="btn">কেনাকাটা চালিয়ে যান</a>
+{{else}}
+<h2>Order Cancelled</h2>
+<p>Hi {{customerName}},</p>
+<p>Your order <strong>#{{orderNumber}}</strong> has been cancelled.</p>
+<p><strong>Reason:</strong> {{reason}}</p>
+<p>If payment was made, ৳{{refundAmount}} will be refunded within 3-5 business days.</p>
+<a href="{{shopUrl}}" class="btn">Continue Shopping</a>
+{{/if}}

@@ -1,0 +1,17 @@
+{{#if (eq locale 'bn')}}
+<h2>আপনার অর্ডার পাঠানো হয়েছে! 🚚</h2>
+<p>প্রিয় {{customerName}},</p>
+<p>আপনার অর্ডার <strong>#{{orderNumber}}</strong> শিপ করা হয়েছে।</p>
+<p><strong>কুরিয়ার:</strong> {{carrier}}</p>
+<p><strong>ট্র্যাকিং নম্বর:</strong> {{trackingNumber}}</p>
+<p><strong>আনুমানিক ডেলিভারি:</strong> {{formatDate estimatedDelivery}}</p>
+<a href="{{trackingUrl}}" class="btn">শিপমেন্ট ট্র্যাক করুন</a>
+{{else}}
+<h2>Your Order Has Been Shipped! 🚚</h2>
+<p>Hi {{customerName}},</p>
+<p>Your order <strong>#{{orderNumber}}</strong> has been shipped.</p>
+<p><strong>Carrier:</strong> {{carrier}}</p>
+<p><strong>Tracking Number:</strong> {{trackingNumber}}</p>
+<p><strong>Estimated Delivery:</strong> {{formatDate estimatedDelivery}}</p>
+<a href="{{trackingUrl}}" class="btn">Track Shipment</a>
+{{/if}}

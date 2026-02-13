@@ -1,0 +1,15 @@
+{{#if (eq locale 'bn')}}
+<h2>রিফান্ড প্রক্রিয়া সম্পন্ন</h2>
+<p>প্রিয় {{customerName}},</p>
+<p>আপনার অর্ডার <strong>#{{orderNumber}}</strong> এর জন্য <span class="amount">৳{{refundAmount}}</span> রিফান্ড প্রক্রিয়া সম্পন্ন হয়েছে।</p>
+<p><strong>রিফান্ড মাধ্যম:</strong> {{refundMethod}}</p>
+<p><strong>রেফারেন্স:</strong> {{refundReference}}</p>
+<p>আপনার অ্যাকাউন্টে ৳{{refundAmount}} ৩-৫ কার্যদিবসের মধ্যে জমা হবে।</p>
+{{else}}
+<h2>Refund Processed</h2>
+<p>Hi {{customerName}},</p>
+<p>A refund of <span class="amount">৳{{refundAmount}}</span> for order <strong>#{{orderNumber}}</strong> has been processed.</p>
+<p><strong>Refund Method:</strong> {{refundMethod}}</p>
+<p><strong>Reference:</strong> {{refundReference}}</p>
+<p>৳{{refundAmount}} will be credited to your account within 3-5 business days.</p>
+{{/if}}

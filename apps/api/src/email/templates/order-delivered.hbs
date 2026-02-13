@@ -1,0 +1,13 @@
+{{#if (eq locale 'bn')}}
+<h2>আপনার অর্ডার ডেলিভারি হয়েছে! ✅</h2>
+<p>প্রিয় {{customerName}},</p>
+<p>আপনার অর্ডার <strong>#{{orderNumber}}</strong> সফলভাবে ডেলিভারি করা হয়েছে।</p>
+<p>আপনার কেনাকাটার অভিজ্ঞতা কেমন ছিল? আমাদের জানান:</p>
+<a href="{{reviewUrl}}" class="btn">রিভিউ দিন</a>
+{{else}}
+<h2>Your Order Has Been Delivered! ✅</h2>
+<p>Hi {{customerName}},</p>
+<p>Your order <strong>#{{orderNumber}}</strong> has been successfully delivered.</p>
+<p>How was your shopping experience? Let us know:</p>
+<a href="{{reviewUrl}}" class="btn">Leave a Review</a>
+{{/if}}

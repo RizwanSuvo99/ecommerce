@@ -1,0 +1,35 @@
+{{#if (eq locale 'bn')}}
+<h2>অর্ডার নিশ্চিত হয়েছে! 🎉</h2>
+<p>প্রিয় {{customerName}},</p>
+<p>আপনার অর্ডার <strong>#{{orderNumber}}</strong> সফলভাবে গ্রহণ করা হয়েছে।</p>
+{{else}}
+<h2>Order Confirmed! 🎉</h2>
+<p>Hi {{customerName}},</p>
+<p>Your order <strong>#{{orderNumber}}</strong> has been successfully placed.</p>
+{{/if}}
+
+<table class="order-table">
+  <thead>
+    <tr>
+      <th>{{#if (eq locale 'bn')}}পণ্য{{else}}Product{{/if}}</th>
+      <th>{{#if (eq locale 'bn')}}পরিমাণ{{else}}Qty{{/if}}</th>
+      <th>{{#if (eq locale 'bn')}}মূল্য{{else}}Price{{/if}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each items}}
+    <tr>
+      <td>{{this.name}}</td>
+      <td>{{this.quantity}}</td>
+      <td class="amount">৳{{this.price}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<p><strong>{{#if (eq locale 'bn')}}সাবটোটাল:{{else}}Subtotal:{{/if}}</strong> <span class="amount">৳{{subtotal}}</span></p>
+<p><strong>{{#if (eq locale 'bn')}}ডেলিভারি চার্জ:{{else}}Shipping:{{/if}}</strong> <span class="amount">৳{{shipping}}</span></p>
+{{#if discount}}<p><strong>{{#if (eq locale 'bn')}}ডিসকাউন্ট:{{else}}Discount:{{/if}}</strong> <span class="amount">-৳{{discount}}</span></p>{{/if}}
+<p style="font-size:18px"><strong>{{#if (eq locale 'bn')}}সর্বমোট:{{else}}Total:{{/if}}</strong> <span class="amount">৳{{total}}</span></p>
+
+<a href="{{trackingUrl}}" class="btn">{{#if (eq locale 'bn')}}অর্ডার ট্র্যাক করুন{{else}}Track Order{{/if}}</a>
