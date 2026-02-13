@@ -1,10 +1,14 @@
 import { Controller, Get, Query } from '@nestjs/common';
 
+import { FacetsService } from './facets.service';
 import { SearchService } from './search.service';
 
 @Controller('search')
 export class SearchController {
-  constructor(private readonly searchService: SearchService) {}
+  constructor(
+    private readonly searchService: SearchService,
+    private readonly facetsService: FacetsService,
+  ) {}
 
   /** GET /search?q=keyword&page=1&limit=20&... */
   @Get()
@@ -41,7 +45,6 @@ export class SearchController {
       q ?? '',
       limit ? Number(limit) : 8,
     );
-
     return { data: results };
   }
 
@@ -51,7 +54,21 @@ export class SearchController {
     const terms = await this.searchService.getPopularSearches(
       limit ? Number(limit) : 10,
     );
-
     return { data: terms };
+  }
+}
+
+@Controller('products')
+export class ProductFacetsController {
+  constructor(private readonly facetsService: FacetsService) {}
+
+  /** GET /products/facets?categoryId=...&q=... — faceted filters */
+  @Get('facets')
+  async getFacets(
+    @Query('categoryId') categoryId?: string,
+    @Query('q') query?: string,
+  ) {
+    const facets = await this.facetsService.getFacets({ categoryId, query });
+    return { data: facets };
   }
 }
