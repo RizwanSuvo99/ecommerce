@@ -33,4 +33,25 @@ export class SearchController {
 
     return { data: result };
   }
+
+  /** GET /search/suggest?q=keyword — autocomplete suggestions */
+  @Get('suggest')
+  async suggest(@Query('q') q: string, @Query('limit') limit?: string) {
+    const results = await this.searchService.suggest(
+      q ?? '',
+      limit ? Number(limit) : 8,
+    );
+
+    return { data: results };
+  }
+
+  /** GET /search/popular — trending search terms */
+  @Get('popular')
+  async popular(@Query('limit') limit?: string) {
+    const terms = await this.searchService.getPopularSearches(
+      limit ? Number(limit) : 10,
+    );
+
+    return { data: terms };
+  }
 }

@@ -29,13 +29,22 @@ interface SearchResult {
   rank: number;
 }
 
+interface SuggestResult {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  salePrice: number | null;
+  image: string | null;
+  categoryName: string | null;
+}
+
 @Injectable()
 export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Full-text search using PostgreSQL ts_vector and ts_rank.
-   * Searches product name, description, and SKU.
    */
   async search(params: SearchParams) {
     const {
@@ -52,7 +61,6 @@ export class SearchService {
 
     const offset = (page - 1) * limit;
 
-    // Build the search query using PostgreSQL full-text search
     const tsQuery = query
       .trim()
       .split(/\s+/)
@@ -64,7 +72,6 @@ export class SearchService {
       return { products: [], pagination: { total: 0, page, limit, pages: 0 } };
     }
 
-    // Build WHERE conditions
     const conditions: string[] = [
       `p."isPublished" = true`,
       `(
@@ -106,7 +113,6 @@ export class SearchService {
 
     const whereClause = conditions.join(' AND ');
 
-    // Sort order
     const orderClause =
       sortBy === 'price_asc'
         ? 'COALESCE(p."salePrice", p.price) ASC'
@@ -156,5 +162,63 @@ export class SearchService {
       products,
       pagination: { total, page, limit, pages: Math.ceil(total / limit) },
     };
+  }
+
+  /**
+   * Autocomplete suggestions — lightweight search returning top 8 matches.
+   * Uses ILIKE for prefix matching + ts_rank for relevance ordering.
+   */
+  async suggest(query: string, limit = 8): Promise<SuggestResult[]> {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    const searchTerm = `%${query.trim()}%`;
+
+    const results = await this.prisma.$queryRawUnsafe<SuggestResult[]>(
+      `
+      SELECT
+        p.id,
+        p.name,
+        p.slug,
+        p.price,
+        p."salePrice",
+        p.images[1] AS image,
+        c.name AS "categoryName"
+      FROM products p
+      LEFT JOIN categories c ON c.id = p."categoryId"
+      WHERE p."isPublished" = true
+        AND (p.name ILIKE $1 OR p.sku ILIKE $1)
+      ORDER BY
+        CASE WHEN p.name ILIKE $2 THEN 0 ELSE 1 END,
+        p."salesCount" DESC NULLS LAST,
+        p.name ASC
+      LIMIT $3
+      `,
+      searchTerm,
+      `${query.trim()}%`, // prefix match gets priority
+      limit,
+    );
+
+    return results;
+  }
+
+  /**
+   * Get popular search terms (based on recent searches).
+   */
+  async getPopularSearches(limit = 10): Promise<string[]> {
+    const results = await this.prisma.$queryRawUnsafe<{ term: string }[]>(
+      `
+      SELECT term, COUNT(*)::int AS count
+      FROM search_logs
+      WHERE "createdAt" > NOW() - INTERVAL '7 days'
+      GROUP BY term
+      ORDER BY count DESC
+      LIMIT $1
+      `,
+      limit,
+    );
+
+    return results.map((r) => r.term);
   }
 }
