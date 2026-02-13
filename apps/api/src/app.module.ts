@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
+import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { BannersModule } from './banners/banners.module';
 import { BrandsModule } from './brands/brands.module';
@@ -34,6 +35,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     ScheduleModule.forRoot(),
     PrismaModule,
     AdminModule,
+    AuditModule,
     AuthModule,
     BannersModule,
     BrandsModule,
