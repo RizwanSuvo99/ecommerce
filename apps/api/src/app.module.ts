@@ -12,6 +12,7 @@ import { BrandsModule } from './brands/brands.module';
 import { CartModule } from './cart/cart.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { EmailModule } from './email/email.module';
 import { MenusModule } from './menus/menus.module';
 import { OrdersModule } from './orders/orders.module';
 import { PagesModule } from './pages/pages.module';
@@ -44,6 +45,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     CartModule,
     CategoriesModule,
     CouponsModule,
+    EmailModule,
     MenusModule,
     OrdersModule,
     PagesModule,
