@@ -19,6 +19,7 @@ import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { SearchModule } from './search/search.module';
 import { SettingsModule } from './settings/settings.module';
 import { ThemeModule } from './theme/theme.module';
 import { UploadModule } from './upload/upload.module';
@@ -49,6 +50,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     PaymentModule,
     ProductsModule,
     ReviewsModule,
+    SearchModule,
     SettingsModule,
     ThemeModule,
     UploadModule,
