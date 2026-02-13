@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +24,29 @@ export class ReviewsController {
   @UseGuards(JwtAuthGuard)
   async create(@Req() req: any, @Body() dto: CreateReviewDto) {
     return { data: await this.reviewsService.create(req.user.id, dto) };
+  }
+
+  /** GET /reviews/product/:productId — list approved reviews for a product */
+  @Get('product/:productId')
+  async getProductReviews(
+    @Param('productId') productId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('sortBy') sortBy?: 'newest' | 'highest' | 'lowest' | 'helpful',
+  ) {
+    return {
+      data: await this.reviewsService.getProductReviews(productId, {
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 10,
+        sortBy: sortBy ?? 'newest',
+      }),
+    };
+  }
+
+  /** GET /reviews/product/:productId/stats — aggregated review stats */
+  @Get('product/:productId/stats')
+  async getReviewStats(@Param('productId') productId: string) {
+    return { data: await this.reviewsService.getReviewStats(productId) };
   }
 
   /** GET /reviews/:id — get a review */

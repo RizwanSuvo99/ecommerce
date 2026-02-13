@@ -14,7 +14,6 @@ export class ReviewsService {
 
   /** Submit a review (customer must have purchased the product). */
   async create(userId: string, dto: CreateReviewDto) {
-    // Check for duplicate review
     const existing = await this.prisma.review.findFirst({
       where: { userId, productId: dto.productId },
     });
@@ -23,7 +22,6 @@ export class ReviewsService {
       throw new ConflictException('You have already reviewed this product');
     }
 
-    // Verify user has purchased this product (optional strict mode)
     const hasPurchased = await this.prisma.orderItem.findFirst({
       where: {
         productId: dto.productId,
@@ -37,7 +35,7 @@ export class ReviewsService {
       );
     }
 
-    const review = await this.prisma.review.create({
+    return this.prisma.review.create({
       data: {
         userId,
         productId: dto.productId,
@@ -51,8 +49,6 @@ export class ReviewsService {
         user: { select: { id: true, name: true } },
       },
     });
-
-    return review;
   }
 
   /** Get a single review by ID. */
@@ -97,5 +93,76 @@ export class ReviewsService {
 
     await this.prisma.review.delete({ where: { id } });
     return { deleted: true };
+  }
+
+  /** Get paginated reviews for a product (only approved). */
+  async getProductReviews(
+    productId: string,
+    params: {
+      page?: number;
+      limit?: number;
+      sortBy?: 'newest' | 'highest' | 'lowest' | 'helpful';
+    },
+  ) {
+    const { page = 1, limit = 10, sortBy = 'newest' } = params;
+    const skip = (page - 1) * limit;
+
+    const orderBy: Record<string, unknown> =
+      sortBy === 'newest'
+        ? { createdAt: 'desc' }
+        : sortBy === 'highest'
+          ? { rating: 'desc' }
+          : sortBy === 'lowest'
+            ? { rating: 'asc' }
+            : { helpfulCount: 'desc' };
+
+    const where = { productId, status: 'APPROVED' };
+
+    const [reviews, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+        include: {
+          user: { select: { id: true, name: true } },
+        },
+      }),
+      this.prisma.review.count({ where }),
+    ]);
+
+    return {
+      reviews,
+      pagination: { total, page, limit, pages: Math.ceil(total / limit) },
+    };
+  }
+
+  /** Get aggregate review statistics for a product. */
+  async getReviewStats(productId: string) {
+    const [stats, distribution] = await Promise.all([
+      this.prisma.review.aggregate({
+        where: { productId, status: 'APPROVED' },
+        _avg: { rating: true },
+        _count: { id: true },
+      }),
+      // Get count per rating (1-5)
+      this.prisma.review.groupBy({
+        by: ['rating'],
+        where: { productId, status: 'APPROVED' },
+        _count: { id: true },
+        orderBy: { rating: 'desc' },
+      }),
+    ]);
+
+    const ratingDistribution: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    for (const row of distribution) {
+      ratingDistribution[row.rating] = row._count.id;
+    }
+
+    return {
+      averageRating: Math.round((stats._avg.rating ?? 0) * 10) / 10,
+      totalReviews: stats._count.id,
+      ratingDistribution,
+    };
   }
 }
