@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Ecommerce Team' }],
   creator: 'Ecommerce',
   publisher: 'Ecommerce',
+  manifest: '/manifest.json',
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   ),
@@ -62,11 +63,16 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'E-Commerce',
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: light)', color: '#1e40af' },
     { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
   ],
   width: 'device-width',
@@ -85,6 +91,13 @@ export default function RootLayout({
       className={`${inter.variable} ${notoSansBengali.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="E-Commerce" />
+      </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
       </body>
