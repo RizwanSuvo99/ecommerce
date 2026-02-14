@@ -13,8 +13,18 @@ interface Category {
   slug: string;
   description: string | null;
   image: string | null;
+  productCount?: number;
   _count?: { products: number };
   children?: Category[];
+}
+
+function getCatProductCount(cat: Category): number {
+  const own = cat.productCount ?? cat._count?.products ?? 0;
+  const childTotal = (cat.children ?? []).reduce(
+    (sum, c) => sum + getCatProductCount(c),
+    0,
+  );
+  return own + childTotal;
 }
 
 // Category background images from Unsplash
@@ -55,7 +65,7 @@ export default function CategoriesPage() {
   }, []);
 
   const totalProducts = categories.reduce(
-    (sum, cat) => sum + (cat._count?.products ?? 0),
+    (sum, cat) => sum + getCatProductCount(cat),
     0,
   );
 
@@ -127,86 +137,93 @@ export default function CategoriesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-10">
             {categories.map((cat, idx) => {
+              const totalCount = getCatProductCount(cat);
+              const hasChildren = cat.children && cat.children.length > 0;
               const isTall = idx < 2;
               const bgImage = CATEGORY_IMAGES[cat.slug];
 
+              // Skip categories with zero products and no children
+              if (totalCount === 0 && !hasChildren) return null;
+
               return (
-                <Link
-                  key={cat.id}
-                  href={`/categories/${cat.slug}`}
-                  className={`group relative overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
-                    isTall
-                      ? 'sm:row-span-2 h-72 sm:h-80 lg:h-[420px]'
-                      : 'h-56'
-                  }`}
-                >
-                  {/* Background image */}
-                  {bgImage ? (
-                    <img
-                      src={bgImage}
-                      alt={cat.name}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700" />
-                  )}
-
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-gray-900/10 group-hover:from-gray-900/85" />
-
-                  {/* Content */}
-                  <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
-                    {/* Product count badge */}
-                    {cat._count?.products !== undefined && (
-                      <span className="mb-3 inline-flex w-fit items-center gap-1 rounded-full bg-teal-500/90 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                        <Sparkles className="h-3 w-3" />
-                        {cat._count.products} products
-                      </span>
+                <section key={cat.id}>
+                  {/* Parent category card */}
+                  <Link
+                    href={`/categories/${cat.slug}`}
+                    className={`group relative block overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+                      isTall ? 'h-72 sm:h-80' : 'h-56'
+                    }`}
+                  >
+                    {bgImage ? (
+                      <img
+                        src={bgImage}
+                        alt={cat.name}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-700" />
                     )}
 
-                    <h3 className="text-xl font-bold text-white sm:text-2xl">
-                      {cat.name}
-                    </h3>
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-gray-900/10 group-hover:from-gray-900/85" />
 
-                    {cat.nameBn && (
-                      <p className="mt-0.5 text-sm text-gray-300">
-                        {cat.nameBn}
-                      </p>
-                    )}
+                    <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                      {totalCount > 0 && (
+                        <span className="mb-3 inline-flex w-fit items-center gap-1 rounded-full bg-teal-500/90 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                          <Sparkles className="h-3 w-3" />
+                          {totalCount} products
+                        </span>
+                      )}
 
-                    {cat.description && isTall && (
-                      <p className="mt-2 text-sm text-gray-300 line-clamp-2">
-                        {cat.description}
-                      </p>
-                    )}
+                      <h3 className="text-xl font-bold text-white sm:text-2xl">
+                        {cat.name}
+                      </h3>
 
-                    {/* Subcategory chips */}
-                    {cat.children && cat.children.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {cat.children.slice(0, isTall ? 6 : 4).map((sub) => (
-                          <span
+                      {cat.nameBn && (
+                        <p className="mt-0.5 text-sm text-gray-300">
+                          {cat.nameBn}
+                        </p>
+                      )}
+
+                      {cat.description && isTall && (
+                        <p className="mt-2 text-sm text-gray-300 line-clamp-2">
+                          {cat.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:opacity-100 group-hover:bg-white/20">
+                      <ChevronRight className="h-5 w-5 text-white" />
+                    </div>
+                  </Link>
+
+                  {/* Subcategory grid */}
+                  {hasChildren && (
+                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                      {cat.children!.map((sub) => {
+                        const subCount =
+                          sub.productCount ?? sub._count?.products ?? 0;
+                        return (
+                          <Link
                             key={sub.id}
-                            className="rounded-full bg-white/20 px-2.5 py-1 text-xs text-white backdrop-blur-sm transition-colors group-hover:bg-white/30"
+                            href={`/categories/${sub.slug}`}
+                            className="group/sub flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 transition-all hover:border-teal-300 hover:shadow-md hover:-translate-y-0.5"
                           >
-                            {sub.name}
-                          </span>
-                        ))}
-                        {cat.children.length > (isTall ? 6 : 4) && (
-                          <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs text-gray-300">
-                            +{cat.children.length - (isTall ? 6 : 4)} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Hover arrow */}
-                  <div className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:opacity-100 group-hover:bg-white/20">
-                    <ChevronRight className="h-5 w-5 text-white" />
-                  </div>
-                </Link>
+                            <span className="text-sm font-medium text-gray-700 group-hover/sub:text-teal-700 truncate">
+                              {sub.name}
+                            </span>
+                            {subCount > 0 && (
+                              <span className="ml-2 flex-shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 group-hover/sub:bg-teal-50 group-hover/sub:text-teal-600">
+                                {subCount}
+                              </span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
               );
             })}
           </div>
