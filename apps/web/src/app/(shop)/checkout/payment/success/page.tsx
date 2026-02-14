@@ -97,7 +97,7 @@ export default function PaymentSuccessPage() {
         <div className="space-y-3">
           {orderId && (
             <Link
-              href={`/orders/${orderId}/tracking`}
+              href={`/account/orders/${orderId}`}
               className="flex items-center justify-center gap-2 w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
             >
               <Package className="w-5 h-5" />

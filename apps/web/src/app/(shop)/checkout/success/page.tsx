@@ -200,7 +200,7 @@ export default function CheckoutSuccessPage() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             {orderNumber && (
               <Link
-                href={`/orders/${orderNumber}`}
+                href={`/account/orders/${orderNumber}`}
                 className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition-colors w-full sm:w-auto text-center"
               >
                 Track Your Order
