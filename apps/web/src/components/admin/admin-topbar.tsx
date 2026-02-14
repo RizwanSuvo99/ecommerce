@@ -10,6 +10,8 @@ import {
   Settings,
   Store,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
@@ -23,9 +25,10 @@ import { cn } from '@/lib/utils';
 interface AdminTopbarProps {
   sidebarCollapsed: boolean;
   onMenuToggle: () => void;
+  onDesktopToggle?: () => void;
 }
 
-export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps) {
+export function AdminTopbar({ sidebarCollapsed, onMenuToggle, onDesktopToggle }: AdminTopbarProps) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,13 +47,11 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
 
   return (
     <header
-      className={cn(
-        'sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 transition-all duration-300',
-        sidebarCollapsed ? 'ml-16' : 'ml-64',
-      )}
+      className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4"
     >
       {/* Left side */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Mobile menu toggle */}
         <button
           onClick={onMenuToggle}
           className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 lg:hidden"
@@ -58,6 +59,21 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
         >
           <Menu className="h-5 w-5" />
         </button>
+
+        {/* Desktop sidebar collapse toggle */}
+        {onDesktopToggle && (
+          <button
+            onClick={onDesktopToggle}
+            className="hidden rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 lg:block"
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen className="h-5 w-5" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5" />
+            )}
+          </button>
+        )}
 
         {/* Search */}
         <div className="relative hidden md:block">
@@ -67,13 +83,13 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
             placeholder="Search orders, products, customers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-80 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-64 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 lg:w-80"
           />
         </div>
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Visit store link */}
         <Link
           href="/"
@@ -90,7 +106,7 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
         </button>
 
         {/* User menu */}
@@ -106,9 +122,14 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
               <p className="text-sm font-medium text-gray-700">
                 {user?.fullName ?? 'Admin'}
               </p>
-              <p className="text-xs text-gray-500">Administrator</p>
+              <p className="text-xs text-gray-500">
+                {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Administrator'}
+              </p>
             </div>
-            <ChevronDown className="hidden h-4 w-4 text-gray-400 md:block" />
+            <ChevronDown className={cn(
+              'hidden h-4 w-4 text-gray-400 transition-transform md:block',
+              showUserMenu && 'rotate-180',
+            )} />
           </button>
 
           {/* Dropdown */}
@@ -123,7 +144,7 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle }: AdminTopbarProps
                 Settings
               </Link>
               <Link
-                href="/dashboard"
+                href="/account"
                 className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => setShowUserMenu(false)}
               >

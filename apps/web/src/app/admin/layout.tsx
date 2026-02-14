@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -26,6 +26,19 @@ export default function AdminLayout({
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const toggleDesktopSidebar = useCallback(() => {
+    setSidebarCollapsed((prev) => !prev);
+  }, []);
+
+  const toggleMobileSidebar = useCallback(() => {
+    setMobileSidebarOpen((prev) => !prev);
+  }, []);
+
+  const closeMobileSidebar = useCallback(() => {
+    setMobileSidebarOpen(false);
+  }, []);
 
   // Show loading state
   if (isLoading) {
@@ -47,27 +60,38 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Mobile backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={closeMobileSidebar}
+        />
+      )}
+
       {/* Sidebar */}
       <AdminSidebar
         collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onToggle={toggleDesktopSidebar}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={closeMobileSidebar}
       />
 
       {/* Main content area */}
       <div
         className={cn(
           'flex min-h-screen flex-col transition-all duration-300',
-          sidebarCollapsed ? 'ml-16' : 'ml-64',
+          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64',
         )}
       >
         {/* Top bar */}
         <AdminTopbar
-          sidebarCollapsed={false}
-          onMenuToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          sidebarCollapsed={sidebarCollapsed}
+          onMenuToggle={toggleMobileSidebar}
+          onDesktopToggle={toggleDesktopSidebar}
         />
 
         {/* Page content */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );
