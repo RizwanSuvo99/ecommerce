@@ -1,0 +1,79 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":automergeMinor",
+    "group:monorepos",
+    "group:recommended"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "timezone": "Asia/Dhaka",
+  "schedule": ["before 7am on Monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates for non-major dependencies",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group NestJS packages together",
+      "matchPackagePatterns": ["^@nestjs/"],
+      "groupName": "NestJS packages",
+      "groupSlug": "nestjs"
+    },
+    {
+      "description": "Group Next.js and React packages together",
+      "matchPackagePatterns": ["^next", "^react", "^@types/react"],
+      "groupName": "Next.js and React",
+      "groupSlug": "nextjs-react"
+    },
+    {
+      "description": "Group Prisma packages together",
+      "matchPackagePatterns": ["^@prisma/", "^prisma$"],
+      "groupName": "Prisma",
+      "groupSlug": "prisma"
+    },
+    {
+      "description": "Group testing packages together",
+      "matchPackagePatterns": ["jest", "testing-library", "playwright", "vitest"],
+      "groupName": "Testing packages",
+      "groupSlug": "testing"
+    },
+    {
+      "description": "Group TypeScript and ESLint packages",
+      "matchPackagePatterns": ["typescript", "eslint", "prettier"],
+      "groupName": "TypeScript & Linting",
+      "groupSlug": "typescript-linting"
+    },
+    {
+      "description": "Group Tailwind CSS packages",
+      "matchPackagePatterns": ["tailwindcss", "postcss", "autoprefixer"],
+      "groupName": "Tailwind CSS",
+      "groupSlug": "tailwindcss"
+    },
+    {
+      "description": "Disable major updates for Node.js",
+      "matchPackageNames": ["node"],
+      "enabled": false,
+      "matchUpdateTypes": ["major"]
+    },
+    {
+      "description": "Pin Docker digests",
+      "matchDatasources": ["docker"],
+      "pinDigests": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true,
+    "automergeType": "pr"
+  },
+  "ignoreDeps": [],
+  "postUpdateOptions": ["pnpmDedupe"]
+}
