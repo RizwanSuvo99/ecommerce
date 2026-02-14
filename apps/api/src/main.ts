@@ -3,6 +3,7 @@ import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { AppModule } from './app.module';
+import { setupSwagger } from './common/swagger/swagger.config';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -42,6 +43,12 @@ async function bootstrap(): Promise<void> {
       disableErrorMessages: configService.get<string>('NODE_ENV') === 'production',
     }),
   );
+
+  // Swagger API documentation (available at /api/docs)
+  if (configService.get<string>('NODE_ENV') !== 'production') {
+    setupSwagger(app);
+    logger.log('Swagger documentation available at: /api/docs');
+  }
 
   // Graceful shutdown
   app.enableShutdownHooks();
