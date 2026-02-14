@@ -15,6 +15,7 @@ import { CouponsModule } from './coupons/coupons.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
 import { MenusModule } from './menus/menus.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 import { OrdersModule } from './orders/orders.module';
 import { PagesModule } from './pages/pages.module';
 import { PaymentModule } from './payment/payment.module';
@@ -49,6 +50,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     EmailModule,
     HealthModule,
     MenusModule,
+    NewsletterModule,
     OrdersModule,
     PagesModule,
     PaymentModule,
