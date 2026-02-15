@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,9 +14,12 @@ import {
   Star,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { apiClient } from '@/lib/api/client';
 import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { apiClient } from '@/lib/api/client';
 
 // Normalized shape used by the UI
 interface Product {
@@ -68,7 +69,7 @@ function normalizeProduct(raw: any): Product {
 }
 
 function normalizePagination(meta: any): Pagination | null {
-  if (!meta) return null;
+  if (!meta) {return null;}
   return {
     total: meta.total ?? 0,
     page: meta.page ?? 1,
@@ -114,8 +115,7 @@ export default function ProductsPage() {
   const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Wishlist state (local only)
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  const { wishlist, toggleWishlist } = useWishlist();
 
   // Fetch categories and brands for filters
   useEffect(() => {
@@ -167,10 +167,10 @@ export default function ProductsPage() {
       const [sortField, sortOrder] = sortBy.split(':');
       params.set('sortBy', sortField);
       params.set('sortOrder', sortOrder);
-      if (selectedCategory) params.set('categorySlug', selectedCategory);
-      if (minPrice) params.set('priceMin', minPrice);
-      if (maxPrice) params.set('priceMax', maxPrice);
-      if (selectedBrand) params.set('brandSlug', selectedBrand);
+      if (selectedCategory) {params.set('categorySlug', selectedCategory);}
+      if (minPrice) {params.set('priceMin', minPrice);}
+      if (maxPrice) {params.set('priceMax', maxPrice);}
+      if (selectedBrand) {params.set('brandSlug', selectedBrand);}
       const { data } = await apiClient.get(`/products?${params}`);
       const rawList = data.data?.products ?? data.data ?? [];
       const productList = rawList.map(normalizeProduct);
@@ -208,19 +208,11 @@ export default function ProductsPage() {
     setPage(1);
   };
 
-  const toggleWishlist = (productId: string) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      if (next.has(productId)) next.delete(productId);
-      else next.add(productId);
-      return next;
-    });
-  };
 
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) return;
+    if (product.stock <= 0) {return;}
     addItem({ productId: product.id, quantity: 1 });
   };
 
@@ -230,19 +222,19 @@ export default function ProductsPage() {
 
   // Pagination helpers
   const paginationRange = useMemo(() => {
-    if (!pagination) return [];
+    if (!pagination) {return [];}
     const { pages: totalPages } = pagination;
     const range: (number | 'ellipsis')[] = [];
 
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) range.push(i);
+      for (let i = 1; i <= totalPages; i++) {range.push(i);}
     } else {
       range.push(1);
-      if (page > 3) range.push('ellipsis');
+      if (page > 3) {range.push('ellipsis');}
       const start = Math.max(2, page - 1);
       const end = Math.min(totalPages - 1, page + 1);
-      for (let i = start; i <= end; i++) range.push(i);
-      if (page < totalPages - 2) range.push('ellipsis');
+      for (let i = start; i <= end; i++) {range.push(i);}
+      if (page < totalPages - 2) {range.push('ellipsis');}
       range.push(totalPages);
     }
 
@@ -284,7 +276,7 @@ export default function ProductsPage() {
               : catCount;
 
             // Skip categories with no products at all
-            if (totalCount === 0 && !hasChildren) return null;
+            if (totalCount === 0 && !hasChildren) {return null;}
 
             return (
               <li key={cat.id}>
@@ -313,7 +305,7 @@ export default function ProductsPage() {
                   <ul className="ml-3 border-l border-gray-200 pl-2 space-y-0.5">
                     {cat.children!.map((sub) => {
                       const subCount = sub.productCount ?? sub._count?.products ?? 0;
-                      if (subCount === 0) return null;
+                      if (subCount === 0) {return null;}
                       return (
                         <li key={sub.id}>
                           <button
@@ -926,7 +918,7 @@ export default function ProductsPage() {
                     ) : (
                       <button
                         key={item}
-                        onClick={() => setPage(item as number)}
+                        onClick={() => setPage(item)}
                         className={`min-w-[36px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                           item === page
                             ? 'bg-teal-600 text-white shadow-sm'

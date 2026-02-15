@@ -1,12 +1,13 @@
 'use client';
 
+import { Heart, Search, ShoppingCart, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { Heart, Search, ShoppingCart, Star } from 'lucide-react';
 
-import { apiClient } from '@/lib/api/client';
 import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { apiClient } from '@/lib/api/client';
 
 interface Product {
   id: string;
@@ -66,10 +67,10 @@ export default function SearchPage() {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('createdAt:desc');
   const [loading, setLoading] = useState(false);
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  const { wishlist, toggleWishlist } = useWishlist();
 
   const fetchResults = useCallback(async () => {
-    if (!q) return;
+    if (!q) {return;}
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -110,18 +111,11 @@ export default function SearchPage() {
 
   const formatPrice = (price: number) => `৳${price.toLocaleString('en-BD')}`;
 
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
 
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) return;
+    if (product.stock <= 0) {return;}
     addItem({ productId: product.id, quantity: 1 });
   };
 

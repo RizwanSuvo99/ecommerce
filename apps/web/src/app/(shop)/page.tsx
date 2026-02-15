@@ -1,9 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import { apiClient } from '@/lib/api/client';
-import { useCart } from '@/hooks/use-cart';
 import {
   ShoppingCart,
   Star,
@@ -18,6 +14,13 @@ import {
   Zap,
   TrendingUp,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState, useCallback } from 'react';
+
+import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { apiClient } from '@/lib/api/client';
+
 
 // ────────────────────────────────────────────────────────────────────────────
 // Types
@@ -77,7 +80,7 @@ function formatBDT(amount: number): string {
 }
 
 function discountPercent(price: number, compare?: number): number {
-  if (!compare || compare <= price) return 0;
+  if (!compare || compare <= price) {return 0;}
   return Math.round((1 - price / compare) * 100);
 }
 
@@ -145,9 +148,9 @@ export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
+  const { wishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
     async function fetchData() {
@@ -186,13 +189,6 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  const toggleWishlist = useCallback((id: string) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }, []);
 
   const handleAddToCart = useCallback(
     (product: Product) => {

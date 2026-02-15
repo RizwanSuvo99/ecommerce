@@ -1,8 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
 import {
   ChevronRight,
   Heart,
@@ -11,9 +8,13 @@ import {
   Star,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
-import { apiClient } from '@/lib/api/client';
 import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { apiClient } from '@/lib/api/client';
 
 interface Product {
   id: string;
@@ -95,7 +96,7 @@ export default function CategoryPage() {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  const { wishlist, toggleWishlist } = useWishlist();
 
   // Fetch category info
   useEffect(() => {
@@ -121,9 +122,9 @@ export default function CategoryPage() {
       const [sortField = 'createdAt', sortOrder = 'desc'] = sortBy.split(':');
       params.set('sortBy', sortField);
       params.set('sortOrder', sortOrder);
-      if (minPrice) params.set('priceMin', minPrice);
-      if (maxPrice) params.set('priceMax', maxPrice);
-      if (selectedBrand) params.set('brandSlug', selectedBrand);
+      if (minPrice) {params.set('priceMin', minPrice);}
+      if (maxPrice) {params.set('priceMax', maxPrice);}
+      if (selectedBrand) {params.set('brandSlug', selectedBrand);}
 
       const { data } = await apiClient.get(`/products?${params}`);
       const rawList = data.data?.products ?? data.data ?? [];
@@ -172,19 +173,11 @@ export default function CategoryPage() {
     setPage(1);
   };
 
-  const toggleWishlist = (productId: string) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      if (next.has(productId)) next.delete(productId);
-      else next.add(productId);
-      return next;
-    });
-  };
 
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) return;
+    if (product.stock <= 0) {return;}
     addItem({ productId: product.id, quantity: 1 });
   };
 
