@@ -10,12 +10,31 @@ interface Product {
   name: string;
   slug: string;
   price: number;
-  salePrice: number | null;
+  compareAtPrice: number | null;
   images: string[];
   averageRating: number;
   reviewCount: number;
   categoryName: string | null;
   brandName: string | null;
+}
+
+function normalizeProduct(raw: any): Product {
+  const price = Number(raw.price);
+  const cap = raw.compareAtPrice ? Number(raw.compareAtPrice) : null;
+  return {
+    id: raw.id,
+    name: raw.name,
+    slug: raw.slug,
+    price,
+    compareAtPrice: cap && cap > price ? cap : null,
+    images: Array.isArray(raw.images)
+      ? raw.images.map((img: any) => (typeof img === 'string' ? img : img.url))
+      : [],
+    averageRating: Number(raw.averageRating ?? 0),
+    reviewCount: raw._count?.reviews ?? raw.totalReviews ?? 0,
+    categoryName: raw.category?.name ?? null,
+    brandName: raw.brand?.name ?? null,
+  };
 }
 
 export default function DealsPage() {
@@ -24,10 +43,11 @@ export default function DealsPage() {
 
   useEffect(() => {
     apiClient
-      .get('/products?sortBy=discount&limit=30')
+      .get('/products?limit=60&sortBy=price&sortOrder=asc')
       .then(({ data }) => {
-        const items: Product[] = data.data?.products ?? data.data ?? [];
-        setProducts(items.filter((p) => p.salePrice && p.salePrice < p.price));
+        const rawList = data.data?.products ?? data.data ?? [];
+        const normalized = rawList.map(normalizeProduct);
+        setProducts(normalized.filter((p) => p.compareAtPrice !== null));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -87,9 +107,9 @@ export default function DealsPage() {
                     No Image
                   </div>
                 )}
-                {product.salePrice && (
+                {product.compareAtPrice && (
                   <span className="absolute left-2 top-2 rounded-md bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">
-                    {Math.round(((product.price - product.salePrice) / product.price) * 100)}% OFF
+                    {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
                   </span>
                 )}
               </div>
@@ -114,10 +134,10 @@ export default function DealsPage() {
                 )}
                 <div className="mt-2 flex items-center gap-2">
                   <span className="text-sm font-bold text-red-600">
-                    {formatPrice(product.salePrice!)}
+                    {formatPrice(product.price)}
                   </span>
                   <span className="text-xs text-gray-400 line-through">
-                    {formatPrice(product.price)}
+                    {formatPrice(product.compareAtPrice!)}
                   </span>
                 </div>
               </div>
