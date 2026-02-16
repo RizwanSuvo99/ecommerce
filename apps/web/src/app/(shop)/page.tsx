@@ -86,24 +86,40 @@ const HERO_SLIDES = [
     subtitle: 'Discover the finest traditional & modern wear',
     cta: 'Shop Now',
     href: '/categories/fashion',
-    bgColor: 'from-teal-700 via-teal-800 to-emerald-900',
-    image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1400&h=500&fit=crop&q=80',
+    overlay: 'from-black/70 via-black/50 to-black/30',
+    image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1400&h=700&fit=crop&q=80',
   },
   {
     title: 'Electronics Festival',
     subtitle: 'Up to 40% off on smartphones & gadgets',
     cta: 'Explore Deals',
     href: '/categories/electronics',
-    bgColor: 'from-blue-700 via-blue-800 to-indigo-900',
-    image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1400&h=500&fit=crop&q=80',
+    overlay: 'from-blue-900/75 via-blue-900/50 to-blue-900/25',
+    image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1400&h=700&fit=crop&q=80',
+  },
+  {
+    title: 'Home & Living Sale',
+    subtitle: 'Transform your space with up to 30% off furniture & decor',
+    cta: 'Shop Home',
+    href: '/categories/home-living',
+    overlay: 'from-emerald-900/75 via-emerald-900/50 to-emerald-900/25',
+    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1400&h=700&fit=crop&q=80',
+  },
+  {
+    title: 'Beauty & Wellness',
+    subtitle: 'Premium skincare, makeup & self-care essentials',
+    cta: 'Explore Beauty',
+    href: '/categories/beauty-health',
+    overlay: 'from-rose-900/70 via-rose-900/45 to-rose-900/20',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1400&h=700&fit=crop&q=80',
   },
   {
     title: 'Free Delivery Week',
     subtitle: 'Free shipping on all orders over ৳1,000',
     cta: 'Shop All',
     href: '/products',
-    bgColor: 'from-orange-600 via-red-600 to-rose-700',
-    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&h=500&fit=crop&q=80',
+    overlay: 'from-orange-900/70 via-orange-900/45 to-orange-900/20',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&h=700&fit=crop&q=80',
   },
 ];
 
@@ -295,65 +311,106 @@ export default function HomePage() {
     ));
   }
 
-  const slide = HERO_SLIDES[heroIndex];
-
   return (
     <div className="min-h-screen">
       {/* ─── Hero Carousel ───────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div
-          className={`bg-gradient-to-r ${slide.bgColor} relative px-4 py-16 text-white transition-all duration-700 md:py-24`}
-        >
-          {/* Decorative elements */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/5" />
-            <div className="absolute -bottom-10 -left-10 h-60 w-60 rounded-full bg-white/5" />
-            <div className="absolute right-1/4 top-1/3 h-40 w-40 rounded-full bg-white/5" />
-          </div>
+      <section className="relative h-[420px] overflow-hidden sm:h-[480px] md:h-[540px] lg:h-[600px]">
+        {/* Slide images — all stacked, opacity controls visibility */}
+        {HERO_SLIDES.map((slide, i) => (
+          <div
+            key={i}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              i === heroIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
+          >
+            {/* Background image with zoom on active */}
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[6000ms] ease-out ${
+                i === heroIndex ? 'scale-110' : 'scale-100'
+              }`}
+            />
 
-          <div className="relative mx-auto max-w-7xl">
-            <div className="max-w-xl">
-              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-                <Sparkles className="h-3 w-3" /> Limited Time Offer
-              </span>
-              <h1 className="mb-4 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
-                {slide.title}
-              </h1>
-              <p className="mb-8 text-lg text-white/85 md:text-xl">{slide.subtitle}</p>
-              <Link
-                href={slide.href}
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 font-semibold text-gray-900 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
-              >
-                {slide.cta}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+            {/* Gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-r ${slide.overlay}`} />
+
+            {/* Content */}
+            <div className="relative flex h-full items-center">
+              <div className="mx-auto w-full max-w-7xl px-4">
+                <div className="max-w-xl">
+                  <span
+                    className={`mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-all duration-700 delay-200 ${
+                      i === heroIndex ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                    }`}
+                  >
+                    <Sparkles className="h-3 w-3" /> Limited Time Offer
+                  </span>
+                  <h1
+                    className={`mb-4 text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl transition-all duration-700 delay-300 ${
+                      i === heroIndex ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                    }`}
+                  >
+                    {slide.title}
+                  </h1>
+                  <p
+                    className={`mb-8 text-lg text-white/85 md:text-xl transition-all duration-700 delay-[400ms] ${
+                      i === heroIndex ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                    }`}
+                  >
+                    {slide.subtitle}
+                  </p>
+                  <Link
+                    href={slide.href}
+                    className={`inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 font-semibold text-gray-900 shadow-lg transition-all duration-700 delay-500 hover:scale-105 hover:shadow-xl ${
+                      i === heroIndex ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                    }`}
+                  >
+                    {slide.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        ))}
 
         {/* Carousel controls */}
         <button
           onClick={() => setHeroIndex((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all hover:bg-white/40"
+          className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/25 p-2.5 text-white backdrop-blur-sm transition-all hover:bg-black/40 hover:scale-110"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={() => setHeroIndex((i) => (i + 1) % HERO_SLIDES.length)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all hover:bg-white/40"
+          className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/25 p-2.5 text-white backdrop-blur-sm transition-all hover:bg-black/40 hover:scale-110"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
 
         {/* Indicators */}
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
           {HERO_SLIDES.map((_, i) => (
             <button
               key={i}
               onClick={() => setHeroIndex(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${i === heroIndex ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'}`}
+              className={`h-2.5 rounded-full transition-all duration-500 ${
+                i === heroIndex
+                  ? 'w-10 bg-white shadow-lg'
+                  : 'w-2.5 bg-white/40 hover:bg-white/60'
+              }`}
             />
           ))}
+        </div>
+
+        {/* Progress bar */}
+        <div className="absolute bottom-0 left-0 z-20 h-1 w-full bg-white/10">
+          <div
+            key={heroIndex}
+            className="h-full bg-white/60 animate-[progress_5s_linear]"
+            style={{ animationFillMode: 'forwards' }}
+          />
         </div>
       </section>
 
