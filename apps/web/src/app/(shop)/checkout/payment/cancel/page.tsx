@@ -58,7 +58,7 @@ export default function PaymentCancelPage() {
           {orderId && (
             <Link
               href="/checkout"
-              className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex items-center justify-center gap-2 w-full bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 transition-colors font-medium"
             >
               <ArrowLeft className="w-5 h-5" />
               Return to Checkout
