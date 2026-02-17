@@ -2317,6 +2317,696 @@ async function seedThemeSettings() {
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
+// Seed: Menus (relational)
+// ──────────────────────────────────────────────────────────────────────────────
+
+async function seedMenus() {
+  console.log('Seeding menus...');
+
+  const headerMenu = await prisma.menu.upsert({
+    where: { id: 'seed-menu-header' },
+    update: {},
+    create: {
+      id: 'seed-menu-header',
+      name: 'Header Menu',
+      location: 'HEADER',
+    },
+  });
+
+  const footerMenu = await prisma.menu.upsert({
+    where: { id: 'seed-menu-footer' },
+    update: {},
+    create: {
+      id: 'seed-menu-footer',
+      name: 'Footer Menu',
+      location: 'FOOTER',
+    },
+  });
+
+  // Header menu items
+  const headerItems = [
+    { id: 'seed-mi-home', label: 'Home', labelBn: 'হোম', url: '/', position: 0 },
+    { id: 'seed-mi-shop', label: 'Shop', labelBn: 'শপ', url: '/shop', position: 1 },
+    { id: 'seed-mi-categories', label: 'Categories', labelBn: 'ক্যাটাগরি', url: '/categories', position: 2 },
+    { id: 'seed-mi-deals', label: 'Deals', labelBn: 'ডিলস', url: '/deals', position: 3 },
+    { id: 'seed-mi-contact', label: 'Contact', labelBn: 'যোগাযোগ', url: '/contact', position: 4 },
+  ];
+
+  for (const item of headerItems) {
+    await prisma.menuItem.upsert({
+      where: { id: item.id },
+      update: {},
+      create: { ...item, menuId: headerMenu.id },
+    });
+  }
+
+  // Footer menu items
+  const footerItems = [
+    { id: 'seed-mi-about', label: 'About Us', labelBn: 'আমাদের সম্পর্কে', url: '/about', position: 0 },
+    { id: 'seed-mi-privacy', label: 'Privacy Policy', labelBn: 'গোপনীয়তা নীতি', url: '/privacy', position: 1 },
+    { id: 'seed-mi-terms', label: 'Terms of Service', labelBn: 'সেবার শর্তাবলী', url: '/terms', position: 2 },
+    { id: 'seed-mi-returns', label: 'Returns', labelBn: 'রিটার্নস', url: '/returns', position: 3 },
+    { id: 'seed-mi-faq', label: 'FAQ', labelBn: 'জিজ্ঞাসা', url: '/faq', position: 4 },
+  ];
+
+  for (const item of footerItems) {
+    await prisma.menuItem.upsert({
+      where: { id: item.id },
+      update: {},
+      create: { ...item, menuId: footerMenu.id },
+    });
+  }
+
+  console.log('  Seeded 2 menus with items (header, footer)');
+}
+
+// Seed: Customers & Orders
+// ──────────────────────────────────────────────────────────────────────────────
+
+async function seedOrders() {
+  console.log('Seeding customers & orders...');
+
+  // ── 1. Create customer users ──────────────────────────────────────────────
+  const customerPw = await hashPassword('Customer@2025!');
+
+  const customers = [
+    { id: 'seed-cust-1', email: 'rahim@example.com', firstName: 'Abdur', lastName: 'Rahim', phone: '+8801711111111' },
+    { id: 'seed-cust-2', email: 'karim@example.com', firstName: 'Abdul', lastName: 'Karim', phone: '+8801722222222' },
+    { id: 'seed-cust-3', email: 'fatima@example.com', firstName: 'Fatima', lastName: 'Akter', phone: '+8801733333333' },
+    { id: 'seed-cust-4', email: 'hasan@example.com', firstName: 'Md.', lastName: 'Hasan', phone: '+8801744444444' },
+    { id: 'seed-cust-5', email: 'nusrat@example.com', firstName: 'Nusrat', lastName: 'Jahan', phone: '+8801755555555' },
+    { id: 'seed-cust-6', email: 'tanvir@example.com', firstName: 'Tanvir', lastName: 'Ahmed', phone: '+8801766666666' },
+  ];
+
+  for (const c of customers) {
+    await prisma.user.upsert({
+      where: { email: c.email },
+      update: {},
+      create: {
+        id: c.id,
+        email: c.email,
+        password: customerPw,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        phone: c.phone,
+        role: 'CUSTOMER',
+        status: 'ACTIVE',
+        emailVerified: true,
+      },
+    });
+  }
+
+  // ── 2. Create addresses ───────────────────────────────────────────────────
+  const addresses = [
+    { id: 'seed-addr-1', userId: 'seed-cust-1', fullName: 'Abdur Rahim', phone: '+8801711111111', addressLine1: '12/A Dhanmondi R/A', division: 'Dhaka', district: 'Dhaka', area: 'Dhanmondi', postalCode: '1205' },
+    { id: 'seed-addr-2', userId: 'seed-cust-2', fullName: 'Abdul Karim', phone: '+8801722222222', addressLine1: '45 Gulshan Avenue', division: 'Dhaka', district: 'Dhaka', area: 'Gulshan', postalCode: '1212' },
+    { id: 'seed-addr-3', userId: 'seed-cust-3', fullName: 'Fatima Akter', phone: '+8801733333333', addressLine1: '78 Agrabad C/A', division: 'Chittagong', district: 'Chittagong', area: 'Agrabad', postalCode: '4100' },
+    { id: 'seed-addr-4', userId: 'seed-cust-4', fullName: 'Md. Hasan', phone: '+8801744444444', addressLine1: '23 Shahbag Road', division: 'Dhaka', district: 'Dhaka', area: 'Shahbag', postalCode: '1000' },
+    { id: 'seed-addr-5', userId: 'seed-cust-5', fullName: 'Nusrat Jahan', phone: '+8801755555555', addressLine1: '56 Rajshahi Court', division: 'Rajshahi', district: 'Rajshahi', area: 'Court Area', postalCode: '6000' },
+    { id: 'seed-addr-6', userId: 'seed-cust-6', fullName: 'Tanvir Ahmed', phone: '+8801766666666', addressLine1: '89 Uttara Sector 7', division: 'Dhaka', district: 'Dhaka', area: 'Uttara', postalCode: '1230' },
+  ];
+
+  for (const a of addresses) {
+    await prisma.address.upsert({
+      where: { id: a.id },
+      update: {},
+      create: { ...a, label: 'Home', isDefault: true },
+    });
+  }
+
+  // ── 3. Fetch products for order items ─────────────────────────────────────
+  const products = await prisma.product.findMany({
+    take: 15,
+    select: { id: true, name: true, slug: true, sku: true, price: true, images: { select: { url: true }, take: 1 } },
+  });
+
+  const p = (i: number) => products[i % products.length];
+  const img = (i: number) => p(i).images[0]?.url ?? null;
+
+  // ── 4. Helper to create an order ──────────────────────────────────────────
+  const daysAgo = (d: number) => new Date(Date.now() - d * 86400000);
+
+  let orderNum = 1000;
+  const makeOrder = async (opts: {
+    id: string;
+    userId: string;
+    addressId: string;
+    status: string;
+    paymentStatus: string;
+    paymentMethod: string;
+    shippingMethodId: string;
+    items: { productIdx: number; qty: number }[];
+    createdDaysAgo: number;
+    couponCode?: string;
+    discountAmount?: number;
+    notes?: string;
+    cancelledAt?: Date;
+    cancellationReason?: string;
+    deliveredAt?: Date;
+    trackingNumber?: string;
+    carrier?: string;
+  }) => {
+    orderNum++;
+    const orderDate = daysAgo(opts.createdDaysAgo);
+    const itemsData = opts.items.map((it, idx) => {
+      const prod = p(it.productIdx);
+      const unitPrice = Number(prod.price);
+      return {
+        id: `${opts.id}-item-${idx}`,
+        productId: prod.id,
+        productName: prod.name,
+        productSlug: prod.slug,
+        productImage: img(it.productIdx),
+        sku: prod.sku,
+        quantity: it.qty,
+        unitPrice,
+        totalPrice: unitPrice * it.qty,
+      };
+    });
+
+    const subtotal = itemsData.reduce((s, i) => s + i.totalPrice, 0);
+    const shippingCost = opts.shippingMethodId === 'seed-ship-dhaka' ? 60 : opts.shippingMethodId === 'seed-ship-express' ? 150 : 120;
+    const discount = opts.discountAmount ?? 0;
+    const totalAmount = subtotal + shippingCost - discount;
+
+    // Check if order already exists
+    const existing = await prisma.order.findUnique({ where: { id: opts.id } });
+    if (existing) return;
+
+    await prisma.order.create({
+      data: {
+        id: opts.id,
+        orderNumber: `ORD-20260${String(orderNum)}`,
+        userId: opts.userId,
+        status: opts.status as any,
+        subtotal,
+        shippingCost,
+        taxAmount: 0,
+        discountAmount: discount,
+        totalAmount,
+        shippingAddressId: opts.addressId,
+        couponCode: opts.couponCode ?? null,
+        notes: opts.notes ?? null,
+        cancelledAt: opts.cancelledAt ?? null,
+        cancellationReason: opts.cancellationReason ?? null,
+        deliveredAt: opts.deliveredAt ?? null,
+        createdAt: orderDate,
+        items: {
+          createMany: {
+            data: itemsData.map((it) => ({
+              id: it.id,
+              productId: it.productId,
+              productName: it.productName,
+              productSlug: it.productSlug,
+              productImage: it.productImage,
+              sku: it.sku,
+              quantity: it.quantity,
+              unitPrice: it.unitPrice,
+              totalPrice: it.totalPrice,
+            })),
+          },
+        },
+        payments: {
+          create: {
+            id: `${opts.id}-pay`,
+            method: opts.paymentMethod as any,
+            status: opts.paymentStatus as any,
+            amount: totalAmount,
+            transactionId: opts.paymentMethod !== 'CASH_ON_DELIVERY' ? `TXN-${opts.id.slice(-6).toUpperCase()}` : null,
+            paidAt: ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED'].includes(opts.paymentStatus) ? orderDate : null,
+            refundedAt: ['REFUNDED', 'PARTIALLY_REFUNDED'].includes(opts.paymentStatus) ? daysAgo(opts.createdDaysAgo - 1) : null,
+            refundAmount: opts.paymentStatus === 'REFUNDED' ? totalAmount : opts.paymentStatus === 'PARTIALLY_REFUNDED' ? Math.round(totalAmount * 0.5) : null,
+          },
+        },
+        shipping: {
+          create: {
+            id: `${opts.id}-ship`,
+            shippingMethodId: opts.shippingMethodId,
+            trackingNumber: opts.trackingNumber ?? null,
+            carrier: opts.carrier ?? null,
+            shippedAt: ['SHIPPED', 'DELIVERED', 'RETURNED'].includes(opts.status) ? daysAgo(opts.createdDaysAgo - 1) : null,
+            deliveredAt: ['DELIVERED', 'RETURNED'].includes(opts.status) ? daysAgo(opts.createdDaysAgo - 3) : null,
+          },
+        },
+      },
+    });
+  };
+
+  // ── 5. Seed orders in various statuses ────────────────────────────────────
+
+  // PENDING orders (recent)
+  await makeOrder({
+    id: 'seed-ord-pending-1', userId: 'seed-cust-1', addressId: 'seed-addr-1',
+    status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: 'CASH_ON_DELIVERY',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 0, qty: 1 }, { productIdx: 5, qty: 2 }],
+    createdDaysAgo: 0,
+    notes: 'Please deliver after 5 PM',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-pending-2', userId: 'seed-cust-3', addressId: 'seed-addr-3',
+    status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 3, qty: 1 }],
+    createdDaysAgo: 0,
+  });
+
+  await makeOrder({
+    id: 'seed-ord-pending-3', userId: 'seed-cust-5', addressId: 'seed-addr-5',
+    status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: 'NAGAD',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 6, qty: 1 }, { productIdx: 8, qty: 1 }, { productIdx: 11, qty: 2 }],
+    createdDaysAgo: 1,
+  });
+
+  // CONFIRMED orders
+  await makeOrder({
+    id: 'seed-ord-confirmed-1', userId: 'seed-cust-2', addressId: 'seed-addr-2',
+    status: 'CONFIRMED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 1, qty: 1 }, { productIdx: 10, qty: 1 }],
+    createdDaysAgo: 2,
+  });
+
+  await makeOrder({
+    id: 'seed-ord-confirmed-2', userId: 'seed-cust-4', addressId: 'seed-addr-4',
+    status: 'CONFIRMED', paymentStatus: 'PAID', paymentMethod: 'NAGAD',
+    shippingMethodId: 'seed-ship-express',
+    items: [{ productIdx: 14, qty: 1 }],
+    createdDaysAgo: 1,
+  });
+
+  // PROCESSING orders
+  await makeOrder({
+    id: 'seed-ord-processing-1', userId: 'seed-cust-6', addressId: 'seed-addr-6',
+    status: 'PROCESSING', paymentStatus: 'PAID', paymentMethod: 'CREDIT_CARD',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 4, qty: 1 }, { productIdx: 5, qty: 1 }],
+    createdDaysAgo: 3,
+  });
+
+  await makeOrder({
+    id: 'seed-ord-processing-2', userId: 'seed-cust-1', addressId: 'seed-addr-1',
+    status: 'PROCESSING', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 7, qty: 2 }, { productIdx: 9, qty: 1 }],
+    createdDaysAgo: 4,
+  });
+
+  // SHIPPED orders
+  await makeOrder({
+    id: 'seed-ord-shipped-1', userId: 'seed-cust-2', addressId: 'seed-addr-2',
+    status: 'SHIPPED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 12, qty: 3 }, { productIdx: 13, qty: 5 }],
+    createdDaysAgo: 5,
+    trackingNumber: 'PTH-20260212-7845', carrier: 'Pathao Courier',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-shipped-2', userId: 'seed-cust-3', addressId: 'seed-addr-3',
+    status: 'SHIPPED', paymentStatus: 'PAID', paymentMethod: 'NAGAD',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 2, qty: 1 }],
+    createdDaysAgo: 6,
+    trackingNumber: 'SFC-20260211-3291', carrier: 'Steadfast Courier',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-shipped-3', userId: 'seed-cust-5', addressId: 'seed-addr-5',
+    status: 'SHIPPED', paymentStatus: 'PAID', paymentMethod: 'CASH_ON_DELIVERY',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 6, qty: 1 }, { productIdx: 10, qty: 2 }],
+    createdDaysAgo: 4,
+    trackingNumber: 'RDX-20260213-5567', carrier: 'RedX',
+  });
+
+  // DELIVERED orders
+  await makeOrder({
+    id: 'seed-ord-delivered-1', userId: 'seed-cust-1', addressId: 'seed-addr-1',
+    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 0, qty: 1 }],
+    createdDaysAgo: 14,
+    trackingNumber: 'PTH-20260203-1234', carrier: 'Pathao Courier',
+    deliveredAt: daysAgo(10),
+  });
+
+  await makeOrder({
+    id: 'seed-ord-delivered-2', userId: 'seed-cust-4', addressId: 'seed-addr-4',
+    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'CREDIT_CARD',
+    shippingMethodId: 'seed-ship-express',
+    items: [{ productIdx: 3, qty: 1 }, { productIdx: 5, qty: 1 }],
+    createdDaysAgo: 21,
+    trackingNumber: 'PTH-20260127-8899', carrier: 'Pathao Courier',
+    deliveredAt: daysAgo(17),
+  });
+
+  await makeOrder({
+    id: 'seed-ord-delivered-3', userId: 'seed-cust-6', addressId: 'seed-addr-6',
+    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'NAGAD',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 8, qty: 1 }, { productIdx: 9, qty: 1 }, { productIdx: 11, qty: 3 }],
+    createdDaysAgo: 30,
+    trackingNumber: 'SFC-20260118-4455', carrier: 'Steadfast Courier',
+    deliveredAt: daysAgo(26),
+  });
+
+  await makeOrder({
+    id: 'seed-ord-delivered-4', userId: 'seed-cust-2', addressId: 'seed-addr-2',
+    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 7, qty: 1 }],
+    createdDaysAgo: 45,
+    trackingNumber: 'PTH-20260103-6677', carrier: 'Pathao Courier',
+    deliveredAt: daysAgo(41),
+    couponCode: 'EID25', discountAmount: 1150,
+  });
+
+  // CANCELLED orders
+  await makeOrder({
+    id: 'seed-ord-cancelled-1', userId: 'seed-cust-3', addressId: 'seed-addr-3',
+    status: 'CANCELLED', paymentStatus: 'CANCELLED', paymentMethod: 'CASH_ON_DELIVERY',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 14, qty: 1 }],
+    createdDaysAgo: 10,
+    cancelledAt: daysAgo(9), cancellationReason: 'Changed my mind, found a better price elsewhere.',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-cancelled-2', userId: 'seed-cust-4', addressId: 'seed-addr-4',
+    status: 'CANCELLED', paymentStatus: 'REFUNDED', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 1, qty: 1 }, { productIdx: 12, qty: 2 }],
+    createdDaysAgo: 8,
+    cancelledAt: daysAgo(7), cancellationReason: 'Ordered by mistake.',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-cancelled-3', userId: 'seed-cust-6', addressId: 'seed-addr-6',
+    status: 'CANCELLED', paymentStatus: 'CANCELLED', paymentMethod: 'NAGAD',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 10, qty: 3 }],
+    createdDaysAgo: 15,
+    cancelledAt: daysAgo(14), cancellationReason: 'Delivery time was too long.',
+  });
+
+  // RETURNED orders
+  await makeOrder({
+    id: 'seed-ord-returned-1', userId: 'seed-cust-1', addressId: 'seed-addr-1',
+    status: 'RETURNED', paymentStatus: 'REFUNDED', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 7, qty: 1 }],
+    createdDaysAgo: 20,
+    trackingNumber: 'PTH-20260128-1122', carrier: 'Pathao Courier',
+    deliveredAt: daysAgo(16),
+    notes: 'Product was defective — screen had dead pixels.',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-returned-2', userId: 'seed-cust-5', addressId: 'seed-addr-5',
+    status: 'RETURNED', paymentStatus: 'REFUNDED', paymentMethod: 'CREDIT_CARD',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 6, qty: 2 }],
+    createdDaysAgo: 25,
+    trackingNumber: 'SFC-20260123-9988', carrier: 'Steadfast Courier',
+    deliveredAt: daysAgo(21),
+    notes: 'Size did not match description, returning both items.',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-returned-3', userId: 'seed-cust-2', addressId: 'seed-addr-2',
+    status: 'RETURNED', paymentStatus: 'PARTIALLY_REFUNDED', paymentMethod: 'NAGAD',
+    shippingMethodId: 'seed-ship-dhaka',
+    items: [{ productIdx: 0, qty: 1 }, { productIdx: 5, qty: 1 }],
+    createdDaysAgo: 35,
+    trackingNumber: 'RDX-20260113-4477', carrier: 'RedX',
+    deliveredAt: daysAgo(30),
+    notes: 'Returning headphones only — phone is fine. Partial refund processed.',
+  });
+
+  await makeOrder({
+    id: 'seed-ord-returned-4', userId: 'seed-cust-4', addressId: 'seed-addr-4',
+    status: 'RETURNED', paymentStatus: 'REFUNDED', paymentMethod: 'BKASH',
+    shippingMethodId: 'seed-ship-express',
+    items: [{ productIdx: 9, qty: 1 }, { productIdx: 10, qty: 1 }, { productIdx: 11, qty: 1 }],
+    createdDaysAgo: 18,
+    trackingNumber: 'PTH-20260130-5566', carrier: 'Pathao Courier',
+    deliveredAt: daysAgo(14),
+    notes: 'Items arrived damaged during shipping.',
+  });
+
+  // REFUNDED order (separate from returned)
+  await makeOrder({
+    id: 'seed-ord-refunded-1', userId: 'seed-cust-3', addressId: 'seed-addr-3',
+    status: 'CANCELLED', paymentStatus: 'REFUNDED', paymentMethod: 'CREDIT_CARD',
+    shippingMethodId: 'seed-ship-outside',
+    items: [{ productIdx: 4, qty: 1 }],
+    createdDaysAgo: 12,
+    cancelledAt: daysAgo(11), cancellationReason: 'Payment was charged but order was not confirmed in time. Full refund issued.',
+  });
+
+  console.log('  Seeded 6 customers, 6 addresses, 22 orders across all statuses');
+}
+
+// ---------------------------------------------------------------------------
+// Seed: Reviews
+// ---------------------------------------------------------------------------
+
+async function seedReviews() {
+  console.log('Seeding reviews...');
+
+  // Grab products and customers to link reviews
+  const products = await prisma.product.findMany({ take: 12, select: { id: true, name: true } });
+  const customers = await prisma.user.findMany({
+    where: { role: 'CUSTOMER' },
+    take: 6,
+    select: { id: true },
+  });
+
+  if (products.length === 0 || customers.length === 0) {
+    console.log('  Skipping reviews — no products or customers found');
+    return;
+  }
+
+  const reviewData: {
+    id: string;
+    productId: string;
+    userId: string;
+    rating: number;
+    title: string | null;
+    comment: string | null;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    adminReply: string | null;
+    repliedAt: Date | null;
+    isVerified: boolean;
+  }[] = [
+    {
+      id: 'seed-rev-01',
+      productId: products[0].id,
+      userId: customers[0].id,
+      rating: 5,
+      title: 'Excellent product!',
+      comment: 'Works perfectly and arrived on time. Very happy with the purchase.',
+      status: 'APPROVED',
+      adminReply: 'Thank you for your kind review!',
+      repliedAt: new Date(),
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-02',
+      productId: products[1].id,
+      userId: customers[0].id,
+      rating: 4,
+      title: 'Good quality',
+      comment: 'Nice product overall. Packaging could be better though.',
+      status: 'APPROVED',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-03',
+      productId: products[2].id,
+      userId: customers[1].id,
+      rating: 3,
+      title: 'Average experience',
+      comment: 'Product is okay but not as described. The color was slightly different from the photos.',
+      status: 'APPROVED',
+      adminReply: 'We apologize for the discrepancy. Please contact support for a resolution.',
+      repliedAt: new Date(),
+      isVerified: false,
+    },
+    {
+      id: 'seed-rev-04',
+      productId: products[3].id,
+      userId: customers[1].id,
+      rating: 5,
+      title: 'Amazing value for money',
+      comment: 'Best purchase I have made this year. Highly recommend to everyone!',
+      status: 'APPROVED',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-05',
+      productId: products[4].id,
+      userId: customers[2].id,
+      rating: 1,
+      title: 'Very disappointed',
+      comment: 'Product broke after 2 days of use. Terrible quality.',
+      status: 'APPROVED',
+      adminReply: 'We are sorry to hear that. A replacement has been initiated.',
+      repliedAt: new Date(),
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-06',
+      productId: products[5].id,
+      userId: customers[2].id,
+      rating: 4,
+      title: null,
+      comment: 'Good product, fast shipping.',
+      status: 'PENDING',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: false,
+    },
+    {
+      id: 'seed-rev-07',
+      productId: products[6].id,
+      userId: customers[3].id,
+      rating: 5,
+      title: 'Superb!',
+      comment: 'Exceeded my expectations. The build quality is outstanding.',
+      status: 'PENDING',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-08',
+      productId: products[7].id,
+      userId: customers[3].id,
+      rating: 2,
+      title: 'Not worth the price',
+      comment: 'Too expensive for what you get. There are better alternatives available.',
+      status: 'PENDING',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: false,
+    },
+    {
+      id: 'seed-rev-09',
+      productId: products[0].id,
+      userId: customers[4].id,
+      rating: 4,
+      title: 'Great product',
+      comment: 'Using it daily. Battery life could be better but overall a solid buy.',
+      status: 'APPROVED',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-10',
+      productId: products[8 % products.length].id,
+      userId: customers[4].id,
+      rating: 1,
+      title: 'SPAM - Fake listing!',
+      comment: 'This is clearly a fake product. DO NOT BUY!!! Scam seller!!!',
+      status: 'REJECTED',
+      adminReply: 'This review has been rejected for violating our community guidelines.',
+      repliedAt: new Date(),
+      isVerified: false,
+    },
+    {
+      id: 'seed-rev-11',
+      productId: products[9 % products.length].id,
+      userId: customers[5 % customers.length].id,
+      rating: 5,
+      title: 'Love it',
+      comment: 'Perfect gift for my wife. She absolutely loved it.',
+      status: 'PENDING',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-12',
+      productId: products[10 % products.length].id,
+      userId: customers[5 % customers.length].id,
+      rating: 3,
+      title: null,
+      comment: 'Delivery was delayed by 3 days. Product itself is fine.',
+      status: 'APPROVED',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: false,
+    },
+    {
+      id: 'seed-rev-13',
+      productId: products[3].id,
+      userId: customers[4].id,
+      rating: 2,
+      title: 'Contains profanity and abuse',
+      comment: 'This review contains inappropriate content that violates guidelines.',
+      status: 'REJECTED',
+      adminReply: 'Review removed for violating community standards.',
+      repliedAt: new Date(),
+      isVerified: false,
+    },
+    {
+      id: 'seed-rev-14',
+      productId: products[5].id,
+      userId: customers[0].id,
+      rating: 5,
+      title: 'Second time buying',
+      comment: 'Bought this again for my brother. Consistent quality!',
+      status: 'APPROVED',
+      adminReply: 'Glad you came back! Thank you for your loyalty.',
+      repliedAt: new Date(),
+      isVerified: true,
+    },
+    {
+      id: 'seed-rev-15',
+      productId: products[1].id,
+      userId: customers[3].id,
+      rating: 4,
+      title: 'Pretty good',
+      comment: 'Works as advertised. Would buy again.',
+      status: 'PENDING',
+      adminReply: null,
+      repliedAt: null,
+      isVerified: true,
+    },
+  ];
+
+  let created = 0;
+  for (const r of reviewData) {
+    try {
+      await prisma.review.upsert({
+        where: { id: r.id },
+        update: {},
+        create: r,
+      });
+      created++;
+    } catch (err: any) {
+      // Skip duplicate (productId, userId) constraint violations
+      if (err?.code === 'P2002') continue;
+      throw err;
+    }
+  }
+
+  console.log(`  Seeded ${created} reviews (${reviewData.filter((r) => r.status === 'PENDING').length} pending, ${reviewData.filter((r) => r.status === 'APPROVED').length} approved, ${reviewData.filter((r) => r.status === 'REJECTED').length} rejected)`);
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
 async function main() {
   console.log('Starting database seed...\n');
 
@@ -2327,10 +3017,13 @@ async function main() {
   await seedPages();
   await seedBanners();
   await seedNavigationMenus();
+  await seedMenus();
   await seedShippingMethods();
   await seedSettings();
   await seedEmailTemplates();
   await seedThemeSettings();
+  await seedOrders();
+  await seedReviews();
 
   console.log('\nSeed completed successfully.');
 }
