@@ -221,9 +221,28 @@ export class ProductsService {
     }
 
     if (categoryId) {
-      where.categoryId = categoryId;
+      // Include products from child categories as well
+      const childCategories = await this.prisma.category.findMany({
+        where: { parentId: categoryId },
+        select: { id: true },
+      });
+      const ids = [categoryId, ...childCategories.map((c) => c.id)];
+      where.categoryId = { in: ids };
     } else if (categorySlug) {
-      where.category = { slug: categorySlug };
+      // Look up the category and its children to include all products in the tree
+      const category = await this.prisma.category.findUnique({
+        where: { slug: categorySlug },
+        select: {
+          id: true,
+          children: { select: { id: true } },
+        },
+      });
+      if (category) {
+        const ids = [category.id, ...category.children.map((c) => c.id)];
+        where.categoryId = { in: ids };
+      } else {
+        where.category = { slug: categorySlug };
+      }
     }
 
     if (brandId) {
