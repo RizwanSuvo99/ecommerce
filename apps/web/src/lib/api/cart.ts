@@ -1,5 +1,3 @@
-import type { ApiResponse } from '@ecommerce/types';
-
 import { apiClient } from './client';
 
 // ──────────────────────────────────────────────────────────
@@ -101,20 +99,20 @@ function sessionHeaders(): Record<string, string> {
  * Fetch the current cart.
  */
 export async function getCart(): Promise<Cart> {
-  const { data } = await apiClient.get<ApiResponse<Cart>>('/cart', {
+  const { data } = await apiClient.get<Cart>('/cart', {
     headers: sessionHeaders(),
   });
-  return data.data;
+  return data;
 }
 
 /**
  * Add an item to the cart.
  */
 export async function addCartItem(payload: AddCartItemPayload): Promise<Cart> {
-  const { data } = await apiClient.post<ApiResponse<Cart>>('/cart/items', payload, {
+  const { data } = await apiClient.post<Cart>('/cart/items', payload, {
     headers: sessionHeaders(),
   });
-  return data.data;
+  return data;
 }
 
 /**
@@ -124,61 +122,61 @@ export async function updateCartItem(
   itemId: string,
   payload: UpdateCartItemPayload,
 ): Promise<Cart> {
-  const { data } = await apiClient.patch<ApiResponse<Cart>>(
+  const { data } = await apiClient.patch<Cart>(
     `/cart/items/${itemId}`,
     payload,
     { headers: sessionHeaders() },
   );
-  return data.data;
+  return data;
 }
 
 /**
  * Remove an item from the cart.
  */
 export async function removeCartItem(itemId: string): Promise<Cart> {
-  const { data } = await apiClient.delete<ApiResponse<Cart>>(
+  const { data } = await apiClient.delete<Cart>(
     `/cart/items/${itemId}`,
     { headers: sessionHeaders() },
   );
-  return data.data;
+  return data;
 }
 
 /**
  * Clear all items from the cart.
  */
 export async function clearCart(): Promise<Cart> {
-  const { data } = await apiClient.delete<ApiResponse<Cart>>('/cart/items', {
+  const { data } = await apiClient.delete<Cart>('/cart/items', {
     headers: sessionHeaders(),
   });
-  return data.data;
+  return data;
 }
 
 /**
  * Apply a coupon code to the cart.
  */
 export async function applyCoupon(payload: ApplyCouponPayload): Promise<Cart> {
-  const { data } = await apiClient.post<ApiResponse<Cart>>('/cart/coupon', payload, {
+  const { data } = await apiClient.post<Cart>('/cart/coupon', payload, {
     headers: sessionHeaders(),
   });
-  return data.data;
+  return data;
 }
 
 /**
  * Remove the applied coupon from the cart.
  */
 export async function removeCoupon(): Promise<Cart> {
-  const { data } = await apiClient.delete<ApiResponse<Cart>>('/cart/coupon', {
+  const { data } = await apiClient.delete<Cart>('/cart/coupon', {
     headers: sessionHeaders(),
   });
-  return data.data;
+  return data;
 }
 
 /**
  * Merge a guest cart into the authenticated user's cart (called after login).
  */
 export async function mergeCart(): Promise<Cart> {
-  const { data } = await apiClient.post<ApiResponse<Cart>>('/cart/merge', null, {
+  const { data } = await apiClient.post<Cart>('/cart/merge', null, {
     headers: sessionHeaders(),
   });
-  return data.data;
+  return data;
 }
