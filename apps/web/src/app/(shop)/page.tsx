@@ -404,14 +404,6 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Progress bar */}
-        <div className="absolute bottom-0 left-0 z-20 h-1 w-full bg-white/10">
-          <div
-            key={heroIndex}
-            className="h-full bg-white/60 animate-[progress_5s_linear]"
-            style={{ animationFillMode: 'forwards' }}
-          />
-        </div>
       </section>
 
       {/* ─── Shop by Category ────────────────────────────────────────── */}
