@@ -12,7 +12,7 @@ const footerLinks = {
     { label: 'My Account', href: '/account' },
     { label: 'Order History', href: '/account/orders' },
     { label: 'Wishlist', href: '/account/wishlist' },
-    { label: 'Track Order', href: '/account/orders' },
+    { label: 'Track Order', href: '/orders/track' },
   ],
   info: [
     { label: 'About Us', href: '/about' },
