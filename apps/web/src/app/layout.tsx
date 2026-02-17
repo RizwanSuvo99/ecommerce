@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_Bengali } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
 
 import { Providers } from '@/providers';
 
@@ -101,6 +102,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="E-Commerce" />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
+        <NextTopLoader color="#0d9488" height={3} showSpinner={false} />
         <Providers>{children}</Providers>
       </body>
     </html>
