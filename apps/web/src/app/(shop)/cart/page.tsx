@@ -96,7 +96,7 @@ function CartItemRow({ item }: CartItemRowProps) {
       <div className="flex-1 min-w-0">
         <Link
           href={`/products/${item.product.slug}`}
-          className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
+          className="text-base font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-1"
         >
           {item.product.name}
         </Link>
@@ -223,7 +223,7 @@ function CouponInput() {
             setError(null);
           }}
           placeholder="Enter coupon code"
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+          className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-colors"
         />
         <button
           type="button"
@@ -312,7 +312,7 @@ function OrderSummary() {
         className={`mt-6 block w-full rounded-xl py-3.5 text-center text-sm font-semibold text-white transition-colors ${
           isUpdating || cart.items.length === 0
             ? 'bg-gray-300 cursor-not-allowed pointer-events-none'
-            : 'bg-blue-600 hover:bg-blue-700'
+            : 'bg-teal-600 hover:bg-teal-700'
         }`}
       >
         Proceed to Checkout
@@ -374,7 +374,7 @@ function EmptyCartPage() {
 
       <Link
         href="/"
-        className="rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+        className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
       >
         Start Shopping
       </Link>
@@ -393,7 +393,7 @@ export default function CartPage() {
     return (
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-center py-20">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-teal-600" />
         </div>
       </div>
     );
@@ -453,7 +453,7 @@ export default function CartPage() {
           <div className="mt-6">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

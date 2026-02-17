@@ -93,7 +93,7 @@ function CartItemRow({ item }: CartItemRowProps) {
         <div>
           <Link
             href={`/products/${item.product.slug}`}
-            className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+            className="text-sm font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-2"
           >
             {item.product.name}
           </Link>
@@ -179,7 +179,7 @@ function EmptyCartState() {
       <button
         type="button"
         onClick={closeCart}
-        className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-teal-700 transition-colors"
       >
         Continue Shopping
       </button>
@@ -258,7 +258,7 @@ export function CartDrawer() {
         {/* Loading state */}
         {isLoading ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-teal-600" />
           </div>
         ) : !cart || cart.items.length === 0 ? (
           <EmptyCartState />
@@ -314,7 +314,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={closeCart}
-                className="block w-full rounded-lg bg-blue-600 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                className="block w-full rounded-lg bg-teal-600 py-3 text-center text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
               >
                 Proceed to Checkout
               </Link>
