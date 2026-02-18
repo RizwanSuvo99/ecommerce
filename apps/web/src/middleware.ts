@@ -44,10 +44,18 @@ const AUTH_ROUTES = [
 const PROTECTED_PREFIXES = [
   '/account',
   '/orders',
-  '/checkout',
   '/dashboard',
   '/wishlist',
   '/settings',
+];
+
+/**
+ * Paths under protected prefixes that guests are allowed to access
+ * (e.g. checkout flow and guest order tracking).
+ */
+const GUEST_ALLOWED_PATHS = [
+  '/checkout',
+  '/orders/track',
 ];
 
 /** Cookie name used to store the access token (must match tokens.ts). */
@@ -81,6 +89,12 @@ function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+function isGuestAllowed(pathname: string): boolean {
+  return GUEST_ALLOWED_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
+}
+
 // ──────────────────────────────────────────────────────────
 // Middleware
 // ──────────────────────────────────────────────────────────
@@ -103,7 +117,7 @@ export function middleware(request: NextRequest) {
   }
 
   // ── Unauthenticated user visiting protected routes → login ──
-  if (!isAuthenticated && isProtectedRoute(pathname)) {
+  if (!isAuthenticated && isProtectedRoute(pathname) && !isGuestAllowed(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = LOGIN_PATH;
     url.searchParams.set('redirect', pathname);
