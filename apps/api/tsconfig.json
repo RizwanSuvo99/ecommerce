@@ -1,6 +1,27 @@
 {
-  "extends": "@ecommerce/tsconfig/nestjs.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "removeComments": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "sourceMap": true,
     "baseUrl": ".",
     "outDir": "./dist",
     "paths": {
@@ -16,12 +37,5 @@
     }
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test",
-    "coverage",
-    "**/*.spec.ts",
-    "**/*.e2e-spec.ts"
-  ]
+  "exclude": ["node_modules", "dist", "test", "coverage", "**/*.spec.ts", "**/*.e2e-spec.ts"]
 }

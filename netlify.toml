@@ -1,0 +1,12 @@
+[build]
+  command = "cd ../.. && npx pnpm install --frozen-lockfile=false && SKIP_ENV_VALIDATION=1 npx turbo run build --filter=@ecommerce/web"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  SKIP_ENV_VALIDATION = "1"
+  NEXT_PUBLIC_API_URL = "https://swiftbazaar-api.vercel.app"
+  NEXT_PUBLIC_APP_URL = "https://swiftbazaar-store.netlify.app"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

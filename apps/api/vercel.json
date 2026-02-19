@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "installCommand": "npm install --legacy-peer-deps",
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**", "prisma/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ]
+}
