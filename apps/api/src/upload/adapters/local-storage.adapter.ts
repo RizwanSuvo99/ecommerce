@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -49,9 +50,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     options?: UploadOptions,
   ): Promise<UploadResult> {
     const ext = path.extname(originalName) || this.getExtensionFromMime(mimeType);
-    const filename = options?.filename
-      ? `${options.filename}${ext}`
-      : `${uuidv4()}${ext}`;
+    const filename = options?.filename ? `${options.filename}${ext}` : `${uuidv4()}${ext}`;
 
     // Build the storage path
     const directory = options?.directory || 'general';
@@ -112,8 +111,12 @@ export class LocalStorageAdapter implements StorageAdapter {
    * Ensure a directory exists, creating it recursively if needed.
    */
   private ensureDirectoryExists(dir: string): void {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch {
+      this.logger.warn(`Could not create directory: ${dir} (read-only filesystem?)`);
     }
   }
 

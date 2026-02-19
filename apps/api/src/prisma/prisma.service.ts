@@ -2,10 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
@@ -23,9 +20,13 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    this.logger.log('Connecting to database...');
-    await this.$connect();
-    this.logger.log('Database connected successfully');
+    try {
+      this.logger.log('Connecting to database...');
+      await this.$connect();
+      this.logger.log('Database connected successfully');
+    } catch (error) {
+      this.logger.error('Failed to connect to database:', error.message);
+    }
   }
 
   async onModuleDestroy() {
