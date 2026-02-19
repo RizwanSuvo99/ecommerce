@@ -77,22 +77,30 @@ export default function CategoryPage() {
   useEffect(() => {
     apiClient
       .get(`/categories/slug/${slug}`)
-      .then(({ data }) => setCategory(data.data))
-      .catch(() => {});
+      .then(({ data }: { data: { data: Category } }) => setCategory(data.data))
+      .catch(() => {
+        /* ignore */
+      });
   }, [slug]);
 
   // Fetch facets
   useEffect(() => {
-    if (!category) return;
+    if (!category) {
+      return;
+    }
     apiClient
       .get(`/products/facets?categoryId=${category.id}`)
-      .then(({ data }) => setFacets(data.data))
-      .catch(() => {});
+      .then(({ data }: { data: { data: Facets } }) => setFacets(data.data))
+      .catch(() => {
+        /* ignore */
+      });
   }, [category]);
 
   // Fetch products
   const fetchProducts = useCallback(async () => {
-    if (!category) return;
+    if (!category) {
+      return;
+    }
     setLoading(true);
 
     const params = new URLSearchParams();
@@ -101,15 +109,27 @@ export default function CategoryPage() {
     params.set('page', String(page));
     params.set('limit', '20');
     params.set('sortBy', sortBy);
-    if (selectedBrands.length === 1) params.set('brandId', selectedBrands[0]);
-    if (minPrice) params.set('minPrice', minPrice);
-    if (maxPrice) params.set('maxPrice', maxPrice);
-    if (inStock) params.set('inStock', 'true');
+    if (selectedBrands.length === 1 && selectedBrands[0]) {
+      params.set('brandId', selectedBrands[0]);
+    }
+    if (minPrice) {
+      params.set('minPrice', minPrice);
+    }
+    if (maxPrice) {
+      params.set('maxPrice', maxPrice);
+    }
+    if (inStock) {
+      params.set('inStock', 'true');
+    }
 
     try {
-      const { data } = await apiClient.get(`/search?${params}`);
-      setProducts(data.data.products);
-      setPagination(data.data.pagination);
+      const { data } = await apiClient.get(`/search?${params.toString()}`);
+      setProducts(
+        (data as { data: { products: Product[]; pagination: Pagination } }).data.products,
+      );
+      setPagination(
+        (data as { data: { products: Product[]; pagination: Pagination } }).data.pagination,
+      );
     } catch {
       // handle error
     } finally {
@@ -118,14 +138,12 @@ export default function CategoryPage() {
   }, [category, page, sortBy, selectedBrands, minPrice, maxPrice, inStock]);
 
   useEffect(() => {
-    fetchProducts();
+    void fetchProducts();
   }, [fetchProducts]);
 
   const toggleBrand = (brandId: string) => {
     setSelectedBrands((prev) =>
-      prev.includes(brandId)
-        ? prev.filter((b) => b !== brandId)
-        : [...prev, brandId],
+      prev.includes(brandId) ? prev.filter((b) => b !== brandId) : [...prev, brandId],
     );
     setPage(1);
   };
@@ -136,24 +154,20 @@ export default function CategoryPage() {
     <div className="mx-auto max-w-7xl px-4 py-6">
       {/* Breadcrumb */}
       <nav className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-gray-700">Home</Link>
+        <Link href="/" className="hover:text-gray-700">
+          Home
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">{category?.name ?? slug}</span>
       </nav>
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {category?.name ?? 'Category'}
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">{category?.name ?? 'Category'}</h1>
         {category?.description && (
           <p className="mt-1 text-sm text-gray-500">{category.description}</p>
         )}
-        {pagination && (
-          <p className="mt-1 text-sm text-gray-400">
-            {pagination.total} products
-          </p>
-        )}
+        {pagination && <p className="mt-1 text-sm text-gray-400">{pagination.total} products</p>}
       </div>
 
       <div className="flex gap-6">
@@ -187,7 +201,10 @@ export default function CategoryPage() {
               <input
                 type="number"
                 value={minPrice}
-                onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setMinPrice(e.target.value);
+                  setPage(1);
+                }}
                 placeholder="Min"
                 className="w-full rounded-md border-gray-300 text-sm"
               />
@@ -195,7 +212,10 @@ export default function CategoryPage() {
               <input
                 type="number"
                 value={maxPrice}
-                onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setMaxPrice(e.target.value);
+                  setPage(1);
+                }}
                 placeholder="Max"
                 className="w-full rounded-md border-gray-300 text-sm"
               />
@@ -218,12 +238,17 @@ export default function CategoryPage() {
                       type="radio"
                       name="rating"
                       checked={minRating === r}
-                      onChange={() => { setMinRating(r); setPage(1); }}
+                      onChange={() => {
+                        setMinRating(r);
+                        setPage(1);
+                      }}
                       className="border-gray-300 text-blue-600"
                     />
                     <span className="flex text-sm text-yellow-400">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} className={i < r ? 'text-yellow-400' : 'text-gray-300'}>★</span>
+                        <span key={i} className={i < r ? 'text-yellow-400' : 'text-gray-300'}>
+                          ★
+                        </span>
                       ))}
                     </span>
                     <span className="text-xs text-gray-500">& Up</span>
@@ -239,7 +264,10 @@ export default function CategoryPage() {
               <input
                 type="checkbox"
                 checked={inStock}
-                onChange={(e) => { setInStock(e.target.checked); setPage(1); }}
+                onChange={(e) => {
+                  setInStock(e.target.checked);
+                  setPage(1);
+                }}
                 className="rounded border-gray-300 text-blue-600"
               />
               <span className="text-sm text-gray-700">In Stock Only</span>
@@ -279,11 +307,16 @@ export default function CategoryPage() {
             </button>
             <select
               value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
               className="rounded-md border-gray-300 text-sm shadow-sm"
             >
               {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -320,7 +353,8 @@ export default function CategoryPage() {
                     )}
                     {product.salePrice && (
                       <span className="absolute left-2 top-2 rounded-md bg-red-500 px-1.5 py-0.5 text-xs font-medium text-white">
-                        {Math.round(((product.price - product.salePrice) / product.price) * 100)}% OFF
+                        {Math.round(((product.price - product.salePrice) / product.price) * 100)}%
+                        OFF
                       </span>
                     )}
                   </div>
@@ -337,7 +371,14 @@ export default function CategoryPage() {
                       <div className="mt-1 flex items-center gap-1">
                         <div className="flex text-xs">
                           {[1, 2, 3, 4, 5].map((s) => (
-                            <span key={s} className={s <= Math.round(product.averageRating) ? 'text-yellow-400' : 'text-gray-300'}>
+                            <span
+                              key={s}
+                              className={
+                                s <= Math.round(product.averageRating)
+                                  ? 'text-yellow-400'
+                                  : 'text-gray-300'
+                              }
+                            >
                               ★
                             </span>
                           ))}
@@ -386,9 +427,7 @@ export default function CategoryPage() {
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
                     className={`rounded-md px-3 py-2 text-sm ${
-                      pageNum === page
-                        ? 'bg-blue-600 text-white'
-                        : 'border hover:bg-gray-50'
+                      pageNum === page ? 'bg-blue-600 text-white' : 'border hover:bg-gray-50'
                     }`}
                   >
                     {pageNum}

@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button, Input } from '@ecommerce/ui';
+import { CheckCircle2, Loader2, Mail, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CheckCircle2, Loader2, Mail, XCircle } from 'lucide-react';
-
-import { Button, Input } from '@ecommerce/ui';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '@/hooks/use-auth';
 import { resendVerificationEmail, verifyEmail } from '@/lib/api/auth';
@@ -22,7 +21,7 @@ const RESEND_COOLDOWN_SECONDS = 60;
 // Page component
 // ──────────────────────────────────────────────────────────
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tokenFromUrl = searchParams.get('token');
@@ -77,14 +76,16 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (tokenFromUrl && !hasAutoVerified.current) {
       hasAutoVerified.current = true;
-      handleVerify(tokenFromUrl);
+      void handleVerify(tokenFromUrl);
     }
   }, [tokenFromUrl, handleVerify]);
 
   // ── Resend countdown timer ──────────────────────────────
 
   useEffect(() => {
-    if (resendCountdown <= 0) return;
+    if (resendCountdown <= 0) {
+      return;
+    }
 
     const timer = setInterval(() => {
       setResendCountdown((prev) => prev - 1);
@@ -111,7 +112,7 @@ export default function VerifyEmailPage() {
     if (digit && index === OTP_LENGTH - 1) {
       const fullToken = newOtp.join('');
       if (fullToken.length === OTP_LENGTH) {
-        handleVerify(fullToken);
+        void handleVerify(fullToken);
       }
     }
   }
@@ -130,7 +131,7 @@ export default function VerifyEmailPage() {
       const digits = pasted.split('');
       setOtp(digits);
       inputRefs.current[OTP_LENGTH - 1]?.focus();
-      handleVerify(pasted);
+      void handleVerify(pasted);
     }
   }
 
@@ -168,9 +169,7 @@ export default function VerifyEmailPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Verifying your email...
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Verifying your email...</h1>
           <p className="text-sm text-muted-foreground">
             Please wait while we verify your email address.
           </p>
@@ -188,12 +187,10 @@ export default function VerifyEmailPage() {
           <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Email verified!
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Email verified!</h1>
           <p className="text-sm text-muted-foreground">
-            Your email has been successfully verified. You&apos;ll be redirected
-            to the homepage shortly.
+            Your email has been successfully verified. You&apos;ll be redirected to the homepage
+            shortly.
           </p>
         </div>
         <Button asChild className="w-full max-w-xs">
@@ -212,9 +209,7 @@ export default function VerifyEmailPage() {
           <XCircle className="h-8 w-8 text-destructive" />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Verification failed
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Verification failed</h1>
           <p className="text-sm text-muted-foreground">
             {errorMessage ?? 'We could not verify your email address.'}
           </p>
@@ -231,10 +226,7 @@ export default function VerifyEmailPage() {
                 ? `Resend in ${resendCountdown}s`
                 : 'Resend verification email'}
           </Button>
-          <Link
-            href="/login"
-            className="block text-sm font-medium text-primary hover:underline"
-          >
+          <Link href="/login" className="block text-sm font-medium text-primary hover:underline">
             Back to sign in
           </Link>
         </div>
@@ -251,9 +243,7 @@ export default function VerifyEmailPage() {
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <Mail className="h-8 w-8 text-primary" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Verify your email
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Verify your email</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           We sent a verification code to{' '}
           {user?.email ? (
@@ -322,5 +312,13 @@ export default function VerifyEmailPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="w-full max-w-md" />}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

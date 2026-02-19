@@ -1,14 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Eye, EyeOff } from 'lucide-react';
-import { toast } from 'sonner';
-
 import {
   Button,
   Checkbox,
@@ -20,10 +11,18 @@ import {
   FormLabel,
   FormMessage,
 } from '@ecommerce/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
+import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
 import { useAuth } from '@/hooks/use-auth';
 import { ApiClientError } from '@/lib/api/client';
-import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
 
 // ──────────────────────────────────────────────────────────
 // Validation schema
@@ -39,27 +38,18 @@ const registerSchema = z
       .string()
       .min(1, 'Last name is required')
       .max(50, 'Last name must be 50 characters or fewer'),
-    email: z
-      .string()
-      .min(1, 'Email is required')
-      .email('Please enter a valid email address'),
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
     phone: z
       .string()
       .optional()
-      .refine(
-        (val) => !val || /^\+?[1-9]\d{7,14}$/.test(val),
-        'Please enter a valid phone number',
-      ),
+      .refine((val) => !val || /^\+?[1-9]\d{7,14}$/.test(val), 'Please enter a valid phone number'),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
       .regex(/[0-9]/, 'Password must contain at least one number')
-      .regex(
-        /[^A-Za-z0-9]/,
-        'Password must contain at least one special character',
-      ),
+      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
     acceptTerms: z.literal(true, {
       message: 'You must accept the terms and conditions',
@@ -83,15 +73,31 @@ function getPasswordStrength(password: string): {
 } {
   let score = 0;
 
-  if (password.length >= 8) score += 1;
-  if (password.length >= 12) score += 1;
-  if (/[A-Z]/.test(password)) score += 1;
-  if (/[a-z]/.test(password)) score += 1;
-  if (/[0-9]/.test(password)) score += 1;
-  if (/[^A-Za-z0-9]/.test(password)) score += 1;
+  if (password.length >= 8) {
+    score += 1;
+  }
+  if (password.length >= 12) {
+    score += 1;
+  }
+  if (/[A-Z]/.test(password)) {
+    score += 1;
+  }
+  if (/[a-z]/.test(password)) {
+    score += 1;
+  }
+  if (/[0-9]/.test(password)) {
+    score += 1;
+  }
+  if (/[^A-Za-z0-9]/.test(password)) {
+    score += 1;
+  }
 
-  if (score <= 2) return { score, label: 'Weak', color: 'bg-destructive' };
-  if (score <= 4) return { score, label: 'Fair', color: 'bg-yellow-500' };
+  if (score <= 2) {
+    return { score, label: 'Weak', color: 'bg-destructive' };
+  }
+  if (score <= 4) {
+    return { score, label: 'Fair', color: 'bg-yellow-500' };
+  }
   return { score, label: 'Strong', color: 'bg-green-500' };
 }
 
@@ -99,7 +105,7 @@ function getPasswordStrength(password: string): {
 // Page component
 // ──────────────────────────────────────────────────────────
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const { register: registerUser, isSubmitting } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -161,9 +167,7 @@ export default function RegisterPage() {
     <div className="w-full max-w-md space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Create your account
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Join thousands of happy shoppers and get access to exclusive deals.
         </p>
@@ -240,16 +244,10 @@ export default function RegisterPage() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Phone number{' '}
-                  <span className="text-muted-foreground">(optional)</span>
+                  Phone number <span className="text-muted-foreground">(optional)</span>
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    type="tel"
-                    placeholder="+1234567890"
-                    autoComplete="tel"
-                    {...field}
-                  />
+                  <Input type="tel" placeholder="+1234567890" autoComplete="tel" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -279,11 +277,7 @@ export default function RegisterPage() {
                       tabIndex={-1}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </FormControl>
@@ -296,9 +290,7 @@ export default function RegisterPage() {
                         <div
                           key={i}
                           className={`h-1.5 flex-1 rounded-full transition-colors ${
-                            i < passwordStrength.score
-                              ? passwordStrength.color
-                              : 'bg-muted'
+                            i < passwordStrength.score ? passwordStrength.color : 'bg-muted'
                           }`}
                         />
                       ))}
@@ -336,9 +328,7 @@ export default function RegisterPage() {
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       tabIndex={-1}
-                      aria-label={
-                        showConfirmPassword ? 'Hide password' : 'Show password'
-                      }
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -360,25 +350,16 @@ export default function RegisterPage() {
             render={({ field }) => (
               <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-normal">
                     I agree to the{' '}
-                    <Link
-                      href="/terms"
-                      className="font-medium text-primary hover:underline"
-                    >
+                    <Link href="/terms" className="font-medium text-primary hover:underline">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link
-                      href="/privacy"
-                      className="font-medium text-primary hover:underline"
-                    >
+                    <Link href="/privacy" className="font-medium text-primary hover:underline">
                       Privacy Policy
                     </Link>
                   </FormLabel>
@@ -389,11 +370,7 @@ export default function RegisterPage() {
           />
 
           {/* Submit */}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Creating account...' : 'Create account'}
           </Button>
         </form>
@@ -402,13 +379,18 @@ export default function RegisterPage() {
       {/* Login link */}
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link
-          href="/login"
-          className="font-medium text-primary hover:underline"
-        >
+        <Link href="/login" className="font-medium text-primary hover:underline">
           Sign in
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="w-full max-w-md" />}>
+      <RegisterContent />
+    </Suspense>
   );
 }

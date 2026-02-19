@@ -1,14 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Eye, EyeOff } from 'lucide-react';
-import { toast } from 'sonner';
-
 import {
   Button,
   Checkbox,
@@ -20,20 +11,25 @@ import {
   FormLabel,
   FormMessage,
 } from '@ecommerce/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
+import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
 import { useAuth } from '@/hooks/use-auth';
 import { ApiClientError } from '@/lib/api/client';
-import { SocialLoginButtons } from '@/components/auth/social-login-buttons';
 
 // ──────────────────────────────────────────────────────────
 // Validation schema
 // ──────────────────────────────────────────────────────────
 
 const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
   rememberMe: z.boolean().optional(),
 });
@@ -44,7 +40,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 // Page component
 // ──────────────────────────────────────────────────────────
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') ?? '/';
@@ -81,9 +77,7 @@ export default function LoginPage() {
           setServerError('Invalid email or password. Please try again.');
         } else if (error.status === 403) {
           toast.error('Account suspended');
-          setServerError(
-            'Your account has been suspended. Please contact support.',
-          );
+          setServerError('Your account has been suspended. Please contact support.');
         } else if (error.details) {
           Object.entries(error.details).forEach(([field, messages]) => {
             form.setError(field as keyof LoginFormValues, {
@@ -134,7 +128,6 @@ export default function LoginPage() {
                     type="email"
                     placeholder="you@example.com"
                     autoComplete="email"
-                    autoFocus
                     {...field}
                   />
                 </FormControl>
@@ -174,11 +167,7 @@ export default function LoginPage() {
                       tabIndex={-1}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </FormControl>
@@ -194,14 +183,9 @@ export default function LoginPage() {
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <FormLabel className="text-sm font-normal">
-                  Remember me for 30 days
-                </FormLabel>
+                <FormLabel className="text-sm font-normal">Remember me for 30 days</FormLabel>
               </FormItem>
             )}
           />
@@ -216,13 +200,18 @@ export default function LoginPage() {
       {/* Register link */}
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link
-          href="/register"
-          className="font-medium text-primary hover:underline"
-        >
+        <Link href="/register" className="font-medium text-primary hover:underline">
           Create one now
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="w-full max-w-md" />}>
+      <LoginContent />
+    </Suspense>
   );
 }
