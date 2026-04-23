@@ -2618,6 +2618,63 @@ async function seedSettings() {
       key: 'address',
       value: 'Level 12, Rangs Babylon Tower, 246 Bir Uttam Mir Shawkat Road, Tejgaon, Dhaka 1208',
     },
+    { group: 'GENERAL', key: 'return_policy_days', value: '7', type: 'number' },
+    { group: 'GENERAL', key: 'announcement_enabled', value: 'false', type: 'boolean' },
+    { group: 'GENERAL', key: 'announcement_text', value: '' },
+    { group: 'GENERAL', key: 'announcement_text_bn', value: '' },
+    // Default home-page section order. Admin can reorder / toggle
+    // visibility / tweak per-section props in /admin/appearance/home.
+    // The public home renderer falls back to this shape if parsing
+    // fails, so the site never goes blank.
+    {
+      group: 'GENERAL',
+      key: 'home_sections',
+      type: 'json',
+      value: JSON.stringify([
+        { id: 'hero', type: 'hero', visible: true, sortOrder: 0, props: {} },
+        {
+          id: 'categories',
+          type: 'categories',
+          visible: true,
+          sortOrder: 1,
+          props: { heading: 'Shop by Category', limit: 8 },
+        },
+        {
+          id: 'featured',
+          type: 'featured_products',
+          visible: true,
+          sortOrder: 2,
+          props: { heading: 'Featured Products', limit: 8 },
+        },
+        { id: 'promo', type: 'promo_strip', visible: true, sortOrder: 3, props: {} },
+        {
+          id: 'new',
+          type: 'new_arrivals',
+          visible: true,
+          sortOrder: 4,
+          props: { heading: 'New Arrivals', limit: 8 },
+        },
+        {
+          id: 'trust',
+          type: 'trust_badges',
+          visible: true,
+          sortOrder: 5,
+          props: {
+            badges: [
+              { icon: 'truck', title: 'Free Delivery', subtitle: 'On orders over ৳2,000' },
+              { icon: 'shield', title: 'Secure Payment', subtitle: 'bKash, Nagad, Cards' },
+              { icon: 'refresh', title: 'Easy Returns', subtitle: '7-day return policy' },
+              {
+                icon: 'flag',
+                title: 'Made in Bangladesh',
+                subtitle: 'Supporting local businesses',
+              },
+            ],
+          },
+        },
+        { id: 'newsletter', type: 'newsletter', visible: true, sortOrder: 6, props: {} },
+      ]),
+    },
 
     // Email
     { group: 'EMAIL', key: 'from_name', value: 'ShopBD' },

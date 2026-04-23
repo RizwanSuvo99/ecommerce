@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   BarChart3,
@@ -19,6 +16,9 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -85,6 +85,7 @@ const navigation: NavItem[] = [
     children: [
       { label: 'Theme', href: '/admin/appearance/theme' },
       { label: 'Navigation', href: '/admin/appearance/navigation' },
+      { label: 'Home layout', href: '/admin/appearance/home' },
     ],
   },
   {
@@ -129,23 +130,20 @@ export function AdminSidebar({
   const [expandedSections, setExpandedSections] = useState<string[]>(() => {
     // Auto-expand the section that matches the current path
     return navigation
-      .filter(
-        (item) =>
-          item.children?.some((child) => pathname.startsWith(child.href)),
-      )
+      .filter((item) => item.children?.some((child) => pathname.startsWith(child.href)))
       .map((item) => item.label);
   });
 
   const toggleSection = (label: string) => {
     setExpandedSections((prev) =>
-      prev.includes(label)
-        ? prev.filter((l) => l !== label)
-        : [...prev, label],
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label],
     );
   };
 
   const isActive = (href: string) => {
-    if (href === '/admin') return pathname === '/admin';
+    if (href === '/admin') {
+      return pathname === '/admin';
+    }
     return pathname.startsWith(href);
   };
 
@@ -170,9 +168,7 @@ export function AdminSidebar({
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
                 S
               </div>
-              <span className="text-lg font-semibold text-gray-900">
-                Admin
-              </span>
+              <span className="text-lg font-semibold text-gray-900">Admin</span>
             </Link>
           )}
           {collapsed && (
@@ -321,8 +317,7 @@ function SidebarNav({
                     <ChevronDown
                       className={cn(
                         'h-4 w-4 transition-transform',
-                        expandedSections.includes(item.label) &&
-                          'rotate-180',
+                        expandedSections.includes(item.label) && 'rotate-180',
                       )}
                     />
                   </>
@@ -330,28 +325,26 @@ function SidebarNav({
               </button>
 
               {/* Children */}
-              {!collapsed &&
-                expandedSections.includes(item.label) &&
-                item.children && (
-                  <ul className="mt-1 space-y-1 pl-11">
-                    {item.children.map((child) => (
-                      <li key={child.href}>
-                        <Link
-                          href={child.href}
-                          onClick={onLinkClick}
-                          className={cn(
-                            'block rounded-lg px-3 py-1.5 text-sm transition-colors',
-                            isActive(child.href)
-                              ? 'font-medium text-teal-700'
-                              : 'text-gray-600 hover:text-gray-900',
-                          )}
-                        >
-                          {child.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              {!collapsed && expandedSections.includes(item.label) && item.children && (
+                <ul className="mt-1 space-y-1 pl-11">
+                  {item.children.map((child) => (
+                    <li key={child.href}>
+                      <Link
+                        href={child.href}
+                        onClick={onLinkClick}
+                        className={cn(
+                          'block rounded-lg px-3 py-1.5 text-sm transition-colors',
+                          isActive(child.href)
+                            ? 'font-medium text-teal-700'
+                            : 'text-gray-600 hover:text-gray-900',
+                        )}
+                      >
+                        {child.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </>
           )}
         </li>
