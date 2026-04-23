@@ -15,6 +15,7 @@ import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
 import { AdminGuard } from '../admin/guards/admin.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuditLog } from '../common/audit/audit-log.decorator';
 
 @Controller()
 export class BannersController {
@@ -22,6 +23,7 @@ export class BannersController {
 
   @Post('admin/banners')
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @AuditLog({ entity: 'Banner' })
   create(@Body() dto: CreateBannerDto) {
     return this.bannersService.create(dto);
   }
@@ -45,12 +47,14 @@ export class BannersController {
 
   @Patch('admin/banners/:id')
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @AuditLog({ entity: 'Banner' })
   update(@Param('id') id: string, @Body() dto: UpdateBannerDto) {
     return this.bannersService.update(id, dto);
   }
 
   @Delete('admin/banners/:id')
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @AuditLog({ entity: 'Banner' })
   remove(@Param('id') id: string) {
     return this.bannersService.remove(id);
   }

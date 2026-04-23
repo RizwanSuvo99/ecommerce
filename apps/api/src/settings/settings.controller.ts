@@ -1,16 +1,9 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put, UseGuards } from '@nestjs/common';
 
+import { SettingsGroup, SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { SettingsGroup, SettingsService } from './settings.service';
+import { AuditLog } from '../common/audit/audit-log.decorator';
 
 @Controller('admin/settings')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -31,19 +24,15 @@ export class SettingsController {
 
   /** PUT /admin/settings/:group — upsert a group */
   @Put(':group')
-  async updateGroup(
-    @Param('group') group: SettingsGroup,
-    @Body() body: Record<string, string>,
-  ) {
+  @AuditLog({ entity: 'Settings' })
+  async updateGroup(@Param('group') group: SettingsGroup, @Body() body: Record<string, string>) {
     return { data: await this.settings.updateGroup(group, body) };
   }
 
   /** DELETE /admin/settings/:group/:key — remove one key */
   @Delete(':group/:key')
-  async deleteKey(
-    @Param('group') group: SettingsGroup,
-    @Param('key') key: string,
-  ) {
+  @AuditLog({ entity: 'Settings' })
+  async deleteKey(@Param('group') group: SettingsGroup, @Param('key') key: string) {
     await this.settings.delete(group, key);
     return { message: 'Setting deleted' };
   }

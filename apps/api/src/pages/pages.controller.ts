@@ -10,11 +10,13 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { PagesService } from './pages.service';
+
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PagesService } from './pages.service';
 import { AdminGuard } from '../admin/guards/admin.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuditLog } from '../common/audit/audit-log.decorator';
 
 @Controller()
 export class PagesController {
@@ -22,6 +24,7 @@ export class PagesController {
 
   @Post('admin/pages')
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @AuditLog({ entity: 'Page' })
   create(@Body() dto: CreatePageDto, @Req() req: any) {
     return this.pagesService.create(dto, req.user.id);
   }
@@ -55,12 +58,14 @@ export class PagesController {
 
   @Patch('admin/pages/:id')
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @AuditLog({ entity: 'Page' })
   update(@Param('id') id: string, @Body() dto: UpdatePageDto) {
     return this.pagesService.update(id, dto);
   }
 
   @Delete('admin/pages/:id')
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @AuditLog({ entity: 'Page' })
   remove(@Param('id') id: string) {
     return this.pagesService.remove(id);
   }

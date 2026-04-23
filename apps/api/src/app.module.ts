@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
@@ -12,6 +14,7 @@ import { BrandsModule } from './brands/brands.module';
 import { CartModule } from './cart/cart.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ChatModule } from './chat/chat.module';
+import { AuditInterceptor } from './common/audit/audit.interceptor';
 import { RevalidateModule } from './common/revalidate/revalidate.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { EmailModule } from './email/email.module';
@@ -42,6 +45,18 @@ import { WishlistModule } from './wishlist/wishlist.module';
       expandVariables: true,
     }),
     ScheduleModule.forRoot(),
+    // Global rate limits. Admin mutations don't need protection — the
+    // JwtAuthGuard already stops unauthenticated abuse — but the public
+    // catalog + settings + theme endpoints are hot paths that benefit
+    // from a sane default cap. Individual controllers can tighten or
+    // loosen with @Throttle(); @SkipThrottle() opts out entirely.
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60_000, // 1 minute
+        limit: 120, // 120 req/min per IP; plenty for a browsing user
+      },
+    ]),
     PrismaModule,
     RevalidateModule,
     AdminModule,
@@ -72,6 +87,16 @@ import { WishlistModule } from './wishlist/wishlist.module';
     WishlistModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // Global ThrottlerGuard so every endpoint picks up the default
+    // cap. Individual routes that need different behaviour use the
+    // @Throttle / @SkipThrottle decorators.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // Global AuditInterceptor: any handler decorated with @AuditLog
+    // lands an AuditLog row on successful completion. No-op for
+    // everything else.
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+  ],
 })
 export class AppModule {}
