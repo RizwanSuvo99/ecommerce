@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 
+import { AnnouncementBar } from '@/components/layout/announcement-bar';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
 import { getSiteConfig } from '@/lib/config/site-config';
@@ -13,7 +14,16 @@ export default async function ShopLayout({ children }: ShopLayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header siteName={config.settings.general.site_name} logoUrl={config.theme.logoUrl} />
+      <AnnouncementBar
+        enabled={config.settings.general.announcement_enabled}
+        text={config.settings.general.announcement_text}
+        textBn={config.settings.general.announcement_text_bn}
+      />
+      <Header
+        siteName={config.settings.general.site_name}
+        logoUrl={config.theme.logoUrl}
+        menu={config.menus.header}
+      />
       <main className="flex-1">{children}</main>
       <Footer
         siteName={config.settings.general.site_name}
@@ -22,6 +32,7 @@ export default async function ShopLayout({ children }: ShopLayoutProps) {
         phone={config.settings.general.phone}
         email={config.settings.general.support_email}
         payments={config.settings.payment}
+        menu={config.menus.footer}
         social={config.settings.social}
       />
     </div>

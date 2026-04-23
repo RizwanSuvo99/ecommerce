@@ -205,12 +205,40 @@ function MobileMenuButton({ isOpen, onToggle }: MobileMenuButtonProps) {
 // Navigation Links
 // ──────────────────────────────────────────────────────────
 
-const NAV_LINKS = [
+/** Default nav when no HEADER menu exists in the DB (first-boot / empty seed). */
+const DEFAULT_NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
   { href: '/', label: 'Home' },
   { href: '/categories', label: 'Categories' },
   { href: '/products', label: 'Products' },
   { href: '/deals', label: 'Deals' },
-] as const;
+];
+
+/**
+ * Flatten the MenuItem tree into a single list of top-level links for the
+ * header row. Submenus would render as dropdowns — not wired yet; the
+ * current DOM has no dropdown styling — so second-level items are dropped
+ * for now and can be re-added when design lands.
+ */
+interface HeaderMenuItem {
+  id: string;
+  label: string;
+  url: string;
+}
+
+function flattenMenu(menu: unknown): HeaderMenuItem[] {
+  if (!menu || typeof menu !== 'object') {
+    return [];
+  }
+  const m = menu as {
+    items?: Array<{ id: string; label: string; url: string; isVisible?: boolean }>;
+  };
+  if (!Array.isArray(m.items)) {
+    return [];
+  }
+  return m.items
+    .filter((it) => it && it.label && it.url && it.isVisible !== false)
+    .map((it) => ({ id: it.id, label: it.label, url: it.url }));
+}
 
 // ──────────────────────────────────────────────────────────
 // Header Component
@@ -221,6 +249,12 @@ interface HeaderProps {
   siteName?: string;
   /** Admin-uploaded logo URL; falls back to the default bag SVG when empty. */
   logoUrl?: string;
+  /**
+   * HEADER NavigationMenu fetched server-side. `null` when the admin
+   * hasn't configured one yet — we fall back to a conservative default
+   * so the site still has a navbar on a fresh install.
+   */
+  menu?: unknown;
 }
 
 /**
@@ -236,8 +270,15 @@ interface HeaderProps {
  * `siteName` and `logoUrl` come from the server-side site config so the
  * storefront reflects admin-edited branding without a rebuild.
  */
-export function Header({ siteName = 'ShopBD', logoUrl }: HeaderProps = {}) {
+export function Header({ siteName = 'ShopBD', logoUrl, menu }: HeaderProps = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems = (() => {
+    const fromMenu = flattenMenu(menu);
+    return fromMenu.length > 0
+      ? fromMenu
+      : DEFAULT_NAV_LINKS.map((l) => ({ id: l.href, label: l.label, url: l.href }));
+  })();
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-gray-200/80 bg-white/80 backdrop-blur-lg">
@@ -286,10 +327,10 @@ export function Header({ siteName = 'ShopBD', logoUrl }: HeaderProps = {}) {
 
           {/* Center: Desktop navigation */}
           <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
-            {NAV_LINKS.map((link) => (
+            {navItems.map((link) => (
               <Link
-                key={link.href}
-                href={link.href}
+                key={link.id}
+                href={link.url}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
               >
                 {link.label}
@@ -321,10 +362,10 @@ export function Header({ siteName = 'ShopBD', logoUrl }: HeaderProps = {}) {
 
             {/* Mobile navigation links */}
             <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
-              {NAV_LINKS.map((link) => (
+              {navItems.map((link) => (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  key={link.id}
+                  href={link.url}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >

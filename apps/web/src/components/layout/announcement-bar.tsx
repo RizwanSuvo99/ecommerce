@@ -1,180 +1,116 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AnnouncementBarProps {
-  message?: string;
-  messageBn?: string;
+  /** Master on/off switch, settable from /admin/settings/general. */
+  enabled?: boolean;
+  /** English announcement copy. Empty string hides the bar. */
+  text?: string;
+  /** Optional Bengali translation; shown when the document is `lang="bn"`. */
+  textBn?: string;
+  /** Optional deep link wrapped around the text ("Shop Now" → /products). */
   link?: string;
-  linkText?: string;
-  linkTextBn?: string;
-  backgroundColor?: string;
-  textColor?: string;
-  dismissible?: boolean;
+  /** Unique id used for the session-storage dismiss key. */
   id?: string;
 }
 
-const DEFAULT_ANNOUNCEMENT: AnnouncementBarProps = {
-  message: 'Free shipping on orders over ৳2,000! Limited time offer.',
-  messageBn: '৳২,০০০ এর বেশি অর্ডারে বিনামূল্যে শিপিং! সীমিত সময়ের অফার।',
-  link: '/products',
-  linkText: 'Shop Now',
-  linkTextBn: 'এখনই কিনুন',
-  backgroundColor: '#1e40af',
-  textColor: '#ffffff',
-  dismissible: true,
-  id: 'default-announcement',
-};
-
-export function AnnouncementBar(props: AnnouncementBarProps = {}) {
-  const config = { ...DEFAULT_ANNOUNCEMENT, ...props };
-  const [isVisible, setIsVisible] = useState(false);
+/**
+ * Thin announcement strip above the header. All copy is admin-controlled;
+ * a missing `text` (or `enabled=false`) makes this render nothing, so the
+ * default path is silent unless the admin explicitly enables it.
+ *
+ * The bar is dismissible for the session. We persist the dismissal in
+ * sessionStorage keyed by `id`, so replacing the text in admin naturally
+ * re-surfaces the bar to every visitor on the next session.
+ */
+export function AnnouncementBar({
+  enabled = false,
+  text = '',
+  textBn = '',
+  link,
+  id = 'default-announcement',
+}: AnnouncementBarProps = {}) {
+  const [hidden, setHidden] = useState(true);
   const [locale, setLocale] = useState<'en' | 'bn'>('en');
 
-  const storageKey = `announcement-dismissed-${config.id}`;
+  const storageKey = `announcement-dismissed-${id}`;
 
   useEffect(() => {
-    // Check if user has dismissed this announcement in the current session
     const dismissed = sessionStorage.getItem(storageKey);
-    if (!dismissed) {
-      setIsVisible(true);
-    }
+    setHidden(Boolean(dismissed));
 
-    // Detect locale from the document or URL
-    const htmlLang = document.documentElement.lang;
-    if (htmlLang === 'bn') {
+    if (document.documentElement.lang === 'bn') {
       setLocale('bn');
     }
   }, [storageKey]);
 
+  if (!enabled) {
+    return null;
+  }
+  const displayText = locale === 'bn' && textBn ? textBn : text;
+  if (!displayText || hidden) {
+    return null;
+  }
+
   const handleDismiss = () => {
-    setIsVisible(false);
+    setHidden(true);
     sessionStorage.setItem(storageKey, 'true');
   };
 
-  if (!isVisible) return null;
-
-  const displayMessage =
-    locale === 'bn' && config.messageBn ? config.messageBn : config.message;
-  const displayLinkText =
-    locale === 'bn' && config.linkTextBn
-      ? config.linkTextBn
-      : config.linkText;
-
   return (
     <div
-      className="relative w-full py-2.5 px-4 text-center text-sm font-medium transition-all duration-300"
-      style={{
-        backgroundColor: config.backgroundColor,
-        color: config.textColor,
-      }}
+      className="relative w-full bg-primary py-2.5 px-4 text-center text-sm font-medium text-primary-foreground"
       role="banner"
       aria-label="Announcement"
     >
       <div className="container mx-auto flex items-center justify-center gap-2">
-        {/* Animated dot indicator */}
         <span className="relative flex h-2 w-2 flex-shrink-0">
-          <span
-            className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-            style={{ backgroundColor: config.textColor }}
-          />
-          <span
-            className="relative inline-flex h-2 w-2 rounded-full"
-            style={{ backgroundColor: config.textColor }}
-          />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-current" />
         </span>
 
-        {/* Message */}
         <p className="inline-flex flex-wrap items-center gap-1">
-          <span>{displayMessage}</span>
-          {config.link && displayLinkText && (
+          {link ? (
             <a
-              href={config.link}
-              className="inline-flex items-center gap-1 underline underline-offset-2 font-semibold hover:opacity-80 transition-opacity"
+              href={link}
+              className="underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
-              {displayLinkText}
-              <svg
-                className="h-3.5 w-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                />
-              </svg>
+              {displayText}
             </a>
+          ) : (
+            <span>{displayText}</span>
           )}
         </p>
 
-        {/* Language toggle */}
-        <button
-          onClick={() => setLocale(locale === 'en' ? 'bn' : 'en')}
-          className="ml-2 text-xs opacity-70 hover:opacity-100 transition-opacity border border-current/30 rounded px-1.5 py-0.5"
-          aria-label="Toggle language"
-        >
-          {locale === 'en' ? 'বাং' : 'EN'}
-        </button>
-
-        {/* Dismiss button */}
-        {config.dismissible && (
+        {textBn && (
           <button
-            onClick={handleDismiss}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 opacity-70 hover:opacity-100 transition-opacity"
-            aria-label="Dismiss announcement"
+            type="button"
+            onClick={() => setLocale(locale === 'en' ? 'bn' : 'en')}
+            className="ml-2 rounded border border-current/30 px-1.5 py-0.5 text-xs opacity-70 hover:opacity-100 transition-opacity"
+            aria-label="Toggle language"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            {locale === 'en' ? 'বাং' : 'EN'}
           </button>
         )}
+
+        <button
+          type="button"
+          onClick={handleDismiss}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 opacity-70 hover:opacity-100 transition-opacity"
+          aria-label="Dismiss announcement"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     </div>
-  );
-}
-
-/**
- * Multiple rotating announcements
- */
-export function RotatingAnnouncementBar({
-  announcements,
-  interval = 5000,
-}: {
-  announcements: AnnouncementBarProps[];
-  interval?: number;
-}) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (announcements.length <= 1) return;
-
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % announcements.length);
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [announcements.length, interval]);
-
-  if (announcements.length === 0) return null;
-
-  return (
-    <AnnouncementBar
-      {...announcements[currentIndex]}
-      id={`rotating-${currentIndex}`}
-      dismissible={false}
-    />
   );
 }

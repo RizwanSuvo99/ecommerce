@@ -1,31 +1,93 @@
 import Link from 'next/link';
 
-// Static link groups — these are the storefront's universal navigation
-// columns. Phase 3 will replace these with menu items fetched from the
-// NavigationMenu admin, at which point this component can accept the
-// menu data as a prop instead of hardcoding.
-const footerLinks = {
-  shop: [
-    { label: 'All Products', href: '/products' },
-    { label: 'Categories', href: '/categories' },
-    { label: 'Brands', href: '/brands' },
-    { label: 'New Arrivals', href: '/products?sort=newest' },
-    { label: 'Sale', href: '/products?sale=true' },
-  ],
-  account: [
-    { label: 'My Account', href: '/account' },
-    { label: 'Order History', href: '/account/orders' },
-    { label: 'Wishlist', href: '/account/wishlist' },
-    { label: 'Track Order', href: '/orders/track' },
-  ],
-  info: [
-    { label: 'About Us', href: '/about-us' },
-    { label: 'Contact Us', href: '/contact-us' },
-    { label: 'Privacy Policy', href: '/privacy-policy' },
-    { label: 'Terms & Conditions', href: '/terms-conditions' },
-    { label: 'Return Policy', href: '/refund-policy' },
-  ],
-};
+/** Fallback columns when no FOOTER NavigationMenu exists in the DB. */
+const DEFAULT_FOOTER_COLUMNS: FooterColumn[] = [
+  {
+    id: 'default-shop',
+    heading: 'Shop',
+    links: [
+      { id: 'products', label: 'All Products', url: '/products' },
+      { id: 'categories', label: 'Categories', url: '/categories' },
+      { id: 'brands', label: 'Brands', url: '/brands' },
+      { id: 'new', label: 'New Arrivals', url: '/products?sort=newest' },
+      { id: 'sale', label: 'Sale', url: '/deals' },
+    ],
+  },
+  {
+    id: 'default-account',
+    heading: 'Account',
+    links: [
+      { id: 'account', label: 'My Account', url: '/account' },
+      { id: 'orders', label: 'Order History', url: '/account/orders' },
+      { id: 'wishlist', label: 'Wishlist', url: '/account/wishlist' },
+      { id: 'track', label: 'Track Order', url: '/orders/track' },
+    ],
+  },
+  {
+    id: 'default-info',
+    heading: 'Information',
+    links: [
+      { id: 'about', label: 'About Us', url: '/about-us' },
+      { id: 'contact', label: 'Contact Us', url: '/contact-us' },
+      { id: 'privacy', label: 'Privacy Policy', url: '/privacy-policy' },
+      { id: 'terms', label: 'Terms & Conditions', url: '/terms-conditions' },
+      { id: 'refund', label: 'Return Policy', url: '/refund-policy' },
+    ],
+  },
+];
+
+interface FooterLink {
+  id: string;
+  label: string;
+  url: string;
+}
+
+interface FooterColumn {
+  id: string;
+  heading: string;
+  links: FooterLink[];
+}
+
+/**
+ * Convert a raw MenuItem tree into the 3-column footer shape. Top-level
+ * items become column headings; their children become the column links.
+ * Items with no children render as a column with a single link (which
+ * matches how the admin shows flat menus). The server ensures isVisible
+ * filtering; we double-check here so stale cached menus don't leak.
+ */
+function menuToColumns(menu: unknown): FooterColumn[] {
+  if (!menu || typeof menu !== 'object') {
+    return [];
+  }
+  const m = menu as {
+    items?: Array<{
+      id: string;
+      label: string;
+      url?: string;
+      isVisible?: boolean;
+      children?: Array<{
+        id: string;
+        label: string;
+        url?: string;
+        isVisible?: boolean;
+      }>;
+    }>;
+  };
+  if (!Array.isArray(m.items)) {
+    return [];
+  }
+
+  return m.items
+    .filter((top) => top?.label && top.isVisible !== false)
+    .map((top) => ({
+      id: top.id,
+      heading: top.label,
+      links: (top.children ?? [])
+        .filter((c) => c?.label && c.url && c.isVisible !== false)
+        .map((c) => ({ id: c.id, label: c.label, url: c.url ?? '' })),
+    }))
+    .filter((col) => col.links.length > 0);
+}
 
 export interface FooterProps {
   siteName?: string;
@@ -48,6 +110,8 @@ export interface FooterProps {
     tiktok_url?: string;
     whatsapp_number?: string;
   };
+  /** FOOTER NavigationMenu fetched server-side. null → fallback columns. */
+  menu?: unknown;
 }
 
 /**
@@ -86,8 +150,13 @@ export function Footer({
   email,
   payments,
   social,
+  menu,
 }: FooterProps = {}) {
   const paymentsText = paymentMethodsText(payments);
+  const columns = (() => {
+    const fromMenu = menuToColumns(menu);
+    return fromMenu.length > 0 ? fromMenu : DEFAULT_FOOTER_COLUMNS;
+  })();
   const socials: Array<{ label: string; href: string }> = [];
   if (social?.facebook_url) {
     socials.push({ label: 'Facebook', href: social.facebook_url });
@@ -146,51 +215,23 @@ export function Footer({
             )}
           </div>
 
-          {/* Shop */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">Shop</h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.shop.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Account */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
-              Account
-            </h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.account.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Info */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
-              Information
-            </h3>
-            <ul className="mt-4 space-y-2">
-              {footerLinks.info.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Columns from FOOTER NavigationMenu (or defaults) */}
+          {columns.map((column) => (
+            <div key={column.id}>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
+                {column.heading}
+              </h3>
+              <ul className="mt-4 space-y-2">
+                {column.links.map((link) => (
+                  <li key={link.id}>
+                    <Link href={link.url} className="text-sm text-gray-600 hover:text-gray-900">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Bottom bar */}
