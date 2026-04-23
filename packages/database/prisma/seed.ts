@@ -337,8 +337,10 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Samsung Galaxy A55 5G',
     nameBn: 'স্যামসাং গ্যালাক্সি এ৫৫ ৫জি',
     slug: 'samsung-galaxy-a55-5g',
-    description: 'Samsung Galaxy A55 5G features a 6.6" Super AMOLED display, Exynos 1480 processor, 50MP triple camera system, 5000mAh battery with 25W fast charging. Water resistant with IP67 rating.',
-    descriptionBn: 'স্যামসাং গ্যালাক্সি এ৫৫ ৫জি-তে রয়েছে ৬.৬" সুপার অ্যামোলেড ডিসপ্লে, এক্সিনোস ১৪৮০ প্রসেসর, ৫০MP ট্রিপল ক্যামেরা সিস্টেম, ৫০০০mAh ব্যাটারি।',
+    description:
+      'Samsung Galaxy A55 5G features a 6.6" Super AMOLED display, Exynos 1480 processor, 50MP triple camera system, 5000mAh battery with 25W fast charging. Water resistant with IP67 rating.',
+    descriptionBn:
+      'স্যামসাং গ্যালাক্সি এ৫৫ ৫জি-তে রয়েছে ৬.৬" সুপার অ্যামোলেড ডিসপ্লে, এক্সিনোস ১৪৮০ প্রসেসর, ৫০MP ট্রিপল ক্যামেরা সিস্টেম, ৫০০০mAh ব্যাটারি।',
     shortDescription: '6.6" AMOLED, Exynos 1480, 50MP Camera, 5000mAh',
     sku: 'SAM-A55-5G-001',
     price: 42999,
@@ -364,7 +366,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Xiaomi Redmi Note 13 Pro',
     nameBn: 'শাওমি রেডমি নোট ১৩ প্রো',
     slug: 'xiaomi-redmi-note-13-pro',
-    description: 'Redmi Note 13 Pro with 200MP main camera, 6.67" AMOLED 120Hz display, Snapdragon 7s Gen 2 chipset, 5100mAh battery with 67W turbo charging.',
+    description:
+      'Redmi Note 13 Pro with 200MP main camera, 6.67" AMOLED 120Hz display, Snapdragon 7s Gen 2 chipset, 5100mAh battery with 67W turbo charging.',
     shortDescription: '200MP Camera, 120Hz AMOLED, Snapdragon 7s Gen 2',
     sku: 'XIA-RN13P-001',
     price: 31999,
@@ -385,8 +388,10 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Walton Primo R9 Max',
     nameBn: 'ওয়ালটন প্রিমো আর৯ ম্যাক্স',
     slug: 'walton-primo-r9-max',
-    description: 'Walton Primo R9 Max — made in Bangladesh. 6.78" IPS display, 108MP AI camera, 6000mAh massive battery, 8GB RAM + 128GB storage. Dual SIM with dedicated SD card slot.',
-    descriptionBn: 'ওয়ালটন প্রিমো আর৯ ম্যাক্স — বাংলাদেশে তৈরি। ৬.৭৮" আইপিএস ডিসপ্লে, ১০৮MP এআই ক্যামেরা, ৬০০০mAh ব্যাটারি।',
+    description:
+      'Walton Primo R9 Max — made in Bangladesh. 6.78" IPS display, 108MP AI camera, 6000mAh massive battery, 8GB RAM + 128GB storage. Dual SIM with dedicated SD card slot.',
+    descriptionBn:
+      'ওয়ালটন প্রিমো আর৯ ম্যাক্স — বাংলাদেশে তৈরি। ৬.৭৮" আইপিএস ডিসপ্লে, ১০৮MP এআই ক্যামেরা, ৬০০০mAh ব্যাটারি।',
     shortDescription: 'Made in BD, 108MP, 6000mAh, 8GB RAM',
     sku: 'WAL-PR9M-001',
     price: 17999,
@@ -397,7 +402,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'walton',
     tags: ['walton', 'smartphone', 'made-in-bangladesh', 'budget'],
     isFeatured: true,
-    weight: 0.210,
+    weight: 0.21,
     images: [
       'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&q=80',
     ],
@@ -406,7 +411,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'HP Pavilion 15 Laptop',
     nameBn: 'এইচপি প্যাভিলিয়ন ১৫ ল্যাপটপ',
     slug: 'hp-pavilion-15-laptop',
-    description: 'HP Pavilion 15 with 13th Gen Intel Core i5-1335U, 15.6" FHD IPS display, 8GB DDR4, 512GB NVMe SSD, Intel Iris Xe Graphics. Windows 11 Home. Ideal for work and study.',
+    description:
+      'HP Pavilion 15 with 13th Gen Intel Core i5-1335U, 15.6" FHD IPS display, 8GB DDR4, 512GB NVMe SSD, Intel Iris Xe Graphics. Windows 11 Home. Ideal for work and study.',
     shortDescription: 'i5-13th Gen, 8GB RAM, 512GB SSD, 15.6" FHD',
     sku: 'HP-PAV15-I5-001',
     price: 68999,
@@ -431,7 +437,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Lenovo IdeaPad Slim 3',
     nameBn: 'লেনোভো আইডিয়াপ্যাড স্লিম ৩',
     slug: 'lenovo-ideapad-slim-3',
-    description: 'Lenovo IdeaPad Slim 3 with AMD Ryzen 5 7520U, 15.6" FHD display, 8GB RAM, 512GB SSD, integrated Radeon graphics. Lightweight at 1.63kg with up to 10 hours battery life.',
+    description:
+      'Lenovo IdeaPad Slim 3 with AMD Ryzen 5 7520U, 15.6" FHD display, 8GB RAM, 512GB SSD, integrated Radeon graphics. Lightweight at 1.63kg with up to 10 hours battery life.',
     shortDescription: 'Ryzen 5, 8GB, 512GB SSD, Ultra-light 1.63kg',
     sku: 'LEN-IPS3-R5-001',
     price: 56999,
@@ -451,7 +458,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'JBL Tune 760NC Headphones',
     nameBn: 'জেবিএল টিউন ৭৬০এনসি হেডফোন',
     slug: 'jbl-tune-760nc-headphones',
-    description: 'JBL Tune 760NC wireless over-ear headphones with Active Noise Cancelling, JBL Pure Bass Sound, 50 hours of battery life, multi-point connection, lightweight and foldable design.',
+    description:
+      'JBL Tune 760NC wireless over-ear headphones with Active Noise Cancelling, JBL Pure Bass Sound, 50 hours of battery life, multi-point connection, lightweight and foldable design.',
     shortDescription: 'ANC, 50hr Battery, JBL Pure Bass, Foldable',
     sku: 'JBL-T760NC-001',
     price: 8999,
@@ -462,7 +470,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'jbl',
     tags: ['jbl', 'headphones', 'anc', 'wireless', 'bluetooth'],
     isFeatured: true,
-    weight: 0.250,
+    weight: 0.25,
     images: [
       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1583394838223-aef6146a7f61?w=800&h=800&fit=crop&q=80',
@@ -477,8 +485,10 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Aarong Handloom Cotton Saree',
     nameBn: 'আড়ং হ্যান্ডলুম কটন শাড়ি',
     slug: 'aarong-handloom-cotton-saree',
-    description: 'Authentic Bangladeshi handloom cotton saree from Aarong. Traditional jamdani-inspired weave with contemporary design. 6.5 yards with blouse piece. Perfect for everyday elegance.',
-    descriptionBn: 'আড়ং-এর খাঁটি বাংলাদেশী হ্যান্ডলুম কটন শাড়ি। ঐতিহ্যবাহী জামদানি-অনুপ্রাণিত বুনন সমসাময়িক ডিজাইনে।',
+    description:
+      'Authentic Bangladeshi handloom cotton saree from Aarong. Traditional jamdani-inspired weave with contemporary design. 6.5 yards with blouse piece. Perfect for everyday elegance.',
+    descriptionBn:
+      'আড়ং-এর খাঁটি বাংলাদেশী হ্যান্ডলুম কটন শাড়ি। ঐতিহ্যবাহী জামদানি-অনুপ্রাণিত বুনন সমসাময়িক ডিজাইনে।',
     shortDescription: 'Handloom cotton, jamdani weave, 6.5 yards',
     sku: 'ARG-SAREE-HLC-001',
     price: 3500,
@@ -489,7 +499,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'aarong',
     tags: ['aarong', 'saree', 'handloom', 'cotton', 'jamdani', 'traditional'],
     isFeatured: true,
-    weight: 0.450,
+    weight: 0.45,
     images: [
       'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=800&fit=crop&q=80',
@@ -499,7 +509,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Bata Comfit Formal Shoes',
     nameBn: 'বাটা কমফিট ফর্মাল শু',
     slug: 'bata-comfit-formal-shoes',
-    description: 'Bata Comfit formal leather shoes for men. Genuine leather upper with memory foam insole for all-day comfort. Anti-slip rubber sole. Perfect for office and formal events.',
+    description:
+      'Bata Comfit formal leather shoes for men. Genuine leather upper with memory foam insole for all-day comfort. Anti-slip rubber sole. Perfect for office and formal events.',
     shortDescription: 'Genuine leather, memory foam, anti-slip sole',
     sku: 'BAT-CMF-FORM-001',
     price: 4599,
@@ -510,7 +521,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'bata',
     tags: ['bata', 'shoes', 'formal', 'leather', 'mens'],
     isFeatured: false,
-    weight: 0.800,
+    weight: 0.8,
     images: [
       'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=800&h=800&fit=crop&q=80',
     ],
@@ -525,8 +536,10 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Yellow Premium Panjabi',
     nameBn: 'ইয়েলো প্রিমিয়াম পাঞ্জাবি',
     slug: 'yellow-premium-panjabi',
-    description: 'Premium cotton panjabi from Yellow. Intricate embroidery on collar and cuffs, slim fit design. Available in multiple colors. Perfect for Eid, weddings, and festive occasions.',
-    descriptionBn: 'ইয়েলো-এর প্রিমিয়াম কটন পাঞ্জাবি। কলার ও কাফে সূক্ষ্ম এমব্রয়ডারি, স্লিম ফিট ডিজাইন।',
+    description:
+      'Premium cotton panjabi from Yellow. Intricate embroidery on collar and cuffs, slim fit design. Available in multiple colors. Perfect for Eid, weddings, and festive occasions.',
+    descriptionBn:
+      'ইয়েলো-এর প্রিমিয়াম কটন পাঞ্জাবি। কলার ও কাফে সূক্ষ্ম এমব্রয়ডারি, স্লিম ফিট ডিজাইন।',
     shortDescription: 'Premium cotton, embroidered, slim fit',
     sku: 'YLW-PNJ-PRM-001',
     price: 2800,
@@ -537,7 +550,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'yellow',
     tags: ['yellow', 'panjabi', 'eid', 'traditional', 'cotton'],
     isFeatured: true,
-    weight: 0.350,
+    weight: 0.35,
     images: [
       'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=800&fit=crop&q=80',
@@ -553,7 +566,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'RFL Premium Dinner Set 36 Pcs',
     nameBn: 'আরএফএল প্রিমিয়াম ডিনার সেট ৩৬ পিস',
     slug: 'rfl-premium-dinner-set-36pcs',
-    description: 'RFL Premium melamine dinner set, 36 pieces. Includes dinner plates, side plates, bowls, serving bowls, serving spoons, and platter. Microwave safe, BPA free. Elegant floral design.',
+    description:
+      'RFL Premium melamine dinner set, 36 pieces. Includes dinner plates, side plates, bowls, serving bowls, serving spoons, and platter. Microwave safe, BPA free. Elegant floral design.',
     shortDescription: '36 pcs melamine, microwave safe, BPA free',
     sku: 'RFL-DNS-36-001',
     price: 2999,
@@ -565,15 +579,14 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['rfl', 'dinner-set', 'melamine', 'kitchen', 'dining'],
     isFeatured: false,
     weight: 3.5,
-    images: [
-      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=800&fit=crop&q=80',
-    ],
+    images: ['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=800&fit=crop&q=80'],
   },
   {
     name: 'Apex Cotton Bedsheet King Size',
     nameBn: 'এপেক্স কটন বেডশিট কিং সাইজ',
     slug: 'apex-cotton-bedsheet-king',
-    description: 'Apex 100% cotton bedsheet set for king-size beds. Includes 1 fitted sheet, 1 flat sheet, and 2 pillow covers. 300 thread count, wrinkle-resistant, soft & breathable.',
+    description:
+      'Apex 100% cotton bedsheet set for king-size beds. Includes 1 fitted sheet, 1 flat sheet, and 2 pillow covers. 300 thread count, wrinkle-resistant, soft & breathable.',
     shortDescription: '100% cotton, 300TC, king size, 4 pcs set',
     sku: 'APX-BED-KING-001',
     price: 2200,
@@ -593,7 +606,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Unilever Dove Skincare Gift Set',
     nameBn: 'ইউনিলিভার ডাভ স্কিনকেয়ার গিফট সেট',
     slug: 'dove-skincare-gift-set',
-    description: 'Dove skincare gift set with body wash 250ml, body lotion 250ml, beauty bar 100g x2, and deodorant 150ml. Gentle formula with 1/4 moisturizing cream. Perfect gift for her.',
+    description:
+      'Dove skincare gift set with body wash 250ml, body lotion 250ml, beauty bar 100g x2, and deodorant 150ml. Gentle formula with 1/4 moisturizing cream. Perfect gift for her.',
     shortDescription: '5-piece set: body wash, lotion, soap, deo',
     sku: 'UNI-DOVE-GFT-001',
     price: 1599,
@@ -604,17 +618,17 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'unilever',
     tags: ['dove', 'skincare', 'gift-set', 'moisturizing', 'beauty'],
     isFeatured: false,
-    weight: 0.950,
-    images: [
-      'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop&q=80',
-    ],
+    weight: 0.95,
+    images: ['https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop&q=80'],
   },
   {
     name: 'Pran Aromatic Chinigura Rice 5kg',
     nameBn: 'প্রাণ অ্যারোমেটিক চিনিগুড়া চাল ৫কেজি',
     slug: 'pran-chinigura-rice-5kg',
-    description: 'Premium aromatic Chinigura rice from Pran. Sourced from the finest paddies of Bangladesh. Small grain, naturally fragrant. Perfect for special rice dishes like polao and biriyani.',
-    descriptionBn: 'প্রাণ-এর প্রিমিয়াম সুগন্ধি চিনিগুড়া চাল। বাংলাদেশের সেরা ধান থেকে সংগৃহীত। পোলাও ও বিরিয়ানির জন্য আদর্শ।',
+    description:
+      'Premium aromatic Chinigura rice from Pran. Sourced from the finest paddies of Bangladesh. Small grain, naturally fragrant. Perfect for special rice dishes like polao and biriyani.',
+    descriptionBn:
+      'প্রাণ-এর প্রিমিয়াম সুগন্ধি চিনিগুড়া চাল। বাংলাদেশের সেরা ধান থেকে সংগৃহীত। পোলাও ও বিরিয়ানির জন্য আদর্শ।',
     shortDescription: 'Premium chinigura, 5kg, naturally aromatic',
     sku: 'PRN-RICE-CG-5KG',
     price: 850,
@@ -634,8 +648,10 @@ const PRODUCTS: ProductSeed[] = [
     name: 'ACI Pure Turmeric Powder 200g',
     nameBn: 'এসিআই পিওর হলুদ গুঁড়া ২০০গ্রাম',
     slug: 'aci-pure-turmeric-200g',
-    description: 'ACI Pure turmeric powder, 100% natural with no artificial colors or preservatives. Lab tested for quality and purity. Essential spice for Bangladeshi cooking.',
-    descriptionBn: 'এসিআই পিওর হলুদ গুঁড়া, ১০০% প্রাকৃতিক। কোনো কৃত্রিম রঙ বা প্রিজারভেটিভ নেই। বাংলাদেশী রান্নার অপরিহার্য মশলা।',
+    description:
+      'ACI Pure turmeric powder, 100% natural with no artificial colors or preservatives. Lab tested for quality and purity. Essential spice for Bangladeshi cooking.',
+    descriptionBn:
+      'এসিআই পিওর হলুদ গুঁড়া, ১০০% প্রাকৃতিক। কোনো কৃত্রিম রঙ বা প্রিজারভেটিভ নেই। বাংলাদেশী রান্নার অপরিহার্য মশলা।',
     shortDescription: '100% natural, no preservatives, 200g',
     sku: 'ACI-TRM-200G',
     price: 95,
@@ -645,7 +661,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'aci',
     tags: ['aci', 'spice', 'turmeric', 'pure', 'cooking'],
     isFeatured: false,
-    weight: 0.200,
+    weight: 0.2,
     images: [
       'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=800&h=800&fit=crop&q=80',
     ],
@@ -654,7 +670,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Apple iPhone 15 Pro',
     nameBn: 'অ্যাপল আইফোন ১৫ প্রো',
     slug: 'apple-iphone-15-pro',
-    description: 'iPhone 15 Pro with A17 Pro chip, titanium design, 48MP main camera with 5x optical zoom, Action button, USB-C with USB 3. Super Retina XDR 6.1" ProMotion display.',
+    description:
+      'iPhone 15 Pro with A17 Pro chip, titanium design, 48MP main camera with 5x optical zoom, Action button, USB-C with USB 3. Super Retina XDR 6.1" ProMotion display.',
     shortDescription: 'A17 Pro, Titanium, 48MP, USB-C, 6.1" ProMotion',
     sku: 'APL-IP15P-001',
     price: 159999,
@@ -681,7 +698,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Sony WH-1000XM5 Wireless Headphones',
     nameBn: 'সনি ডাব্লিউএইচ-১০০০এক্সএম৫ ওয়্যারলেস হেডফোন',
     slug: 'sony-wh-1000xm5',
-    description: 'Sony WH-1000XM5 — industry-leading noise cancellation with Auto NC Optimizer. 30-hour battery, quick charging (3 min = 3 hours). Multipoint connection, Speak-to-Chat, LDAC Hi-Res Audio.',
+    description:
+      'Sony WH-1000XM5 — industry-leading noise cancellation with Auto NC Optimizer. 30-hour battery, quick charging (3 min = 3 hours). Multipoint connection, Speak-to-Chat, LDAC Hi-Res Audio.',
     shortDescription: 'Best-in-class ANC, 30hr battery, Hi-Res Audio',
     sku: 'SNY-WH1000XM5-001',
     price: 32999,
@@ -692,7 +710,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'sony',
     tags: ['sony', 'headphones', 'anc', 'wireless', 'hi-res', 'premium'],
     isFeatured: true,
-    weight: 0.250,
+    weight: 0.25,
     images: [
       'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800&h=800&fit=crop&q=80',
@@ -706,7 +724,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Samsung 43" Crystal UHD 4K Smart TV',
     nameBn: 'স্যামসাং ৪৩" ক্রিস্টাল ইউএইচডি ৪কে স্মার্ট টিভি',
     slug: 'samsung-43-crystal-uhd-4k-tv',
-    description: 'Samsung 43" Crystal UHD 4K Smart TV with Crystal Processor 4K, HDR, PurColor technology, Smart Hub with Tizen OS. Built-in voice assistant, screen mirroring, and multiple HDMI ports.',
+    description:
+      'Samsung 43" Crystal UHD 4K Smart TV with Crystal Processor 4K, HDR, PurColor technology, Smart Hub with Tizen OS. Built-in voice assistant, screen mirroring, and multiple HDMI ports.',
     shortDescription: '43" 4K UHD, Crystal Processor, Smart Hub, HDR',
     sku: 'SAM-TV43-CU-001',
     price: 41999,
@@ -726,7 +745,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Realme C67 4G',
     nameBn: 'রিয়েলমি সি৬৭ ৪জি',
     slug: 'realme-c67-4g',
-    description: 'Realme C67 4G with 108MP main camera, Snapdragon 685 processor, 6.72" 90Hz display, 5000mAh battery with 33W SUPERVOOC charging. Ultra-slim 7.89mm design.',
+    description:
+      'Realme C67 4G with 108MP main camera, Snapdragon 685 processor, 6.72" 90Hz display, 5000mAh battery with 33W SUPERVOOC charging. Ultra-slim 7.89mm design.',
     shortDescription: '108MP, Snapdragon 685, 90Hz, 33W charging',
     sku: 'RLM-C67-001',
     price: 16999,
@@ -746,8 +766,10 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Walton WFA-2F6-RXXX Refrigerator',
     nameBn: 'ওয়ালটন ফ্রিজ ডাবল ডোর',
     slug: 'walton-refrigerator-double-door',
-    description: 'Walton double door frost-free refrigerator, 260L capacity. Inverter compressor for energy efficiency. Vegetable crisper, egg tray, door pockets. Made in Bangladesh with 12-year compressor warranty.',
-    descriptionBn: 'ওয়ালটন ডাবল ডোর ফ্রস্ট-ফ্রি রেফ্রিজারেটর, ২৬০ লিটার ক্যাপাসিটি। ইনভার্টার কম্প্রেসর। বাংলাদেশে তৈরি।',
+    description:
+      'Walton double door frost-free refrigerator, 260L capacity. Inverter compressor for energy efficiency. Vegetable crisper, egg tray, door pockets. Made in Bangladesh with 12-year compressor warranty.',
+    descriptionBn:
+      'ওয়ালটন ডাবল ডোর ফ্রস্ট-ফ্রি রেফ্রিজারেটর, ২৬০ লিটার ক্যাপাসিটি। ইনভার্টার কম্প্রেসর। বাংলাদেশে তৈরি।',
     shortDescription: '260L, Frost-free, Inverter, 12yr warranty',
     sku: 'WAL-REF-260-001',
     price: 32999,
@@ -767,7 +789,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Aarong Leather Messenger Bag',
     nameBn: 'আড়ং লেদার মেসেঞ্জার ব্যাগ',
     slug: 'aarong-leather-messenger-bag',
-    description: 'Handcrafted genuine leather messenger bag from Aarong. Features adjustable strap, multiple compartments, laptop sleeve (fits up to 14"), magnetic clasp closure. Artisan-made in Bangladesh.',
+    description:
+      'Handcrafted genuine leather messenger bag from Aarong. Features adjustable strap, multiple compartments, laptop sleeve (fits up to 14"), magnetic clasp closure. Artisan-made in Bangladesh.',
     shortDescription: 'Genuine leather, handcrafted, fits 14" laptop',
     sku: 'ARG-BAG-MSG-001',
     price: 5800,
@@ -778,7 +801,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'aarong',
     tags: ['aarong', 'bag', 'leather', 'messenger', 'handcrafted'],
     isFeatured: false,
-    weight: 0.900,
+    weight: 0.9,
     images: [
       'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop&q=80',
@@ -792,7 +815,8 @@ const PRODUCTS: ProductSeed[] = [
     name: 'Vivo Y28 5G',
     nameBn: 'ভিভো ওয়াই২৮ ৫জি',
     slug: 'vivo-y28-5g',
-    description: 'Vivo Y28 5G with Dimensity 6020, 6.56" HD+ display, 50MP main camera, 5000mAh battery with 15W charging. 5G ready, IP54 water resistant.',
+    description:
+      'Vivo Y28 5G with Dimensity 6020, 6.56" HD+ display, 50MP main camera, 5000mAh battery with 15W charging. 5G ready, IP54 water resistant.',
     shortDescription: '5G, Dimensity 6020, 50MP, 5000mAh',
     sku: 'VIV-Y28-5G-001',
     price: 18999,
@@ -803,7 +827,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'vivo',
     tags: ['vivo', '5g', 'budget', 'smartphone'],
     isFeatured: false,
-    weight: 0.190,
+    weight: 0.19,
     images: [
       'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&h=800&fit=crop&q=80',
     ],
@@ -812,7 +836,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Huggies Wonder Pants L (42 pcs)',
     slug: 'huggies-wonder-pants-l-42',
-    description: 'Huggies Wonder Pants diapers size L (9-14kg), 42 pieces. Double leak guard, bubble bed softness, up to 12 hours absorption. Gentle on baby skin.',
+    description:
+      'Huggies Wonder Pants diapers size L (9-14kg), 42 pieces. Double leak guard, bubble bed softness, up to 12 hours absorption. Gentle on baby skin.',
     shortDescription: '42 pcs, size L, 12hr absorption, bubble bed',
     sku: 'HUG-WP-L42-001',
     price: 1350,
@@ -824,12 +849,15 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['huggies', 'diapers', 'baby', 'pants'],
     isFeatured: false,
     weight: 1.5,
-    images: ['https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&h=800&fit=crop&q=80',
+    ],
   },
   {
     name: 'Kids Educational Building Blocks (150 pcs)',
     slug: 'kids-building-blocks-150',
-    description: 'Colorful educational building blocks set with 150 pieces. BPA-free, non-toxic ABS plastic. Stimulates creativity and motor skills. Ages 3+.',
+    description:
+      'Colorful educational building blocks set with 150 pieces. BPA-free, non-toxic ABS plastic. Stimulates creativity and motor skills. Ages 3+.',
     shortDescription: '150 pcs, BPA-free, educational, ages 3+',
     sku: 'TOY-BLKS-150-001',
     price: 899,
@@ -840,13 +868,16 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['toys', 'educational', 'blocks', 'kids'],
     isFeatured: false,
     weight: 0.8,
-    images: ['https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Sports & Outdoors
   {
     name: 'Adidas Ultraboost Running Shoes',
     slug: 'adidas-ultraboost-running',
-    description: 'Adidas Ultraboost running shoes with responsive BOOST midsole, Primeknit upper, Continental rubber outsole. Lightweight and breathable for maximum comfort.',
+    description:
+      'Adidas Ultraboost running shoes with responsive BOOST midsole, Primeknit upper, Continental rubber outsole. Lightweight and breathable for maximum comfort.',
     shortDescription: 'BOOST midsole, Primeknit, Continental rubber',
     sku: 'ADI-UB-RUN-001',
     price: 16999,
@@ -857,13 +888,17 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'adidas',
     tags: ['adidas', 'running', 'shoes', 'ultraboost', 'sports'],
     isFeatured: true,
-    weight: 0.650,
-    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=800&fit=crop&q=80', 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&h=800&fit=crop&q=80'],
+    weight: 0.65,
+    images: [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=800&h=800&fit=crop&q=80',
+    ],
   },
   {
     name: 'Professional Yoga Mat with Bag',
     slug: 'professional-yoga-mat',
-    description: 'Premium 6mm thick TPE yoga mat with alignment lines and carrying bag. Non-slip, eco-friendly, moisture resistant. Perfect for yoga, pilates, and home workouts.',
+    description:
+      'Premium 6mm thick TPE yoga mat with alignment lines and carrying bag. Non-slip, eco-friendly, moisture resistant. Perfect for yoga, pilates, and home workouts.',
     shortDescription: '6mm TPE, non-slip, alignment lines, with bag',
     sku: 'SPT-YOGA-MAT-001',
     price: 1499,
@@ -874,13 +909,16 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['yoga', 'mat', 'fitness', 'exercise'],
     isFeatured: false,
     weight: 1.2,
-    images: ['https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Books & Stationery
   {
     name: 'Classic Leather-Bound Journal',
     slug: 'leather-bound-journal',
-    description: 'Handmade leather-bound journal with 200 pages of premium unlined paper. Vintage brass clasp, A5 size. Perfect for writing, sketching, or journaling.',
+    description:
+      'Handmade leather-bound journal with 200 pages of premium unlined paper. Vintage brass clasp, A5 size. Perfect for writing, sketching, or journaling.',
     shortDescription: 'A5 leather, 200 pages, brass clasp, handmade',
     sku: 'BKS-JRNL-LTH-001',
     price: 650,
@@ -890,13 +928,14 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'books-stationery',
     tags: ['journal', 'leather', 'notebook', 'stationery'],
     isFeatured: false,
-    weight: 0.350,
+    weight: 0.35,
     images: ['https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&h=800&fit=crop&q=80'],
   },
   {
     name: 'Premium Fountain Pen Gift Set',
     slug: 'premium-fountain-pen-set',
-    description: 'Elegant fountain pen gift set with brass body, iridium nib, and 6 ink cartridges. Comes in a luxurious gift box. Perfect for signatures and calligraphy.',
+    description:
+      'Elegant fountain pen gift set with brass body, iridium nib, and 6 ink cartridges. Comes in a luxurious gift box. Perfect for signatures and calligraphy.',
     shortDescription: 'Brass body, iridium nib, 6 cartridges, gift box',
     sku: 'BKS-PEN-FTN-001',
     price: 1200,
@@ -906,14 +945,17 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'books-stationery',
     tags: ['pen', 'fountain', 'gift', 'stationery', 'calligraphy'],
     isFeatured: false,
-    weight: 0.200,
-    images: ['https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=800&h=800&fit=crop&q=80'],
+    weight: 0.2,
+    images: [
+      'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Home Decor / Furniture
   {
     name: 'Hatil Elegant Wooden Dining Table',
     slug: 'hatil-wooden-dining-table',
-    description: 'Hatil 6-seater wooden dining table crafted from premium Segun wood. Modern minimalist design with smooth lacquer finish. Made in Bangladesh. 5-year warranty.',
+    description:
+      'Hatil 6-seater wooden dining table crafted from premium Segun wood. Modern minimalist design with smooth lacquer finish. Made in Bangladesh. 5-year warranty.',
     shortDescription: '6-seater, Segun wood, 5yr warranty, Made in BD',
     sku: 'HAT-DT6-SEG-001',
     price: 45000,
@@ -925,12 +967,15 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['hatil', 'dining-table', 'furniture', 'wood', 'made-in-bangladesh'],
     isFeatured: true,
     weight: 35.0,
-    images: ['https://images.unsplash.com/photo-1617806118233-18e1de247200?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1617806118233-18e1de247200?w=800&h=800&fit=crop&q=80',
+    ],
   },
   {
     name: 'Decorative Wall Mirror Round Gold',
     slug: 'decorative-wall-mirror-gold',
-    description: 'Elegant round wall mirror with gold metal frame. 60cm diameter. Adds a touch of luxury to living rooms, bedrooms, or entryways. Easy wall mount included.',
+    description:
+      'Elegant round wall mirror with gold metal frame. 60cm diameter. Adds a touch of luxury to living rooms, bedrooms, or entryways. Easy wall mount included.',
     shortDescription: '60cm round, gold frame, wall mount included',
     sku: 'DEC-MIR-RND-001',
     price: 3500,
@@ -941,13 +986,16 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['mirror', 'decor', 'gold', 'wall', 'living-room'],
     isFeatured: false,
     weight: 3.5,
-    images: ['https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1618220179428-22790b461013?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Makeup / Hair Care / Jewelry
   {
     name: 'MAC Matte Lipstick Collection',
     slug: 'mac-matte-lipstick-collection',
-    description: 'MAC retro matte lipstick set of 3 shades — Ruby Woo, Velvet Teddy, and Diva. Creamy matte finish, long-lasting color, comfortable wear.',
+    description:
+      'MAC retro matte lipstick set of 3 shades — Ruby Woo, Velvet Teddy, and Diva. Creamy matte finish, long-lasting color, comfortable wear.',
     shortDescription: '3 shades, retro matte, long-lasting',
     sku: 'BH-MAC-LIP-001',
     price: 4500,
@@ -957,13 +1005,16 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'makeup',
     tags: ['mac', 'lipstick', 'matte', 'makeup', 'beauty'],
     isFeatured: false,
-    weight: 0.150,
-    images: ['https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&h=800&fit=crop&q=80'],
+    weight: 0.15,
+    images: [
+      'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800&h=800&fit=crop&q=80',
+    ],
   },
   {
     name: 'Gold Plated Pearl Necklace Set',
     slug: 'gold-pearl-necklace-set',
-    description: '18K gold-plated pearl necklace and earring set. Genuine freshwater pearls, adjustable chain (16-20 inches). Elegant design perfect for weddings and special occasions.',
+    description:
+      '18K gold-plated pearl necklace and earring set. Genuine freshwater pearls, adjustable chain (16-20 inches). Elegant design perfect for weddings and special occasions.',
     shortDescription: '18K gold-plated, freshwater pearls, adjustable',
     sku: 'JWL-PRL-SET-001',
     price: 2800,
@@ -973,14 +1024,17 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'jewelry',
     tags: ['jewelry', 'necklace', 'pearl', 'gold', 'wedding'],
     isFeatured: true,
-    weight: 0.080,
-    images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&h=800&fit=crop&q=80'],
+    weight: 0.08,
+    images: [
+      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Tablets / Smart Watches / Cameras
   {
     name: 'Samsung Galaxy Tab S9 FE',
     slug: 'samsung-galaxy-tab-s9-fe',
-    description: 'Samsung Galaxy Tab S9 FE with 10.9" LCD display, Exynos 1380, 6GB RAM, 128GB storage, S Pen included. IP68 water resistant, 8000mAh battery.',
+    description:
+      'Samsung Galaxy Tab S9 FE with 10.9" LCD display, Exynos 1380, 6GB RAM, 128GB storage, S Pen included. IP68 water resistant, 8000mAh battery.',
     shortDescription: '10.9" LCD, S Pen included, IP68, 8000mAh',
     sku: 'SAM-TABS9FE-001',
     price: 44999,
@@ -997,7 +1051,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Canon EOS R50 Mirrorless Camera',
     slug: 'canon-eos-r50-mirrorless',
-    description: 'Canon EOS R50 with 24.2MP APS-C sensor, 4K video, DIGIC X processor, 15fps burst shooting. Compact and lightweight body with RF-S 18-45mm lens kit.',
+    description:
+      'Canon EOS R50 with 24.2MP APS-C sensor, 4K video, DIGIC X processor, 15fps burst shooting. Compact and lightweight body with RF-S 18-45mm lens kit.',
     shortDescription: '24.2MP, 4K, DIGIC X, 15fps, with 18-45mm lens',
     sku: 'CAN-R50-KIT-001',
     price: 89999,
@@ -1009,13 +1064,17 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['canon', 'mirrorless', 'camera', '4k', 'photography'],
     isFeatured: true,
     weight: 0.375,
-    images: ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&h=800&fit=crop&q=80', 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Snacks / Beverages
   {
     name: 'Pran Frooto Mango Juice 1L (6 Pack)',
     slug: 'pran-frooto-mango-juice-6pack',
-    description: 'Pran Frooto mango juice drink, 1 liter pack of 6. Made from real mango pulp with no artificial colors. Refreshing and naturally delicious.',
+    description:
+      'Pran Frooto mango juice drink, 1 liter pack of 6. Made from real mango pulp with no artificial colors. Refreshing and naturally delicious.',
     shortDescription: '6x 1L, real mango pulp, no artificial colors',
     sku: 'PRN-FROOT-1L-6PK',
     price: 480,
@@ -1032,7 +1091,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Premium Mixed Nuts & Dry Fruits 500g',
     slug: 'premium-mixed-nuts-500g',
-    description: 'Premium mix of cashews, almonds, pistachios, raisins and dried cranberries. Roasted and lightly salted. Packed in resealable pouch. Healthy snacking choice.',
+    description:
+      'Premium mix of cashews, almonds, pistachios, raisins and dried cranberries. Roasted and lightly salted. Packed in resealable pouch. Healthy snacking choice.',
     shortDescription: '500g, 5 varieties, roasted, resealable pouch',
     sku: 'GRC-NUTS-MIX-500',
     price: 950,
@@ -1042,14 +1102,17 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'snacks',
     tags: ['nuts', 'dry-fruits', 'snacks', 'healthy', 'premium'],
     isFeatured: false,
-    weight: 0.500,
-    images: ['https://images.unsplash.com/photo-1599599810694-b5b37304c041?w=800&h=800&fit=crop&q=80'],
+    weight: 0.5,
+    images: [
+      'https://images.unsplash.com/photo-1599599810694-b5b37304c041?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // Additional fashion/electronics
   {
     name: 'Apple Watch Series 9 GPS',
     slug: 'apple-watch-series-9-gps',
-    description: 'Apple Watch Series 9 with S9 chip, bright Always-On Retina display, blood oxygen sensor, ECG, crash detection. Double tap gesture. 45mm aluminum case.',
+    description:
+      'Apple Watch Series 9 with S9 chip, bright Always-On Retina display, blood oxygen sensor, ECG, crash detection. Double tap gesture. 45mm aluminum case.',
     shortDescription: 'S9 chip, Always-On, SpO2, ECG, 45mm',
     sku: 'APL-AWS9-45-001',
     price: 59999,
@@ -1066,7 +1129,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Adidas Classic Backpack',
     slug: 'adidas-classic-backpack',
-    description: 'Adidas classic backpack with padded laptop compartment, front zip pocket, and adjustable padded straps. Recycled polyester exterior. 25L capacity.',
+    description:
+      'Adidas classic backpack with padded laptop compartment, front zip pocket, and adjustable padded straps. Recycled polyester exterior. 25L capacity.',
     shortDescription: '25L, laptop pocket, recycled polyester',
     sku: 'ADI-BP-CLS-001',
     price: 3200,
@@ -1077,13 +1141,14 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'adidas',
     tags: ['adidas', 'backpack', 'bag', 'laptop', 'sports'],
     isFeatured: false,
-    weight: 0.450,
+    weight: 0.45,
     images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=800&fit=crop&q=80'],
   },
   {
     name: 'Samsung Galaxy Buds2 Pro',
     slug: 'samsung-galaxy-buds2-pro',
-    description: 'Samsung Galaxy Buds2 Pro with intelligent ANC, Hi-Fi 24bit audio, 360 Audio, IPX7 water resistant, up to 29hrs battery with case. Seamless Galaxy ecosystem.',
+    description:
+      'Samsung Galaxy Buds2 Pro with intelligent ANC, Hi-Fi 24bit audio, 360 Audio, IPX7 water resistant, up to 29hrs battery with case. Seamless Galaxy ecosystem.',
     shortDescription: 'Hi-Fi ANC, 360 Audio, IPX7, 29hr battery',
     sku: 'SAM-BUDS2P-001',
     price: 14999,
@@ -1095,12 +1160,15 @@ const PRODUCTS: ProductSeed[] = [
     tags: ['samsung', 'earbuds', 'anc', 'wireless', 'buds'],
     isFeatured: false,
     weight: 0.006,
-    images: ['https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=800&h=800&fit=crop&q=80'],
+    images: [
+      'https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=800&h=800&fit=crop&q=80',
+    ],
   },
   {
     name: 'Unilever TRESemme Keratin Shampoo 580ml',
     slug: 'tresemme-keratin-shampoo-580ml',
-    description: 'TRESemme Keratin Smooth shampoo 580ml. Infused with Keratin and Argan oil for 5 benefits: frizz control, smooth, shine, soft, manageable. Salon-quality hair care.',
+    description:
+      'TRESemme Keratin Smooth shampoo 580ml. Infused with Keratin and Argan oil for 5 benefits: frizz control, smooth, shine, soft, manageable. Salon-quality hair care.',
     shortDescription: '580ml, keratin + argan oil, 5 benefits',
     sku: 'UNI-TRES-KS-580',
     price: 520,
@@ -1111,14 +1179,17 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'unilever',
     tags: ['tresemme', 'shampoo', 'keratin', 'hair-care'],
     isFeatured: false,
-    weight: 0.620,
-    images: ['https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=800&h=800&fit=crop&q=80'],
+    weight: 0.62,
+    images: [
+      'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=800&h=800&fit=crop&q=80',
+    ],
   },
   // ──── Additional Products ─────────────────────────────────────────────────
   {
     name: 'Nike Air Max 270 Sneakers',
     slug: 'nike-air-max-270-sneakers',
-    description: 'Nike Air Max 270 with the largest-ever Max Air unit for a soft, comfortable ride. Mesh upper for breathability, foam midsole, and rubber outsole for traction.',
+    description:
+      'Nike Air Max 270 with the largest-ever Max Air unit for a soft, comfortable ride. Mesh upper for breathability, foam midsole, and rubber outsole for traction.',
     shortDescription: 'Max Air unit, mesh upper, foam midsole',
     sku: 'NIK-AM270-001',
     price: 14999,
@@ -1128,7 +1199,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'shoes',
     tags: ['nike', 'sneakers', 'air-max', 'shoes', 'sports'],
     isFeatured: true,
-    weight: 0.340,
+    weight: 0.34,
     images: [
       'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=800&fit=crop&q=80',
@@ -1137,7 +1208,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'OnePlus 12 5G',
     slug: 'oneplus-12-5g',
-    description: 'OnePlus 12 5G with Snapdragon 8 Gen 3, 6.82" 2K LTPO AMOLED 120Hz, Hasselblad 50MP triple camera, 5400mAh with 100W SUPERVOOC. Flagship killer.',
+    description:
+      'OnePlus 12 5G with Snapdragon 8 Gen 3, 6.82" 2K LTPO AMOLED 120Hz, Hasselblad 50MP triple camera, 5400mAh with 100W SUPERVOOC. Flagship killer.',
     shortDescription: 'SD 8 Gen 3, 2K AMOLED, Hasselblad Camera, 100W',
     sku: 'OP-12-5G-001',
     price: 79999,
@@ -1147,7 +1219,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'smartphones',
     tags: ['oneplus', 'flagship', '5g', 'smartphone', 'hasselblad'],
     isFeatured: true,
-    weight: 0.220,
+    weight: 0.22,
     images: [
       'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=800&h=800&fit=crop&q=80',
@@ -1156,7 +1228,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Logitech MX Master 3S Mouse',
     slug: 'logitech-mx-master-3s',
-    description: 'Logitech MX Master 3S wireless mouse with 8K DPI tracking, quiet clicks, MagSpeed scroll wheel, USB-C quick charge. Works on glass. Multi-device with Easy-Switch.',
+    description:
+      'Logitech MX Master 3S wireless mouse with 8K DPI tracking, quiet clicks, MagSpeed scroll wheel, USB-C quick charge. Works on glass. Multi-device with Easy-Switch.',
     shortDescription: '8K DPI, quiet clicks, MagSpeed, USB-C',
     sku: 'LOG-MXM3S-001',
     price: 9999,
@@ -1174,7 +1247,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Embroidered Silk Kameez Set',
     slug: 'embroidered-silk-kameez-set',
-    description: 'Luxurious embroidered silk kameez with matching dupatta and palazzo. Intricate thread and sequin work. Available in emerald green and royal maroon. Perfect for weddings and Eid.',
+    description:
+      'Luxurious embroidered silk kameez with matching dupatta and palazzo. Intricate thread and sequin work. Available in emerald green and royal maroon. Perfect for weddings and Eid.',
     descriptionBn: 'দারুণ এমব্রয়ডারি করা সিল্ক কামিজ সেট। ম্যাচিং দুপাট্টা ও পালাজো সহ।',
     shortDescription: 'Silk, embroidered, 3-piece set, festive',
     sku: 'FSH-SILK-KMZ-001',
@@ -1186,7 +1260,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'aarong',
     tags: ['silk', 'kameez', 'embroidered', 'wedding', 'eid', 'women'],
     isFeatured: true,
-    weight: 0.600,
+    weight: 0.6,
     images: [
       'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800&h=800&fit=crop&q=80',
@@ -1195,7 +1269,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Havit Gaming Mechanical Keyboard',
     slug: 'havit-gaming-mechanical-keyboard',
-    description: 'Havit mechanical gaming keyboard with RGB backlighting, blue switches, anti-ghosting keys, metal body. USB wired with braided cable. Perfect for gaming and typing.',
+    description:
+      'Havit mechanical gaming keyboard with RGB backlighting, blue switches, anti-ghosting keys, metal body. USB wired with braided cable. Perfect for gaming and typing.',
     shortDescription: 'Mechanical blue switch, RGB, anti-ghosting',
     sku: 'HAV-KB-MECH-001',
     price: 3499,
@@ -1205,7 +1280,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'electronics',
     tags: ['keyboard', 'mechanical', 'gaming', 'rgb', 'havit'],
     isFeatured: false,
-    weight: 0.850,
+    weight: 0.85,
     images: [
       'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&h=800&fit=crop&q=80',
     ],
@@ -1213,7 +1288,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Wooden Bookshelf 5 Tier',
     slug: 'wooden-bookshelf-5-tier',
-    description: 'Modern 5-tier wooden bookshelf with industrial metal frame. Holds books, plants, and decor. Dimensions: 150cm H x 80cm W x 30cm D. Easy assembly with instructions.',
+    description:
+      'Modern 5-tier wooden bookshelf with industrial metal frame. Holds books, plants, and decor. Dimensions: 150cm H x 80cm W x 30cm D. Easy assembly with instructions.',
     shortDescription: '5 tiers, wood & metal, 150x80x30cm',
     sku: 'FRN-BKSHF-5T-001',
     price: 8500,
@@ -1232,7 +1308,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Ray-Ban Aviator Sunglasses',
     slug: 'ray-ban-aviator-sunglasses',
-    description: 'Classic Ray-Ban Aviator sunglasses with gold metal frame, green G-15 lenses, 100% UV protection. Iconic pilot shape. Includes Ray-Ban case and cleaning cloth.',
+    description:
+      'Classic Ray-Ban Aviator sunglasses with gold metal frame, green G-15 lenses, 100% UV protection. Iconic pilot shape. Includes Ray-Ban case and cleaning cloth.',
     shortDescription: 'Gold frame, G-15 lens, 100% UV, iconic pilot',
     sku: 'RB-AVIA-GLD-001',
     price: 12999,
@@ -1242,7 +1319,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'jewelry',
     tags: ['ray-ban', 'sunglasses', 'aviator', 'uv-protection'],
     isFeatured: true,
-    weight: 0.030,
+    weight: 0.03,
     images: [
       'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&h=800&fit=crop&q=80',
@@ -1251,7 +1328,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Organic Green Tea Collection (50 bags)',
     slug: 'organic-green-tea-50-bags',
-    description: 'Premium organic green tea collection with 5 flavors: jasmine, mint, lemon, chamomile, and classic. 50 individually wrapped tea bags. Rich in antioxidants.',
+    description:
+      'Premium organic green tea collection with 5 flavors: jasmine, mint, lemon, chamomile, and classic. 50 individually wrapped tea bags. Rich in antioxidants.',
     shortDescription: '50 bags, 5 flavors, organic, antioxidant-rich',
     sku: 'GRC-TEA-GRN-50',
     price: 450,
@@ -1261,15 +1339,14 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'beverages',
     tags: ['tea', 'green-tea', 'organic', 'healthy', 'beverage'],
     isFeatured: false,
-    weight: 0.200,
-    images: [
-      'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=800&fit=crop&q=80',
-    ],
+    weight: 0.2,
+    images: ['https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=800&fit=crop&q=80'],
   },
   {
     name: 'Baby Soft Cotton Romper Set (3 pcs)',
     slug: 'baby-cotton-romper-set-3pcs',
-    description: '100% organic cotton baby romper set, pack of 3. Soft snap closures, comfortable for all-day wear. Ages 0-12 months. Machine washable. Pastel colors.',
+    description:
+      '100% organic cotton baby romper set, pack of 3. Soft snap closures, comfortable for all-day wear. Ages 0-12 months. Machine washable. Pastel colors.',
     shortDescription: '3 pcs, organic cotton, 0-12 months, pastel',
     sku: 'BBY-ROMP-3PK-001',
     price: 1299,
@@ -1279,15 +1356,14 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'diapers-wipes',
     tags: ['baby', 'romper', 'cotton', 'organic', 'clothes'],
     isFeatured: false,
-    weight: 0.300,
-    images: [
-      'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800&h=800&fit=crop&q=80',
-    ],
+    weight: 0.3,
+    images: ['https://images.unsplash.com/photo-1522771930-78848d9293e8?w=800&h=800&fit=crop&q=80'],
   },
   {
     name: 'Philips Air Fryer HD9252',
     slug: 'philips-air-fryer-hd9252',
-    description: 'Philips Essential Air Fryer HD9252 with Rapid Air technology. 4.1L capacity, 1400W. Fry, bake, grill, and roast with up to 90% less fat. Digital touchscreen, 7 presets.',
+    description:
+      'Philips Essential Air Fryer HD9252 with Rapid Air technology. 4.1L capacity, 1400W. Fry, bake, grill, and roast with up to 90% less fat. Digital touchscreen, 7 presets.',
     shortDescription: '4.1L, 1400W, 90% less fat, 7 presets',
     sku: 'PHL-AF-HD9252-001',
     price: 12999,
@@ -1305,7 +1381,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Cotton Polo T-Shirt (Pack of 3)',
     slug: 'cotton-polo-tshirt-3pack',
-    description: 'Premium 100% combed cotton polo t-shirts, pack of 3. Colors: navy, white, and olive green. Regular fit, ribbed collar, two-button placket. Sizes M-XXL.',
+    description:
+      'Premium 100% combed cotton polo t-shirts, pack of 3. Colors: navy, white, and olive green. Regular fit, ribbed collar, two-button placket. Sizes M-XXL.',
     shortDescription: '3 pack, combed cotton, M-XXL, regular fit',
     sku: 'FSH-POLO-3PK-001',
     price: 1999,
@@ -1316,7 +1393,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'yellow',
     tags: ['polo', 't-shirt', 'cotton', 'men', 'casual'],
     isFeatured: false,
-    weight: 0.500,
+    weight: 0.5,
     images: [
       'https://images.unsplash.com/photo-1625910513413-5fc421e0db4e?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&h=800&fit=crop&q=80',
@@ -1325,7 +1402,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'JBL Flip 6 Portable Speaker',
     slug: 'jbl-flip-6-speaker',
-    description: 'JBL Flip 6 portable Bluetooth speaker with powerful JBL Original Pro Sound, IP67 waterproof and dustproof, 12-hour playtime. PartyBoost for pairing multiple speakers.',
+    description:
+      'JBL Flip 6 portable Bluetooth speaker with powerful JBL Original Pro Sound, IP67 waterproof and dustproof, 12-hour playtime. PartyBoost for pairing multiple speakers.',
     shortDescription: 'IP67, 12hr battery, PartyBoost, Pro Sound',
     sku: 'JBL-FLIP6-001',
     price: 9499,
@@ -1336,7 +1414,7 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'jbl',
     tags: ['jbl', 'speaker', 'bluetooth', 'portable', 'waterproof'],
     isFeatured: true,
-    weight: 0.550,
+    weight: 0.55,
     images: [
       'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&h=800&fit=crop&q=80',
     ],
@@ -1344,7 +1422,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Ceramic Plant Pots Set (3 pcs)',
     slug: 'ceramic-plant-pots-set-3pcs',
-    description: 'Minimalist ceramic plant pots set of 3 with bamboo trays. Sizes: small (10cm), medium (13cm), large (16cm). Drainage holes, matte finish. White, grey, terracotta.',
+    description:
+      'Minimalist ceramic plant pots set of 3 with bamboo trays. Sizes: small (10cm), medium (13cm), large (16cm). Drainage holes, matte finish. White, grey, terracotta.',
     shortDescription: '3 pcs, bamboo trays, matte finish, drainage',
     sku: 'DEC-POT-CRM-3PK',
     price: 1299,
@@ -1354,7 +1433,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'home-decor',
     tags: ['plant-pot', 'ceramic', 'decor', 'garden', 'minimalist'],
     isFeatured: false,
-    weight: 1.800,
+    weight: 1.8,
     images: [
       'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&h=800&fit=crop&q=80',
     ],
@@ -1362,7 +1441,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Dell UltraSharp 27" 4K Monitor',
     slug: 'dell-ultrasharp-27-4k-monitor',
-    description: 'Dell UltraSharp U2723QE 27" 4K IPS monitor. 100% sRGB, 98% DCI-P3, USB-C with 90W power delivery, KVM switch, daisy chain. Factory calibrated with ComfortView Plus.',
+    description:
+      'Dell UltraSharp U2723QE 27" 4K IPS monitor. 100% sRGB, 98% DCI-P3, USB-C with 90W power delivery, KVM switch, daisy chain. Factory calibrated with ComfortView Plus.',
     shortDescription: '27" 4K IPS, USB-C 90W, 98% DCI-P3',
     sku: 'DEL-U2723QE-001',
     price: 52999,
@@ -1380,7 +1460,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Stainless Steel Water Bottle 750ml',
     slug: 'stainless-steel-water-bottle-750ml',
-    description: 'Double-wall vacuum insulated stainless steel water bottle. Keeps drinks cold 24hrs / hot 12hrs. BPA-free lid, leak-proof. Powder-coated matte finish.',
+    description:
+      'Double-wall vacuum insulated stainless steel water bottle. Keeps drinks cold 24hrs / hot 12hrs. BPA-free lid, leak-proof. Powder-coated matte finish.',
     shortDescription: '750ml, vacuum insulated, 24hr cold, leak-proof',
     sku: 'SPT-WB-SS-750',
     price: 699,
@@ -1390,15 +1471,16 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'sports-outdoors',
     tags: ['water-bottle', 'stainless-steel', 'insulated', 'sports', 'eco'],
     isFeatured: false,
-    weight: 0.340,
+    weight: 0.34,
     images: [
       'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&h=800&fit=crop&q=80',
     ],
   },
   {
-    name: 'Women\'s Running Shoes Ultralight',
+    name: "Women's Running Shoes Ultralight",
     slug: 'womens-running-shoes-ultralight',
-    description: 'Ultra-lightweight women\'s running shoes with responsive cushioning, breathable mesh upper, rubber outsole. Reflective details for visibility. Perfect for jogging and gym.',
+    description:
+      "Ultra-lightweight women's running shoes with responsive cushioning, breathable mesh upper, rubber outsole. Reflective details for visibility. Perfect for jogging and gym.",
     shortDescription: 'Ultralight, breathable mesh, responsive cushion',
     sku: 'SPT-WRS-UL-001',
     price: 5999,
@@ -1408,7 +1490,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'shoes',
     tags: ['running', 'shoes', 'women', 'ultralight', 'sports'],
     isFeatured: false,
-    weight: 0.230,
+    weight: 0.23,
     images: [
       'https://images.unsplash.com/photo-1539185441755-769473a23570?w=800&h=800&fit=crop&q=80',
       'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=800&h=800&fit=crop&q=80',
@@ -1417,7 +1499,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Xiaomi Mi Band 8 Fitness Tracker',
     slug: 'xiaomi-mi-band-8',
-    description: 'Xiaomi Mi Band 8 with 1.62" AMOLED display, 150+ workout modes, SpO2 monitoring, 16-day battery life, 5ATM water resistant. Sleep and stress tracking.',
+    description:
+      'Xiaomi Mi Band 8 with 1.62" AMOLED display, 150+ workout modes, SpO2 monitoring, 16-day battery life, 5ATM water resistant. Sleep and stress tracking.',
     shortDescription: '1.62" AMOLED, 150+ modes, SpO2, 16-day battery',
     sku: 'XIA-MB8-001',
     price: 3499,
@@ -1436,7 +1519,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Instant Noodles Variety Box (24 packs)',
     slug: 'instant-noodles-variety-24pack',
-    description: 'Assorted instant noodles variety box, 24 packs. Includes masala, chicken, prawn, and vegetable flavors from top Bangladeshi brands. Quick meal solution.',
+    description:
+      'Assorted instant noodles variety box, 24 packs. Includes masala, chicken, prawn, and vegetable flavors from top Bangladeshi brands. Quick meal solution.',
     shortDescription: '24 packs, 4 flavors, instant, variety box',
     sku: 'GRC-NDLS-VAR-24',
     price: 720,
@@ -1446,7 +1530,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'snacks',
     tags: ['noodles', 'instant', 'snacks', 'variety', 'food'],
     isFeatured: false,
-    weight: 1.800,
+    weight: 1.8,
     images: [
       'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800&h=800&fit=crop&q=80',
     ],
@@ -1454,7 +1538,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Maybelline Fit Me Foundation',
     slug: 'maybelline-fit-me-foundation',
-    description: 'Maybelline Fit Me Matte + Poreless foundation. Lightweight oil-free formula, blurs pores, controls shine. Available in 40 shades. Dermatologist tested.',
+    description:
+      'Maybelline Fit Me Matte + Poreless foundation. Lightweight oil-free formula, blurs pores, controls shine. Available in 40 shades. Dermatologist tested.',
     shortDescription: 'Matte + Poreless, oil-free, 40 shades',
     sku: 'BH-MAYB-FTM-001',
     price: 1350,
@@ -1464,7 +1549,7 @@ const PRODUCTS: ProductSeed[] = [
     categorySlug: 'makeup',
     tags: ['maybelline', 'foundation', 'matte', 'makeup', 'beauty'],
     isFeatured: false,
-    weight: 0.110,
+    weight: 0.11,
     images: [
       'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop&q=80',
     ],
@@ -1472,7 +1557,8 @@ const PRODUCTS: ProductSeed[] = [
   {
     name: 'Dettol Antibacterial Handwash 1L (2 Pack)',
     slug: 'dettol-handwash-1l-2pack',
-    description: 'Dettol antibacterial liquid handwash 1L refill pack of 2. Kills 99.9% germs. Moisturizing formula with glycerin. Suitable for the whole family.',
+    description:
+      'Dettol antibacterial liquid handwash 1L refill pack of 2. Kills 99.9% germs. Moisturizing formula with glycerin. Suitable for the whole family.',
     shortDescription: '2x 1L refill, kills 99.9% germs, moisturizing',
     sku: 'UNI-DETTOL-HW-2PK',
     price: 550,
@@ -1483,9 +1569,537 @@ const PRODUCTS: ProductSeed[] = [
     brandSlug: 'unilever',
     tags: ['dettol', 'handwash', 'antibacterial', 'hygiene'],
     isFeatured: false,
-    weight: 2.100,
+    weight: 2.1,
     images: [
       'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9e?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  // Category coverage fillers — ensure every leaf category has >=3 products
+  // so /categories, /categories/[slug], /shop and /deals pages all render.
+  // -------------------------------------------------------------------------
+
+  // --- Tablets ---
+  {
+    name: 'Samsung Galaxy Tab A9+',
+    nameBn: 'স্যামসাং গ্যালাক্সি ট্যাব এ৯+',
+    slug: 'samsung-galaxy-tab-a9-plus',
+    description:
+      'Samsung Galaxy Tab A9+ with 11" 90Hz display, Snapdragon 695, quad speakers, 7040mAh battery. Great for streaming, study and light gaming.',
+    shortDescription: '11" 90Hz, SD 695, quad speakers, 7040mAh',
+    sku: 'SAM-TABA9P-001',
+    price: 29999,
+    compareAtPrice: 33999,
+    costPrice: 24000,
+    quantity: 80,
+    categorySlug: 'tablets',
+    brandSlug: 'samsung',
+    tags: ['samsung', 'tablet', 'galaxy-tab', 'android'],
+    isFeatured: true,
+    weight: 0.48,
+    images: [
+      'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1587033411391-5d9e51cce126?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Xiaomi Redmi Pad SE',
+    slug: 'xiaomi-redmi-pad-se',
+    description:
+      'Redmi Pad SE with 11" 90Hz FHD+ display, Snapdragon 680, 8000mAh battery, quad Dolby Atmos speakers. Smooth everyday tablet.',
+    shortDescription: '11" 90Hz, SD 680, 8000mAh, Dolby Atmos',
+    sku: 'XIA-RPSE-001',
+    price: 21999,
+    compareAtPrice: 24999,
+    costPrice: 17000,
+    quantity: 95,
+    categorySlug: 'tablets',
+    brandSlug: 'xiaomi',
+    tags: ['xiaomi', 'redmi', 'tablet', 'budget'],
+    isFeatured: false,
+    weight: 0.478,
+    images: ['https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&h=800&fit=crop&q=80'],
+  },
+
+  // --- Cameras ---
+  {
+    name: 'Canon EOS 200D II DSLR',
+    nameBn: 'ক্যানন ইওএস ২০০ডি II ডিএসএলআর',
+    slug: 'canon-eos-200d-ii',
+    description:
+      'Canon EOS 200D II DSLR with 24.1MP APS-C sensor, DIGIC 8, 4K video, vari-angle touchscreen, Dual Pixel AF. Includes EF-S 18-55mm lens.',
+    shortDescription: '24.1MP, 4K, vari-angle, w/ 18-55mm kit lens',
+    sku: 'CAN-200DII-KIT',
+    price: 74999,
+    compareAtPrice: 82999,
+    costPrice: 62000,
+    quantity: 30,
+    categorySlug: 'cameras',
+    brandSlug: 'canon',
+    tags: ['canon', 'dslr', 'camera', '4k', 'beginner'],
+    isFeatured: true,
+    weight: 0.45,
+    images: [
+      'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=800&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1519638831568-d9897f54ed69?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Sony ZV-1 Vlog Camera',
+    slug: 'sony-zv-1-vlog-camera',
+    description:
+      'Sony ZV-1 compact vlog camera with 1" sensor, ZEISS 24-70mm f/1.8-2.8 lens, side-flip screen, directional 3-capsule mic. Perfect for creators.',
+    shortDescription: '1" sensor, flip screen, directional mic, 4K',
+    sku: 'SON-ZV1-001',
+    price: 79999,
+    compareAtPrice: 87999,
+    costPrice: 68000,
+    quantity: 20,
+    categorySlug: 'cameras',
+    brandSlug: 'sony',
+    tags: ['sony', 'camera', 'vlog', 'content-creator', '4k'],
+    isFeatured: true,
+    weight: 0.294,
+    images: [
+      'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Rice & Flour ---
+  {
+    name: 'Pran Miniket Rice 25kg',
+    nameBn: 'প্রাণ মিনিকেট চাল ২৫ কেজি',
+    slug: 'pran-miniket-rice-25kg',
+    description:
+      'Pran premium miniket rice, 25kg family pack. Polished long-grain rice, machine cleaned, ideal for everyday meals.',
+    shortDescription: 'Premium miniket, long-grain, 25kg family pack',
+    sku: 'PRN-RICE-MK-25KG',
+    price: 1950,
+    compareAtPrice: 2150,
+    costPrice: 1600,
+    quantity: 250,
+    categorySlug: 'rice-flour',
+    brandSlug: 'pran',
+    tags: ['pran', 'rice', 'miniket', 'staple'],
+    isFeatured: false,
+    weight: 25,
+    images: [
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'ACI Pure Atta 2kg',
+    slug: 'aci-pure-atta-2kg',
+    description:
+      'ACI Pure whole-wheat atta, 2kg. Finely ground for soft rotis and parathas. Packaged in a food-grade hygienic pack.',
+    shortDescription: 'Whole wheat, fine grind, 2kg pack',
+    sku: 'ACI-ATTA-2KG',
+    price: 160,
+    compareAtPrice: 180,
+    costPrice: 120,
+    quantity: 600,
+    categorySlug: 'rice-flour',
+    brandSlug: 'aci',
+    tags: ['aci', 'atta', 'wheat', 'staple'],
+    isFeatured: false,
+    weight: 2,
+    images: [
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Spices ---
+  {
+    name: 'Radhuni Mixed Masala Pack (5 items)',
+    slug: 'radhuni-mixed-masala-pack',
+    description:
+      'Radhuni mixed masala set — garam masala, biryani masala, meat masala, chicken masala and kebab masala, 50g each. Traditional Bangladeshi blends.',
+    shortDescription: '5 masalas, 50g each, authentic blends',
+    sku: 'RAD-MSL-PK5',
+    price: 340,
+    compareAtPrice: 420,
+    costPrice: 240,
+    quantity: 400,
+    categorySlug: 'spices',
+    tags: ['radhuni', 'spices', 'masala', 'biryani', 'cooking'],
+    isFeatured: false,
+    weight: 0.3,
+    images: [
+      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Square Pure Red Chilli Powder 500g',
+    slug: 'square-red-chilli-powder-500g',
+    description:
+      'Square Pure red chilli powder, 500g. Stone-ground for maximum colour and aroma. No artificial colour, no preservatives.',
+    shortDescription: 'Stone-ground, pure, 500g pack',
+    sku: 'SQR-CHILLI-500G',
+    price: 220,
+    compareAtPrice: 250,
+    costPrice: 150,
+    quantity: 450,
+    categorySlug: 'spices',
+    tags: ['square', 'chilli', 'spice', 'pure'],
+    isFeatured: false,
+    weight: 0.5,
+    images: [
+      'https://images.unsplash.com/photo-1599909533730-3ff09eac3bf6?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Bedding ---
+  {
+    name: 'Classical Hometex Queen Comforter Set',
+    slug: 'classical-queen-comforter-set',
+    description:
+      'Queen-size comforter set, 5 pieces. Microfiber fill with 220-thread-count cotton shell, 2 pillow shams, 2 decorative cushions.',
+    shortDescription: '5 pcs, microfiber, 220 TC cotton shell',
+    sku: 'HTX-COMF-Q-5PC',
+    price: 4800,
+    compareAtPrice: 5999,
+    costPrice: 3400,
+    quantity: 55,
+    categorySlug: 'bedding',
+    tags: ['bedding', 'comforter', 'queen', 'cotton', 'home'],
+    isFeatured: false,
+    weight: 2.2,
+    images: [
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Memory Foam Pillow 2-Pack',
+    slug: 'memory-foam-pillow-2pack',
+    description:
+      'Ergonomic memory foam pillow, pack of 2. Contoured shape for neck support, breathable bamboo cover, hypoallergenic.',
+    shortDescription: 'Contoured memory foam, bamboo cover, 2 pcs',
+    sku: 'BED-MFP-2PK',
+    price: 1800,
+    compareAtPrice: 2400,
+    costPrice: 1200,
+    quantity: 110,
+    categorySlug: 'bedding',
+    tags: ['pillow', 'memory-foam', 'bedding', 'ergonomic'],
+    isFeatured: true,
+    weight: 1.8,
+    images: [
+      'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Hair care ---
+  {
+    name: 'Dove Intense Repair Shampoo 650ml',
+    slug: 'dove-intense-repair-shampoo-650ml',
+    description:
+      'Dove Intense Repair shampoo 650ml — Keratin Actives help repair damaged hair from within. Salon-quality care for everyday use.',
+    shortDescription: 'Keratin Actives, 650ml, repair damaged hair',
+    sku: 'UNI-DOVE-SHP-650',
+    price: 640,
+    compareAtPrice: 780,
+    costPrice: 420,
+    quantity: 280,
+    categorySlug: 'hair-care',
+    brandSlug: 'unilever',
+    tags: ['dove', 'shampoo', 'hair', 'keratin'],
+    isFeatured: false,
+    weight: 0.7,
+    images: [
+      'https://images.unsplash.com/photo-1526045478516-99145907023c?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Parachute Advansed Coconut Hair Oil 300ml',
+    slug: 'parachute-advansed-hair-oil-300ml',
+    description:
+      'Parachute Advansed pure coconut hair oil, 300ml. Deeply nourishes roots, strengthens hair and reduces hair fall.',
+    shortDescription: 'Pure coconut oil, 300ml, anti-hair-fall',
+    sku: 'PAR-ADV-300',
+    price: 280,
+    compareAtPrice: 320,
+    costPrice: 200,
+    quantity: 500,
+    categorySlug: 'hair-care',
+    tags: ['parachute', 'hair-oil', 'coconut', 'hair-care'],
+    isFeatured: false,
+    weight: 0.33,
+    images: [
+      'https://images.unsplash.com/photo-1571781565057-47b30e0b4f52?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Personal care ---
+  {
+    name: 'Gillette Mach3 Razor + 4 Cartridges',
+    slug: 'gillette-mach3-razor-pack',
+    description:
+      'Gillette Mach3 razor with 1 handle and 4 triple-blade cartridges. Pivoting head and lubricating strip for a close, smooth shave.',
+    shortDescription: 'Handle + 4 triple-blade cartridges',
+    sku: 'GIL-M3-PK5',
+    price: 790,
+    compareAtPrice: 950,
+    costPrice: 520,
+    quantity: 220,
+    categorySlug: 'personal-care',
+    tags: ['gillette', 'razor', 'shaving', 'personal-care', 'mens'],
+    isFeatured: false,
+    weight: 0.15,
+    images: [
+      'https://images.unsplash.com/photo-1589782182703-2aaa69037b5b?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Colgate MaxFresh Toothpaste 150g (2 Pack)',
+    slug: 'colgate-maxfresh-150g-2pack',
+    description:
+      'Colgate MaxFresh with cooling crystals, 150g x 2. 12-hour fresh breath, fights plaque and cavities.',
+    shortDescription: '2 x 150g, cooling crystals, 12hr freshness',
+    sku: 'COL-MAXFRESH-2PK',
+    price: 340,
+    compareAtPrice: 400,
+    costPrice: 230,
+    quantity: 450,
+    categorySlug: 'personal-care',
+    tags: ['colgate', 'toothpaste', 'oral-care', 'personal-care'],
+    isFeatured: false,
+    weight: 0.35,
+    images: ['https://images.unsplash.com/photo-1559591935-c6a8a7e3a8ca?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Nivea Men Deep Deodorant 150ml',
+    slug: 'nivea-men-deep-deo-150ml',
+    description:
+      'Nivea Men Deep antibacterial deodorant spray, 150ml. 48-hour odour protection with black charcoal formula.',
+    shortDescription: '48hr protection, black charcoal, 150ml',
+    sku: 'NIV-DEEP-150',
+    price: 420,
+    compareAtPrice: 520,
+    costPrice: 280,
+    quantity: 300,
+    categorySlug: 'personal-care',
+    tags: ['nivea', 'deodorant', 'mens', 'personal-care'],
+    isFeatured: false,
+    weight: 0.18,
+    images: [
+      'https://images.unsplash.com/photo-1585238342028-4bbc1c5f5d2f?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Baby food ---
+  {
+    name: 'Cerelac Wheat-Apple 400g',
+    nameBn: 'সেরেলাক গম-আপেল ৪০০ গ্রাম',
+    slug: 'cerelac-wheat-apple-400g',
+    description:
+      'Nestlé Cerelac wheat-apple baby cereal, 400g. Fortified with iron and 12 essential vitamins & minerals for babies 6+ months.',
+    shortDescription: '6m+, iron-fortified, wheat-apple, 400g',
+    sku: 'NES-CRL-WA-400',
+    price: 620,
+    compareAtPrice: 720,
+    costPrice: 460,
+    quantity: 260,
+    categorySlug: 'baby-food',
+    tags: ['nestle', 'cerelac', 'baby-food', 'cereal'],
+    isFeatured: true,
+    weight: 0.42,
+    images: ['https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=800&h=800&fit=crop&q=80'],
+  },
+  {
+    name: 'Lactogen 2 Follow-up Formula 400g',
+    slug: 'lactogen-2-400g',
+    description:
+      'Nestlé Lactogen 2 follow-up infant formula, 400g. Designed for 6+ month infants; contains DHA, iron and probiotics.',
+    shortDescription: '6m+, DHA & probiotics, 400g tin',
+    sku: 'NES-LG2-400',
+    price: 850,
+    compareAtPrice: 950,
+    costPrice: 640,
+    quantity: 200,
+    categorySlug: 'baby-food',
+    tags: ['nestle', 'lactogen', 'baby-food', 'formula'],
+    isFeatured: false,
+    weight: 0.44,
+    images: [
+      'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Gerber Organic Fruit Puree Pouch 6-Pack',
+    slug: 'gerber-fruit-puree-6pack',
+    description:
+      'Gerber organic fruit puree variety pack — apple, pear, banana, mango flavours. 6 x 90g pouches. No added sugar or preservatives.',
+    shortDescription: '6 x 90g pouches, organic, no added sugar',
+    sku: 'GRB-PURE-6PK',
+    price: 990,
+    compareAtPrice: 1200,
+    costPrice: 720,
+    quantity: 140,
+    categorySlug: 'baby-food',
+    tags: ['gerber', 'baby-food', 'organic', 'puree'],
+    isFeatured: false,
+    weight: 0.6,
+    images: [
+      'https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Toys ---
+  {
+    name: 'LEGO Classic Creative Bricks 484 Pcs',
+    slug: 'lego-classic-creative-484',
+    description:
+      'LEGO Classic Creative Bricks 10696 — 484 colourful pieces for open-ended building fun. Ages 4+. Compatible with all LEGO sets.',
+    shortDescription: '484 pcs, ages 4+, creative building set',
+    sku: 'LEG-10696-484',
+    price: 3499,
+    compareAtPrice: 4200,
+    costPrice: 2500,
+    quantity: 70,
+    categorySlug: 'toys',
+    tags: ['lego', 'toys', 'building', 'kids', 'educational'],
+    isFeatured: true,
+    weight: 0.9,
+    images: [
+      'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Remote Control Racing Car (Rechargeable)',
+    slug: 'rc-racing-car-rechargeable',
+    description:
+      'Rechargeable RC racing car with 2.4GHz remote, ~20 km/h top speed, shock-absorbing tyres. Play time ~40 min per charge.',
+    shortDescription: '2.4GHz, rechargeable, 20km/h, kids 6+',
+    sku: 'TOY-RC-CAR-001',
+    price: 1850,
+    compareAtPrice: 2400,
+    costPrice: 1200,
+    quantity: 120,
+    categorySlug: 'toys',
+    tags: ['toys', 'remote-control', 'car', 'kids'],
+    isFeatured: false,
+    weight: 0.7,
+    images: [
+      'https://images.unsplash.com/photo-1594787318286-3d835c1d207f?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Automotive ---
+  {
+    name: 'Bosch S4 Car Battery 60Ah',
+    slug: 'bosch-s4-battery-60ah',
+    description:
+      'Bosch S4 12V 60Ah maintenance-free car battery. Suits most 1.3L-1.8L sedans. 24-month local warranty.',
+    shortDescription: '12V 60Ah, maintenance-free, 24-mo warranty',
+    sku: 'BSH-S4-60AH',
+    price: 11500,
+    compareAtPrice: 13200,
+    costPrice: 9200,
+    quantity: 40,
+    categorySlug: 'automotive',
+    tags: ['bosch', 'battery', 'car', 'automotive'],
+    isFeatured: false,
+    weight: 15,
+    images: [
+      'https://images.unsplash.com/photo-1597766353939-bafa7e4d1ba2?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Michelin Car Tyre 185/65 R15',
+    slug: 'michelin-tyre-185-65-r15',
+    description:
+      'Michelin Energy XM2+ 185/65 R15 tubeless tyre. Long-lasting tread, fuel-efficient compound, excellent wet grip.',
+    shortDescription: '185/65 R15 tubeless, fuel-efficient',
+    sku: 'MCH-XM2P-185-65-15',
+    price: 8900,
+    compareAtPrice: 9800,
+    costPrice: 7000,
+    quantity: 60,
+    categorySlug: 'automotive',
+    tags: ['michelin', 'tyre', 'car', 'automotive'],
+    isFeatured: true,
+    weight: 7.5,
+    images: [
+      'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Xenon Car LED Headlight Pair H4',
+    slug: 'car-led-headlight-h4-pair',
+    description:
+      'Upgrade LED headlight bulbs H4, 60W, 6000K white, pair. Plug-and-play fit with built-in cooling fan.',
+    shortDescription: 'H4, 60W, 6000K, plug-and-play, pair',
+    sku: 'CAR-LED-H4-PR',
+    price: 2200,
+    compareAtPrice: 2800,
+    costPrice: 1500,
+    quantity: 150,
+    categorySlug: 'automotive',
+    tags: ['led', 'headlight', 'car', 'automotive', 'accessory'],
+    isFeatured: false,
+    weight: 0.4,
+    images: [
+      'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+
+  // --- Pets ---
+  {
+    name: 'Whiskas Adult Cat Food Ocean Fish 1.2kg',
+    slug: 'whiskas-adult-ocean-fish-1-2kg',
+    description:
+      'Whiskas adult (1+) dry cat food, ocean fish flavour, 1.2kg. Complete and balanced nutrition with taurine, omega-6 and vitamins.',
+    shortDescription: '1+ adult cats, ocean fish, 1.2kg',
+    sku: 'WHK-OCFISH-1200',
+    price: 850,
+    compareAtPrice: 980,
+    costPrice: 620,
+    quantity: 180,
+    categorySlug: 'pets',
+    tags: ['whiskas', 'cat-food', 'pets', 'adult-cat'],
+    isFeatured: true,
+    weight: 1.25,
+    images: [
+      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Pedigree Adult Dog Food Chicken 3kg',
+    slug: 'pedigree-adult-chicken-3kg',
+    description:
+      'Pedigree adult dog food with real chicken, 3kg. 100% complete nutrition for healthy digestion, skin and coat.',
+    shortDescription: 'Adult dogs, real chicken, 3kg',
+    sku: 'PED-CHK-3KG',
+    price: 1250,
+    compareAtPrice: 1450,
+    costPrice: 950,
+    quantity: 140,
+    categorySlug: 'pets',
+    tags: ['pedigree', 'dog-food', 'pets', 'adult-dog'],
+    isFeatured: false,
+    weight: 3.1,
+    images: [
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800&h=800&fit=crop&q=80',
+    ],
+  },
+  {
+    name: 'Pet Grooming Brush Self-Cleaning',
+    slug: 'pet-grooming-brush-self-cleaning',
+    description:
+      'Self-cleaning slicker brush for cats and dogs. Retractable bristles, one-button fur release, comfortable rubber grip.',
+    shortDescription: 'Self-cleaning slicker brush, 1-button release',
+    sku: 'PET-BRSH-SC-001',
+    price: 590,
+    compareAtPrice: 790,
+    costPrice: 380,
+    quantity: 220,
+    categorySlug: 'pets',
+    tags: ['pets', 'grooming', 'brush', 'cat', 'dog'],
+    isFeatured: false,
+    weight: 0.18,
+    images: [
+      'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&h=800&fit=crop&q=80',
     ],
   },
 ];
@@ -1504,7 +2118,7 @@ async function seedProducts(brandMap: Record<string, string>) {
       continue;
     }
 
-    const brandId = p.brandSlug ? brandMap[p.brandSlug] ?? null : null;
+    const brandId = p.brandSlug ? (brandMap[p.brandSlug] ?? null) : null;
 
     // Upsert product (update existing records with latest seed data)
     const productData = {
@@ -1592,7 +2206,6 @@ async function seedProducts(brandMap: Record<string, string>) {
   console.log(`  Seeded ${count} products with images, variants & inventory`);
 }
 
-
 // ---------------------------------------------------------------------------
 // Seed: CMS Pages
 // ---------------------------------------------------------------------------
@@ -1622,7 +2235,8 @@ async function seedPages() {
       excerpt: "Bangladesh's leading e-commerce platform for quality products at the best prices.",
       status: 'PUBLISHED' as const,
       metaTitle: 'About ShopBD | Trusted E-commerce in Bangladesh',
-      metaDescription: "Learn about ShopBD — Bangladesh's leading e-commerce platform offering authentic products with fast delivery and bilingual support.",
+      metaDescription:
+        "Learn about ShopBD — Bangladesh's leading e-commerce platform offering authentic products with fast delivery and bilingual support.",
     },
     {
       title: 'Contact Us',
@@ -1648,7 +2262,8 @@ Tejgaon, Dhaka 1208, Bangladesh</p>
       excerpt: 'Get in touch with ShopBD customer support team.',
       status: 'PUBLISHED' as const,
       metaTitle: 'Contact Us | ShopBD Customer Support',
-      metaDescription: 'Contact ShopBD customer support via phone, email, or WhatsApp. We are here to help with your orders and queries.',
+      metaDescription:
+        'Contact ShopBD customer support via phone, email, or WhatsApp. We are here to help with your orders and queries.',
     },
     {
       title: 'Privacy Policy',
@@ -1670,7 +2285,8 @@ Tejgaon, Dhaka 1208, Bangladesh</p>
       excerpt: 'How we collect, use, and protect your personal information.',
       status: 'PUBLISHED' as const,
       metaTitle: 'Privacy Policy | ShopBD',
-      metaDescription: 'Read the ShopBD Privacy Policy to understand how we collect, use, and protect your personal information.',
+      metaDescription:
+        'Read the ShopBD Privacy Policy to understand how we collect, use, and protect your personal information.',
     },
     {
       title: 'Terms & Conditions',
@@ -1719,7 +2335,8 @@ Tejgaon, Dhaka 1208, Bangladesh</p>
       excerpt: 'Our hassle-free return and refund policy for your peace of mind.',
       status: 'PUBLISHED' as const,
       metaTitle: 'Refund & Return Policy | ShopBD',
-      metaDescription: 'Learn about the ShopBD refund and return policy. Easy returns within 7 days with hassle-free refunds.',
+      metaDescription:
+        'Learn about the ShopBD refund and return policy. Easy returns within 7 days with hassle-free refunds.',
     },
   ];
 
@@ -1942,10 +2559,7 @@ async function seedShippingMethods() {
       price: 120,
       freeAbove: 2000,
       estimatedDays: '3-5 days',
-      zones: [
-        'Chattogram', 'Rajshahi', 'Khulna', 'Sylhet',
-        'Rangpur', 'Barishal', 'Mymensingh',
-      ],
+      zones: ['Chattogram', 'Rajshahi', 'Khulna', 'Sylhet', 'Rangpur', 'Barishal', 'Mymensingh'],
       isActive: true,
       sortOrder: 1,
     },
@@ -1999,7 +2613,11 @@ async function seedSettings() {
     { group: 'GENERAL', key: 'date_format', value: 'DD/MM/YYYY' },
     { group: 'GENERAL', key: 'phone', value: '+880-2-1234-5678' },
     { group: 'GENERAL', key: 'support_email', value: 'support@shopbd.com' },
-    { group: 'GENERAL', key: 'address', value: 'Level 12, Rangs Babylon Tower, 246 Bir Uttam Mir Shawkat Road, Tejgaon, Dhaka 1208' },
+    {
+      group: 'GENERAL',
+      key: 'address',
+      value: 'Level 12, Rangs Babylon Tower, 246 Bir Uttam Mir Shawkat Road, Tejgaon, Dhaka 1208',
+    },
 
     // Email
     { group: 'EMAIL', key: 'from_name', value: 'ShopBD' },
@@ -2030,9 +2648,23 @@ async function seedSettings() {
     { group: 'PAYMENT', key: 'max_cod_amount', value: '50000', type: 'number' },
 
     // SEO
-    { group: 'SEO', key: 'meta_title', value: "ShopBD — Bangladesh's #1 Online Shopping Destination" },
-    { group: 'SEO', key: 'meta_description', value: 'Shop online at ShopBD for electronics, fashion, groceries & more. Free delivery in Dhaka, Cash on Delivery, bKash & Nagad payment. Trusted by millions.' },
-    { group: 'SEO', key: 'meta_keywords', value: 'online shopping bangladesh, e-commerce bd, buy online dhaka, shopbd', type: 'array' },
+    {
+      group: 'SEO',
+      key: 'meta_title',
+      value: "ShopBD — Bangladesh's #1 Online Shopping Destination",
+    },
+    {
+      group: 'SEO',
+      key: 'meta_description',
+      value:
+        'Shop online at ShopBD for electronics, fashion, groceries & more. Free delivery in Dhaka, Cash on Delivery, bKash & Nagad payment. Trusted by millions.',
+    },
+    {
+      group: 'SEO',
+      key: 'meta_keywords',
+      value: 'online shopping bangladesh, e-commerce bd, buy online dhaka, shopbd',
+      type: 'array',
+    },
     { group: 'SEO', key: 'google_analytics_id', value: '' },
     { group: 'SEO', key: 'facebook_pixel_id', value: '' },
     { group: 'SEO', key: 'og_image', value: 'https://cdn.shopbd.com/og-image.jpg' },
@@ -2137,7 +2769,18 @@ async function seedEmailTemplates() {
 </body>
 </html>`,
       bodyBn: null,
-      variables: ['firstName', 'orderNumber', 'itemCount', 'subtotal', 'shippingCost', 'totalAmount', 'shippingAddress', 'paymentMethod', 'trackingUrl', 'year'],
+      variables: [
+        'firstName',
+        'orderNumber',
+        'itemCount',
+        'subtotal',
+        'shippingCost',
+        'totalAmount',
+        'shippingAddress',
+        'paymentMethod',
+        'trackingUrl',
+        'year',
+      ],
     },
     {
       name: 'order_shipped',
@@ -2171,7 +2814,15 @@ async function seedEmailTemplates() {
 </body>
 </html>`,
       bodyBn: null,
-      variables: ['firstName', 'orderNumber', 'carrier', 'trackingNumber', 'estimatedDelivery', 'trackingUrl', 'year'],
+      variables: [
+        'firstName',
+        'orderNumber',
+        'carrier',
+        'trackingNumber',
+        'estimatedDelivery',
+        'trackingUrl',
+        'year',
+      ],
     },
     {
       name: 'password_reset',
@@ -2347,7 +2998,13 @@ async function seedMenus() {
   const headerItems = [
     { id: 'seed-mi-home', label: 'Home', labelBn: 'হোম', url: '/', position: 0 },
     { id: 'seed-mi-shop', label: 'Shop', labelBn: 'শপ', url: '/shop', position: 1 },
-    { id: 'seed-mi-categories', label: 'Categories', labelBn: 'ক্যাটাগরি', url: '/categories', position: 2 },
+    {
+      id: 'seed-mi-categories',
+      label: 'Categories',
+      labelBn: 'ক্যাটাগরি',
+      url: '/categories',
+      position: 2,
+    },
     { id: 'seed-mi-deals', label: 'Deals', labelBn: 'ডিলস', url: '/deals', position: 3 },
     { id: 'seed-mi-contact', label: 'Contact', labelBn: 'যোগাযোগ', url: '/contact', position: 4 },
   ];
@@ -2362,9 +3019,27 @@ async function seedMenus() {
 
   // Footer menu items
   const footerItems = [
-    { id: 'seed-mi-about', label: 'About Us', labelBn: 'আমাদের সম্পর্কে', url: '/about', position: 0 },
-    { id: 'seed-mi-privacy', label: 'Privacy Policy', labelBn: 'গোপনীয়তা নীতি', url: '/privacy', position: 1 },
-    { id: 'seed-mi-terms', label: 'Terms of Service', labelBn: 'সেবার শর্তাবলী', url: '/terms', position: 2 },
+    {
+      id: 'seed-mi-about',
+      label: 'About Us',
+      labelBn: 'আমাদের সম্পর্কে',
+      url: '/about',
+      position: 0,
+    },
+    {
+      id: 'seed-mi-privacy',
+      label: 'Privacy Policy',
+      labelBn: 'গোপনীয়তা নীতি',
+      url: '/privacy',
+      position: 1,
+    },
+    {
+      id: 'seed-mi-terms',
+      label: 'Terms of Service',
+      labelBn: 'সেবার শর্তাবলী',
+      url: '/terms',
+      position: 2,
+    },
     { id: 'seed-mi-returns', label: 'Returns', labelBn: 'রিটার্নস', url: '/returns', position: 3 },
     { id: 'seed-mi-faq', label: 'FAQ', labelBn: 'জিজ্ঞাসা', url: '/faq', position: 4 },
   ];
@@ -2390,12 +3065,48 @@ async function seedOrders() {
   const customerPw = await hashPassword('Customer@2025!');
 
   const customers = [
-    { id: 'seed-cust-1', email: 'rahim@example.com', firstName: 'Abdur', lastName: 'Rahim', phone: '+8801711111111' },
-    { id: 'seed-cust-2', email: 'karim@example.com', firstName: 'Abdul', lastName: 'Karim', phone: '+8801722222222' },
-    { id: 'seed-cust-3', email: 'fatima@example.com', firstName: 'Fatima', lastName: 'Akter', phone: '+8801733333333' },
-    { id: 'seed-cust-4', email: 'hasan@example.com', firstName: 'Md.', lastName: 'Hasan', phone: '+8801744444444' },
-    { id: 'seed-cust-5', email: 'nusrat@example.com', firstName: 'Nusrat', lastName: 'Jahan', phone: '+8801755555555' },
-    { id: 'seed-cust-6', email: 'tanvir@example.com', firstName: 'Tanvir', lastName: 'Ahmed', phone: '+8801766666666' },
+    {
+      id: 'seed-cust-1',
+      email: 'rahim@example.com',
+      firstName: 'Abdur',
+      lastName: 'Rahim',
+      phone: '+8801711111111',
+    },
+    {
+      id: 'seed-cust-2',
+      email: 'karim@example.com',
+      firstName: 'Abdul',
+      lastName: 'Karim',
+      phone: '+8801722222222',
+    },
+    {
+      id: 'seed-cust-3',
+      email: 'fatima@example.com',
+      firstName: 'Fatima',
+      lastName: 'Akter',
+      phone: '+8801733333333',
+    },
+    {
+      id: 'seed-cust-4',
+      email: 'hasan@example.com',
+      firstName: 'Md.',
+      lastName: 'Hasan',
+      phone: '+8801744444444',
+    },
+    {
+      id: 'seed-cust-5',
+      email: 'nusrat@example.com',
+      firstName: 'Nusrat',
+      lastName: 'Jahan',
+      phone: '+8801755555555',
+    },
+    {
+      id: 'seed-cust-6',
+      email: 'tanvir@example.com',
+      firstName: 'Tanvir',
+      lastName: 'Ahmed',
+      phone: '+8801766666666',
+    },
   ];
 
   for (const c of customers) {
@@ -2418,12 +3129,72 @@ async function seedOrders() {
 
   // ── 2. Create addresses ───────────────────────────────────────────────────
   const addresses = [
-    { id: 'seed-addr-1', userId: 'seed-cust-1', fullName: 'Abdur Rahim', phone: '+8801711111111', addressLine1: '12/A Dhanmondi R/A', division: 'Dhaka', district: 'Dhaka', area: 'Dhanmondi', postalCode: '1205' },
-    { id: 'seed-addr-2', userId: 'seed-cust-2', fullName: 'Abdul Karim', phone: '+8801722222222', addressLine1: '45 Gulshan Avenue', division: 'Dhaka', district: 'Dhaka', area: 'Gulshan', postalCode: '1212' },
-    { id: 'seed-addr-3', userId: 'seed-cust-3', fullName: 'Fatima Akter', phone: '+8801733333333', addressLine1: '78 Agrabad C/A', division: 'Chittagong', district: 'Chittagong', area: 'Agrabad', postalCode: '4100' },
-    { id: 'seed-addr-4', userId: 'seed-cust-4', fullName: 'Md. Hasan', phone: '+8801744444444', addressLine1: '23 Shahbag Road', division: 'Dhaka', district: 'Dhaka', area: 'Shahbag', postalCode: '1000' },
-    { id: 'seed-addr-5', userId: 'seed-cust-5', fullName: 'Nusrat Jahan', phone: '+8801755555555', addressLine1: '56 Rajshahi Court', division: 'Rajshahi', district: 'Rajshahi', area: 'Court Area', postalCode: '6000' },
-    { id: 'seed-addr-6', userId: 'seed-cust-6', fullName: 'Tanvir Ahmed', phone: '+8801766666666', addressLine1: '89 Uttara Sector 7', division: 'Dhaka', district: 'Dhaka', area: 'Uttara', postalCode: '1230' },
+    {
+      id: 'seed-addr-1',
+      userId: 'seed-cust-1',
+      fullName: 'Abdur Rahim',
+      phone: '+8801711111111',
+      addressLine1: '12/A Dhanmondi R/A',
+      division: 'Dhaka',
+      district: 'Dhaka',
+      area: 'Dhanmondi',
+      postalCode: '1205',
+    },
+    {
+      id: 'seed-addr-2',
+      userId: 'seed-cust-2',
+      fullName: 'Abdul Karim',
+      phone: '+8801722222222',
+      addressLine1: '45 Gulshan Avenue',
+      division: 'Dhaka',
+      district: 'Dhaka',
+      area: 'Gulshan',
+      postalCode: '1212',
+    },
+    {
+      id: 'seed-addr-3',
+      userId: 'seed-cust-3',
+      fullName: 'Fatima Akter',
+      phone: '+8801733333333',
+      addressLine1: '78 Agrabad C/A',
+      division: 'Chittagong',
+      district: 'Chittagong',
+      area: 'Agrabad',
+      postalCode: '4100',
+    },
+    {
+      id: 'seed-addr-4',
+      userId: 'seed-cust-4',
+      fullName: 'Md. Hasan',
+      phone: '+8801744444444',
+      addressLine1: '23 Shahbag Road',
+      division: 'Dhaka',
+      district: 'Dhaka',
+      area: 'Shahbag',
+      postalCode: '1000',
+    },
+    {
+      id: 'seed-addr-5',
+      userId: 'seed-cust-5',
+      fullName: 'Nusrat Jahan',
+      phone: '+8801755555555',
+      addressLine1: '56 Rajshahi Court',
+      division: 'Rajshahi',
+      district: 'Rajshahi',
+      area: 'Court Area',
+      postalCode: '6000',
+    },
+    {
+      id: 'seed-addr-6',
+      userId: 'seed-cust-6',
+      fullName: 'Tanvir Ahmed',
+      phone: '+8801766666666',
+      addressLine1: '89 Uttara Sector 7',
+      division: 'Dhaka',
+      district: 'Dhaka',
+      area: 'Uttara',
+      postalCode: '1230',
+    },
   ];
 
   for (const a of addresses) {
@@ -2437,7 +3208,14 @@ async function seedOrders() {
   // ── 3. Fetch products for order items ─────────────────────────────────────
   const products = await prisma.product.findMany({
     take: 15,
-    select: { id: true, name: true, slug: true, sku: true, price: true, images: { select: { url: true }, take: 1 } },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      sku: true,
+      price: true,
+      images: { select: { url: true }, take: 1 },
+    },
   });
 
   const p = (i: number) => products[i % products.length];
@@ -2485,7 +3263,12 @@ async function seedOrders() {
     });
 
     const subtotal = itemsData.reduce((s, i) => s + i.totalPrice, 0);
-    const shippingCost = opts.shippingMethodId === 'seed-ship-dhaka' ? 60 : opts.shippingMethodId === 'seed-ship-express' ? 150 : 120;
+    const shippingCost =
+      opts.shippingMethodId === 'seed-ship-dhaka'
+        ? 60
+        : opts.shippingMethodId === 'seed-ship-express'
+          ? 150
+          : 120;
     const discount = opts.discountAmount ?? 0;
     const totalAmount = subtotal + shippingCost - discount;
 
@@ -2532,10 +3315,22 @@ async function seedOrders() {
             method: opts.paymentMethod as any,
             status: opts.paymentStatus as any,
             amount: totalAmount,
-            transactionId: opts.paymentMethod !== 'CASH_ON_DELIVERY' ? `TXN-${opts.id.slice(-6).toUpperCase()}` : null,
-            paidAt: ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED'].includes(opts.paymentStatus) ? orderDate : null,
-            refundedAt: ['REFUNDED', 'PARTIALLY_REFUNDED'].includes(opts.paymentStatus) ? daysAgo(opts.createdDaysAgo - 1) : null,
-            refundAmount: opts.paymentStatus === 'REFUNDED' ? totalAmount : opts.paymentStatus === 'PARTIALLY_REFUNDED' ? Math.round(totalAmount * 0.5) : null,
+            transactionId:
+              opts.paymentMethod !== 'CASH_ON_DELIVERY'
+                ? `TXN-${opts.id.slice(-6).toUpperCase()}`
+                : null,
+            paidAt: ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED'].includes(opts.paymentStatus)
+              ? orderDate
+              : null,
+            refundedAt: ['REFUNDED', 'PARTIALLY_REFUNDED'].includes(opts.paymentStatus)
+              ? daysAgo(opts.createdDaysAgo - 1)
+              : null,
+            refundAmount:
+              opts.paymentStatus === 'REFUNDED'
+                ? totalAmount
+                : opts.paymentStatus === 'PARTIALLY_REFUNDED'
+                  ? Math.round(totalAmount * 0.5)
+                  : null,
           },
         },
         shipping: {
@@ -2544,8 +3339,12 @@ async function seedOrders() {
             shippingMethodId: opts.shippingMethodId,
             trackingNumber: opts.trackingNumber ?? null,
             carrier: opts.carrier ?? null,
-            shippedAt: ['SHIPPED', 'DELIVERED', 'RETURNED'].includes(opts.status) ? daysAgo(opts.createdDaysAgo - 1) : null,
-            deliveredAt: ['DELIVERED', 'RETURNED'].includes(opts.status) ? daysAgo(opts.createdDaysAgo - 3) : null,
+            shippedAt: ['SHIPPED', 'DELIVERED', 'RETURNED'].includes(opts.status)
+              ? daysAgo(opts.createdDaysAgo - 1)
+              : null,
+            deliveredAt: ['DELIVERED', 'RETURNED'].includes(opts.status)
+              ? daysAgo(opts.createdDaysAgo - 3)
+              : null,
           },
         },
       },
@@ -2556,42 +3355,72 @@ async function seedOrders() {
 
   // PENDING orders (recent)
   await makeOrder({
-    id: 'seed-ord-pending-1', userId: 'seed-cust-1', addressId: 'seed-addr-1',
-    status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: 'CASH_ON_DELIVERY',
+    id: 'seed-ord-pending-1',
+    userId: 'seed-cust-1',
+    addressId: 'seed-addr-1',
+    status: 'PENDING',
+    paymentStatus: 'PENDING',
+    paymentMethod: 'CASH_ON_DELIVERY',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 0, qty: 1 }, { productIdx: 5, qty: 2 }],
+    items: [
+      { productIdx: 0, qty: 1 },
+      { productIdx: 5, qty: 2 },
+    ],
     createdDaysAgo: 0,
     notes: 'Please deliver after 5 PM',
   });
 
   await makeOrder({
-    id: 'seed-ord-pending-2', userId: 'seed-cust-3', addressId: 'seed-addr-3',
-    status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: 'BKASH',
+    id: 'seed-ord-pending-2',
+    userId: 'seed-cust-3',
+    addressId: 'seed-addr-3',
+    status: 'PENDING',
+    paymentStatus: 'PENDING',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-outside',
     items: [{ productIdx: 3, qty: 1 }],
     createdDaysAgo: 0,
   });
 
   await makeOrder({
-    id: 'seed-ord-pending-3', userId: 'seed-cust-5', addressId: 'seed-addr-5',
-    status: 'PENDING', paymentStatus: 'PENDING', paymentMethod: 'NAGAD',
+    id: 'seed-ord-pending-3',
+    userId: 'seed-cust-5',
+    addressId: 'seed-addr-5',
+    status: 'PENDING',
+    paymentStatus: 'PENDING',
+    paymentMethod: 'NAGAD',
     shippingMethodId: 'seed-ship-outside',
-    items: [{ productIdx: 6, qty: 1 }, { productIdx: 8, qty: 1 }, { productIdx: 11, qty: 2 }],
+    items: [
+      { productIdx: 6, qty: 1 },
+      { productIdx: 8, qty: 1 },
+      { productIdx: 11, qty: 2 },
+    ],
     createdDaysAgo: 1,
   });
 
   // CONFIRMED orders
   await makeOrder({
-    id: 'seed-ord-confirmed-1', userId: 'seed-cust-2', addressId: 'seed-addr-2',
-    status: 'CONFIRMED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    id: 'seed-ord-confirmed-1',
+    userId: 'seed-cust-2',
+    addressId: 'seed-addr-2',
+    status: 'CONFIRMED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 1, qty: 1 }, { productIdx: 10, qty: 1 }],
+    items: [
+      { productIdx: 1, qty: 1 },
+      { productIdx: 10, qty: 1 },
+    ],
     createdDaysAgo: 2,
   });
 
   await makeOrder({
-    id: 'seed-ord-confirmed-2', userId: 'seed-cust-4', addressId: 'seed-addr-4',
-    status: 'CONFIRMED', paymentStatus: 'PAID', paymentMethod: 'NAGAD',
+    id: 'seed-ord-confirmed-2',
+    userId: 'seed-cust-4',
+    addressId: 'seed-addr-4',
+    status: 'CONFIRMED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'NAGAD',
     shippingMethodId: 'seed-ship-express',
     items: [{ productIdx: 14, qty: 1 }],
     createdDaysAgo: 1,
@@ -2599,172 +3428,286 @@ async function seedOrders() {
 
   // PROCESSING orders
   await makeOrder({
-    id: 'seed-ord-processing-1', userId: 'seed-cust-6', addressId: 'seed-addr-6',
-    status: 'PROCESSING', paymentStatus: 'PAID', paymentMethod: 'CREDIT_CARD',
+    id: 'seed-ord-processing-1',
+    userId: 'seed-cust-6',
+    addressId: 'seed-addr-6',
+    status: 'PROCESSING',
+    paymentStatus: 'PAID',
+    paymentMethod: 'CREDIT_CARD',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 4, qty: 1 }, { productIdx: 5, qty: 1 }],
+    items: [
+      { productIdx: 4, qty: 1 },
+      { productIdx: 5, qty: 1 },
+    ],
     createdDaysAgo: 3,
   });
 
   await makeOrder({
-    id: 'seed-ord-processing-2', userId: 'seed-cust-1', addressId: 'seed-addr-1',
-    status: 'PROCESSING', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    id: 'seed-ord-processing-2',
+    userId: 'seed-cust-1',
+    addressId: 'seed-addr-1',
+    status: 'PROCESSING',
+    paymentStatus: 'PAID',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 7, qty: 2 }, { productIdx: 9, qty: 1 }],
+    items: [
+      { productIdx: 7, qty: 2 },
+      { productIdx: 9, qty: 1 },
+    ],
     createdDaysAgo: 4,
   });
 
   // SHIPPED orders
   await makeOrder({
-    id: 'seed-ord-shipped-1', userId: 'seed-cust-2', addressId: 'seed-addr-2',
-    status: 'SHIPPED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    id: 'seed-ord-shipped-1',
+    userId: 'seed-cust-2',
+    addressId: 'seed-addr-2',
+    status: 'SHIPPED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 12, qty: 3 }, { productIdx: 13, qty: 5 }],
+    items: [
+      { productIdx: 12, qty: 3 },
+      { productIdx: 13, qty: 5 },
+    ],
     createdDaysAgo: 5,
-    trackingNumber: 'PTH-20260212-7845', carrier: 'Pathao Courier',
+    trackingNumber: 'PTH-20260212-7845',
+    carrier: 'Pathao Courier',
   });
 
   await makeOrder({
-    id: 'seed-ord-shipped-2', userId: 'seed-cust-3', addressId: 'seed-addr-3',
-    status: 'SHIPPED', paymentStatus: 'PAID', paymentMethod: 'NAGAD',
+    id: 'seed-ord-shipped-2',
+    userId: 'seed-cust-3',
+    addressId: 'seed-addr-3',
+    status: 'SHIPPED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'NAGAD',
     shippingMethodId: 'seed-ship-outside',
     items: [{ productIdx: 2, qty: 1 }],
     createdDaysAgo: 6,
-    trackingNumber: 'SFC-20260211-3291', carrier: 'Steadfast Courier',
+    trackingNumber: 'SFC-20260211-3291',
+    carrier: 'Steadfast Courier',
   });
 
   await makeOrder({
-    id: 'seed-ord-shipped-3', userId: 'seed-cust-5', addressId: 'seed-addr-5',
-    status: 'SHIPPED', paymentStatus: 'PAID', paymentMethod: 'CASH_ON_DELIVERY',
+    id: 'seed-ord-shipped-3',
+    userId: 'seed-cust-5',
+    addressId: 'seed-addr-5',
+    status: 'SHIPPED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'CASH_ON_DELIVERY',
     shippingMethodId: 'seed-ship-outside',
-    items: [{ productIdx: 6, qty: 1 }, { productIdx: 10, qty: 2 }],
+    items: [
+      { productIdx: 6, qty: 1 },
+      { productIdx: 10, qty: 2 },
+    ],
     createdDaysAgo: 4,
-    trackingNumber: 'RDX-20260213-5567', carrier: 'RedX',
+    trackingNumber: 'RDX-20260213-5567',
+    carrier: 'RedX',
   });
 
   // DELIVERED orders
   await makeOrder({
-    id: 'seed-ord-delivered-1', userId: 'seed-cust-1', addressId: 'seed-addr-1',
-    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    id: 'seed-ord-delivered-1',
+    userId: 'seed-cust-1',
+    addressId: 'seed-addr-1',
+    status: 'DELIVERED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
     items: [{ productIdx: 0, qty: 1 }],
     createdDaysAgo: 14,
-    trackingNumber: 'PTH-20260203-1234', carrier: 'Pathao Courier',
+    trackingNumber: 'PTH-20260203-1234',
+    carrier: 'Pathao Courier',
     deliveredAt: daysAgo(10),
   });
 
   await makeOrder({
-    id: 'seed-ord-delivered-2', userId: 'seed-cust-4', addressId: 'seed-addr-4',
-    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'CREDIT_CARD',
+    id: 'seed-ord-delivered-2',
+    userId: 'seed-cust-4',
+    addressId: 'seed-addr-4',
+    status: 'DELIVERED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'CREDIT_CARD',
     shippingMethodId: 'seed-ship-express',
-    items: [{ productIdx: 3, qty: 1 }, { productIdx: 5, qty: 1 }],
+    items: [
+      { productIdx: 3, qty: 1 },
+      { productIdx: 5, qty: 1 },
+    ],
     createdDaysAgo: 21,
-    trackingNumber: 'PTH-20260127-8899', carrier: 'Pathao Courier',
+    trackingNumber: 'PTH-20260127-8899',
+    carrier: 'Pathao Courier',
     deliveredAt: daysAgo(17),
   });
 
   await makeOrder({
-    id: 'seed-ord-delivered-3', userId: 'seed-cust-6', addressId: 'seed-addr-6',
-    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'NAGAD',
+    id: 'seed-ord-delivered-3',
+    userId: 'seed-cust-6',
+    addressId: 'seed-addr-6',
+    status: 'DELIVERED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'NAGAD',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 8, qty: 1 }, { productIdx: 9, qty: 1 }, { productIdx: 11, qty: 3 }],
+    items: [
+      { productIdx: 8, qty: 1 },
+      { productIdx: 9, qty: 1 },
+      { productIdx: 11, qty: 3 },
+    ],
     createdDaysAgo: 30,
-    trackingNumber: 'SFC-20260118-4455', carrier: 'Steadfast Courier',
+    trackingNumber: 'SFC-20260118-4455',
+    carrier: 'Steadfast Courier',
     deliveredAt: daysAgo(26),
   });
 
   await makeOrder({
-    id: 'seed-ord-delivered-4', userId: 'seed-cust-2', addressId: 'seed-addr-2',
-    status: 'DELIVERED', paymentStatus: 'PAID', paymentMethod: 'BKASH',
+    id: 'seed-ord-delivered-4',
+    userId: 'seed-cust-2',
+    addressId: 'seed-addr-2',
+    status: 'DELIVERED',
+    paymentStatus: 'PAID',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
     items: [{ productIdx: 7, qty: 1 }],
     createdDaysAgo: 45,
-    trackingNumber: 'PTH-20260103-6677', carrier: 'Pathao Courier',
+    trackingNumber: 'PTH-20260103-6677',
+    carrier: 'Pathao Courier',
     deliveredAt: daysAgo(41),
-    couponCode: 'EID25', discountAmount: 1150,
+    couponCode: 'EID25',
+    discountAmount: 1150,
   });
 
   // CANCELLED orders
   await makeOrder({
-    id: 'seed-ord-cancelled-1', userId: 'seed-cust-3', addressId: 'seed-addr-3',
-    status: 'CANCELLED', paymentStatus: 'CANCELLED', paymentMethod: 'CASH_ON_DELIVERY',
+    id: 'seed-ord-cancelled-1',
+    userId: 'seed-cust-3',
+    addressId: 'seed-addr-3',
+    status: 'CANCELLED',
+    paymentStatus: 'CANCELLED',
+    paymentMethod: 'CASH_ON_DELIVERY',
     shippingMethodId: 'seed-ship-outside',
     items: [{ productIdx: 14, qty: 1 }],
     createdDaysAgo: 10,
-    cancelledAt: daysAgo(9), cancellationReason: 'Changed my mind, found a better price elsewhere.',
+    cancelledAt: daysAgo(9),
+    cancellationReason: 'Changed my mind, found a better price elsewhere.',
   });
 
   await makeOrder({
-    id: 'seed-ord-cancelled-2', userId: 'seed-cust-4', addressId: 'seed-addr-4',
-    status: 'CANCELLED', paymentStatus: 'REFUNDED', paymentMethod: 'BKASH',
+    id: 'seed-ord-cancelled-2',
+    userId: 'seed-cust-4',
+    addressId: 'seed-addr-4',
+    status: 'CANCELLED',
+    paymentStatus: 'REFUNDED',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 1, qty: 1 }, { productIdx: 12, qty: 2 }],
+    items: [
+      { productIdx: 1, qty: 1 },
+      { productIdx: 12, qty: 2 },
+    ],
     createdDaysAgo: 8,
-    cancelledAt: daysAgo(7), cancellationReason: 'Ordered by mistake.',
+    cancelledAt: daysAgo(7),
+    cancellationReason: 'Ordered by mistake.',
   });
 
   await makeOrder({
-    id: 'seed-ord-cancelled-3', userId: 'seed-cust-6', addressId: 'seed-addr-6',
-    status: 'CANCELLED', paymentStatus: 'CANCELLED', paymentMethod: 'NAGAD',
+    id: 'seed-ord-cancelled-3',
+    userId: 'seed-cust-6',
+    addressId: 'seed-addr-6',
+    status: 'CANCELLED',
+    paymentStatus: 'CANCELLED',
+    paymentMethod: 'NAGAD',
     shippingMethodId: 'seed-ship-dhaka',
     items: [{ productIdx: 10, qty: 3 }],
     createdDaysAgo: 15,
-    cancelledAt: daysAgo(14), cancellationReason: 'Delivery time was too long.',
+    cancelledAt: daysAgo(14),
+    cancellationReason: 'Delivery time was too long.',
   });
 
   // RETURNED orders
   await makeOrder({
-    id: 'seed-ord-returned-1', userId: 'seed-cust-1', addressId: 'seed-addr-1',
-    status: 'RETURNED', paymentStatus: 'REFUNDED', paymentMethod: 'BKASH',
+    id: 'seed-ord-returned-1',
+    userId: 'seed-cust-1',
+    addressId: 'seed-addr-1',
+    status: 'RETURNED',
+    paymentStatus: 'REFUNDED',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-dhaka',
     items: [{ productIdx: 7, qty: 1 }],
     createdDaysAgo: 20,
-    trackingNumber: 'PTH-20260128-1122', carrier: 'Pathao Courier',
+    trackingNumber: 'PTH-20260128-1122',
+    carrier: 'Pathao Courier',
     deliveredAt: daysAgo(16),
     notes: 'Product was defective — screen had dead pixels.',
   });
 
   await makeOrder({
-    id: 'seed-ord-returned-2', userId: 'seed-cust-5', addressId: 'seed-addr-5',
-    status: 'RETURNED', paymentStatus: 'REFUNDED', paymentMethod: 'CREDIT_CARD',
+    id: 'seed-ord-returned-2',
+    userId: 'seed-cust-5',
+    addressId: 'seed-addr-5',
+    status: 'RETURNED',
+    paymentStatus: 'REFUNDED',
+    paymentMethod: 'CREDIT_CARD',
     shippingMethodId: 'seed-ship-outside',
     items: [{ productIdx: 6, qty: 2 }],
     createdDaysAgo: 25,
-    trackingNumber: 'SFC-20260123-9988', carrier: 'Steadfast Courier',
+    trackingNumber: 'SFC-20260123-9988',
+    carrier: 'Steadfast Courier',
     deliveredAt: daysAgo(21),
     notes: 'Size did not match description, returning both items.',
   });
 
   await makeOrder({
-    id: 'seed-ord-returned-3', userId: 'seed-cust-2', addressId: 'seed-addr-2',
-    status: 'RETURNED', paymentStatus: 'PARTIALLY_REFUNDED', paymentMethod: 'NAGAD',
+    id: 'seed-ord-returned-3',
+    userId: 'seed-cust-2',
+    addressId: 'seed-addr-2',
+    status: 'RETURNED',
+    paymentStatus: 'PARTIALLY_REFUNDED',
+    paymentMethod: 'NAGAD',
     shippingMethodId: 'seed-ship-dhaka',
-    items: [{ productIdx: 0, qty: 1 }, { productIdx: 5, qty: 1 }],
+    items: [
+      { productIdx: 0, qty: 1 },
+      { productIdx: 5, qty: 1 },
+    ],
     createdDaysAgo: 35,
-    trackingNumber: 'RDX-20260113-4477', carrier: 'RedX',
+    trackingNumber: 'RDX-20260113-4477',
+    carrier: 'RedX',
     deliveredAt: daysAgo(30),
     notes: 'Returning headphones only — phone is fine. Partial refund processed.',
   });
 
   await makeOrder({
-    id: 'seed-ord-returned-4', userId: 'seed-cust-4', addressId: 'seed-addr-4',
-    status: 'RETURNED', paymentStatus: 'REFUNDED', paymentMethod: 'BKASH',
+    id: 'seed-ord-returned-4',
+    userId: 'seed-cust-4',
+    addressId: 'seed-addr-4',
+    status: 'RETURNED',
+    paymentStatus: 'REFUNDED',
+    paymentMethod: 'BKASH',
     shippingMethodId: 'seed-ship-express',
-    items: [{ productIdx: 9, qty: 1 }, { productIdx: 10, qty: 1 }, { productIdx: 11, qty: 1 }],
+    items: [
+      { productIdx: 9, qty: 1 },
+      { productIdx: 10, qty: 1 },
+      { productIdx: 11, qty: 1 },
+    ],
     createdDaysAgo: 18,
-    trackingNumber: 'PTH-20260130-5566', carrier: 'Pathao Courier',
+    trackingNumber: 'PTH-20260130-5566',
+    carrier: 'Pathao Courier',
     deliveredAt: daysAgo(14),
     notes: 'Items arrived damaged during shipping.',
   });
 
   // REFUNDED order (separate from returned)
   await makeOrder({
-    id: 'seed-ord-refunded-1', userId: 'seed-cust-3', addressId: 'seed-addr-3',
-    status: 'CANCELLED', paymentStatus: 'REFUNDED', paymentMethod: 'CREDIT_CARD',
+    id: 'seed-ord-refunded-1',
+    userId: 'seed-cust-3',
+    addressId: 'seed-addr-3',
+    status: 'CANCELLED',
+    paymentStatus: 'REFUNDED',
+    paymentMethod: 'CREDIT_CARD',
     shippingMethodId: 'seed-ship-outside',
     items: [{ productIdx: 4, qty: 1 }],
     createdDaysAgo: 12,
-    cancelledAt: daysAgo(11), cancellationReason: 'Payment was charged but order was not confirmed in time. Full refund issued.',
+    cancelledAt: daysAgo(11),
+    cancellationReason:
+      'Payment was charged but order was not confirmed in time. Full refund issued.',
   });
 
   console.log('  Seeded 6 customers, 6 addresses, 22 orders across all statuses');
@@ -2832,7 +3775,8 @@ async function seedReviews() {
       userId: customers[1].id,
       rating: 3,
       title: 'Average experience',
-      comment: 'Product is okay but not as described. The color was slightly different from the photos.',
+      comment:
+        'Product is okay but not as described. The color was slightly different from the photos.',
       status: 'APPROVED',
       adminReply: 'We apologize for the discrepancy. Please contact support for a resolution.',
       repliedAt: new Date(),
@@ -3000,7 +3944,9 @@ async function seedReviews() {
     }
   }
 
-  console.log(`  Seeded ${created} reviews (${reviewData.filter((r) => r.status === 'PENDING').length} pending, ${reviewData.filter((r) => r.status === 'APPROVED').length} approved, ${reviewData.filter((r) => r.status === 'REJECTED').length} rejected)`);
+  console.log(
+    `  Seeded ${created} reviews (${reviewData.filter((r) => r.status === 'PENDING').length} pending, ${reviewData.filter((r) => r.status === 'APPROVED').length} approved, ${reviewData.filter((r) => r.status === 'REJECTED').length} rejected)`,
+  );
 }
 
 // ---------------------------------------------------------------------------
