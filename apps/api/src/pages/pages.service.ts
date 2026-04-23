@@ -1,11 +1,29 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+
+import { RevalidateService } from '../common/revalidate/revalidate.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
 
 @Injectable()
 export class PagesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly revalidate: RevalidateService,
+  ) {}
+
+  /**
+   * Fire tag invalidations on the storefront for page changes. Uses both
+   * the generic `pages` tag (used by sitemap generation / the footer
+   * info column) and a page-specific `page:<slug>` tag so editing one
+   * CMS page only rebuilds that route, not every page.
+   */
+  private invalidatePage(slug: string) {
+    void this.revalidate.revalidate({
+      tags: ['pages', `page:${slug}`],
+      paths: [`/${slug}`],
+    });
+  }
 
   async create(dto: CreatePageDto, userId: string) {
     const existing = await this.prisma.page.findUnique({
@@ -16,12 +34,14 @@ export class PagesService {
       throw new ConflictException(`A page with slug "${dto.slug}" already exists`);
     }
 
-    return this.prisma.page.create({
+    const page = await this.prisma.page.create({
       data: {
         ...dto,
         authorId: userId,
       },
     });
+    this.invalidatePage(page.slug);
+    return page;
   }
 
   async findAll(query: { search?: string; status?: string; page?: number; limit?: number }) {
@@ -58,9 +78,7 @@ export class PagesService {
     return {
       pages: pages.map((p) => ({
         ...p,
-        author: p.author
-          ? `${p.author.firstName} ${p.author.lastName}`
-          : 'Unknown',
+        author: p.author ? `${p.author.firstName} ${p.author.lastName}` : 'Unknown',
       })),
       total,
       totalPages: Math.ceil(total / limit),
@@ -111,10 +129,16 @@ export class PagesService {
       }
     }
 
-    return this.prisma.page.update({
+    const updated = await this.prisma.page.update({
       where: { id },
       data: dto,
     });
+    // Invalidate both old and new slug in case the slug itself changed.
+    this.invalidatePage(page.slug);
+    if (updated.slug !== page.slug) {
+      this.invalidatePage(updated.slug);
+    }
+    return updated;
   }
 
   async remove(id: string) {
@@ -123,6 +147,8 @@ export class PagesService {
       throw new NotFoundException(`Page with ID ${id} not found`);
     }
 
-    return this.prisma.page.delete({ where: { id } });
+    const deleted = await this.prisma.page.delete({ where: { id } });
+    this.invalidatePage(page.slug);
+    return deleted;
   }
 }
