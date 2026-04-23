@@ -15,6 +15,7 @@ import { ChatModule } from './chat/chat.module';
 import { RevalidateModule } from './common/revalidate/revalidate.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { EmailModule } from './email/email.module';
+import { EmailTemplatesModule } from './email-templates/email-templates.module';
 import { HealthModule } from './health/health.module';
 import { MenusModule } from './menus/menus.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
@@ -26,6 +27,7 @@ import { ProductsModule } from './products/products.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SearchModule } from './search/search.module';
 import { SettingsModule } from './settings/settings.module';
+import { ShippingMethodsModule } from './shipping-methods/shipping-methods.module';
 import { ThemeModule } from './theme/theme.module';
 import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
@@ -52,6 +54,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     CategoriesModule,
     CouponsModule,
     EmailModule,
+    EmailTemplatesModule,
     HealthModule,
     MenusModule,
     NewsletterModule,
@@ -62,6 +65,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     ReviewsModule,
     SearchModule,
     SettingsModule,
+    ShippingMethodsModule,
     ThemeModule,
     UploadModule,
     UsersModule,
