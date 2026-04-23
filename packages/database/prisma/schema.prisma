@@ -662,6 +662,10 @@ model Banner {
   id          String         @id @default(cuid())
   title       String
   titleBn     String?
+  subtitle    String?
+  subtitleBn  String?
+  ctaText     String?
+  ctaTextBn   String?
   image       String
   mobileImage String?
   link        String?

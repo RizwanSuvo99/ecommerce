@@ -6,13 +6,15 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
+
 import { BannersService } from './banners.service';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller()
 export class BannersController {
@@ -31,8 +33,8 @@ export class BannersController {
   }
 
   @Get('banners')
-  findActive() {
-    return this.bannersService.findActive();
+  findActive(@Query('position') position?: string) {
+    return this.bannersService.findActive(position);
   }
 
   @Get('admin/banners/:id')
