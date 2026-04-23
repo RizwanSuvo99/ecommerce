@@ -70,7 +70,9 @@ export default function SearchPage() {
   const { wishlist, toggleWishlist } = useWishlist();
 
   const fetchResults = useCallback(async () => {
-    if (!q) {return;}
+    if (!q) {
+      return;
+    }
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -111,11 +113,12 @@ export default function SearchPage() {
 
   const formatPrice = (price: number) => `৳${price.toLocaleString('en-BD')}`;
 
-
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) {return;}
+    if (product.stock <= 0) {
+      return;
+    }
     addItem({ productId: product.id, quantity: 1 });
   };
 
@@ -137,15 +140,15 @@ export default function SearchPage() {
       <div className="border-b bg-white">
         <div className="mx-auto max-w-7xl px-4 py-6">
           <nav className="mb-3 flex items-center gap-2 text-sm text-gray-500">
-            <Link href="/" className="hover:text-gray-700">Home</Link>
+            <Link href="/" className="hover:text-gray-700">
+              Home
+            </Link>
             <span>/</span>
             <span className="text-gray-900">Search</span>
           </nav>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Results for &ldquo;{q}&rdquo;
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900">Results for &ldquo;{q}&rdquo;</h1>
               {pagination && (
                 <p className="mt-1 text-sm text-gray-500">
                   {pagination.total} product{pagination.total !== 1 ? 's' : ''} found
@@ -154,11 +157,16 @@ export default function SearchPage() {
             </div>
             <select
               value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
               className="rounded-lg border-gray-300 text-sm shadow-sm"
             >
               {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -179,12 +187,10 @@ export default function SearchPage() {
             <p className="text-xl font-medium text-gray-500">
               No products found for &ldquo;{q}&rdquo;
             </p>
-            <p className="mt-2 text-gray-400">
-              Try different keywords or browse our categories.
-            </p>
+            <p className="mt-2 text-gray-400">Try different keywords or browse our categories.</p>
             <Link
               href="/products"
-              className="mt-4 inline-block rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-teal-700"
+              className="mt-4 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
             >
               Browse All Products
             </Link>
@@ -194,14 +200,16 @@ export default function SearchPage() {
             {products.map((product) => {
               const hasDiscount = product.compareAtPrice !== null;
               const discountPercent = hasDiscount
-                ? Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)
+                ? Math.round(
+                    ((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100,
+                  )
                 : 0;
 
               return (
                 <Link
                   key={product.id}
                   href={`/products/${product.slug}`}
-                  className="group relative flex flex-col rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-teal-200 hover:-translate-y-0.5"
+                  className="group relative flex flex-col rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-primary hover:-translate-y-0.5"
                 >
                   <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
                     {product.images?.[0] ? (
@@ -223,10 +231,16 @@ export default function SearchPage() {
                     )}
 
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleWishlist(product.id);
+                      }}
                       className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 opacity-0 backdrop-blur-sm shadow-sm transition-all duration-200 group-hover:opacity-100 hover:bg-white hover:scale-110"
                     >
-                      <Heart className={`h-4 w-4 ${wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                      <Heart
+                        className={`h-4 w-4 ${wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+                      />
                     </button>
 
                     {product.stock <= 0 && (
@@ -238,9 +252,9 @@ export default function SearchPage() {
 
                   <div className="flex flex-1 flex-col p-3 sm:p-4">
                     {product.brandName && (
-                      <p className="text-xs font-medium text-teal-600">{product.brandName}</p>
+                      <p className="text-xs font-medium text-primary">{product.brandName}</p>
                     )}
-                    <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-teal-700">
+                    <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-primary">
                       {product.name}
                     </h3>
 
@@ -261,11 +275,17 @@ export default function SearchPage() {
                     <div className="mt-auto pt-2">
                       {hasDiscount ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-base font-bold text-teal-700">{formatPrice(product.price)}</span>
-                          <span className="text-xs text-gray-400 line-through">{formatPrice(product.compareAtPrice!)}</span>
+                          <span className="text-base font-bold text-primary">
+                            {formatPrice(product.price)}
+                          </span>
+                          <span className="text-xs text-gray-400 line-through">
+                            {formatPrice(product.compareAtPrice!)}
+                          </span>
                         </div>
                       ) : (
-                        <span className="text-base font-bold text-teal-700">{formatPrice(product.price)}</span>
+                        <span className="text-base font-bold text-primary">
+                          {formatPrice(product.price)}
+                        </span>
                       )}
                     </div>
 
@@ -274,13 +294,15 @@ export default function SearchPage() {
                       <button
                         onClick={(e) => handleQuickAdd(e, product)}
                         disabled={isUpdating}
-                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-teal-700 disabled:opacity-50"
+                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
                       >
                         <ShoppingCart className="h-3.5 w-3.5" />
                         Add to Cart
                       </button>
                     ) : (
-                      <p className="mt-2 text-center text-xs font-medium text-red-500">Out of Stock</p>
+                      <p className="mt-2 text-center text-xs font-medium text-red-500">
+                        Out of Stock
+                      </p>
                     )}
                   </div>
                 </Link>
@@ -315,7 +337,9 @@ export default function SearchPage() {
                   key={pageNum}
                   onClick={() => setPage(pageNum)}
                   className={`min-w-[36px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    pageNum === page ? 'bg-teal-600 text-white' : 'border text-gray-600 hover:bg-gray-50'
+                    pageNum === page
+                      ? 'bg-primary text-white'
+                      : 'border text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   {pageNum}

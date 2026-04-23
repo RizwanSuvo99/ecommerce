@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Package,
@@ -15,11 +12,14 @@ import {
   ChevronRight,
   LogOut,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/use-auth';
-import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { Header } from '@/components/layout/header';
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 const sidebarLinks = [
   {
@@ -54,11 +54,7 @@ const sidebarLinks = [
   },
 ];
 
-export default function AccountLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,9 +68,7 @@ export default function AccountLayout({
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">My Account</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Welcome back, {user?.fullName || 'User'}
-          </p>
+          <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.fullName || 'User'}</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -89,9 +83,7 @@ export default function AccountLayout({
               ) : (
                 <Menu className="w-5 h-5 text-gray-600" />
               )}
-              <span className="text-sm font-medium text-gray-700">
-                Account Menu
-              </span>
+              <span className="text-sm font-medium text-gray-700">Account Menu</span>
               <ChevronRight
                 className={cn(
                   'w-4 h-4 text-gray-400 ml-auto transition-transform',
@@ -116,15 +108,13 @@ export default function AccountLayout({
                         className={cn(
                           'flex items-center gap-3 px-4 py-3 text-sm font-medium border-b border-gray-100 last:border-0 transition-colors',
                           active
-                            ? 'bg-teal-50 text-teal-700'
+                            ? 'bg-teal-50 text-primary'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                         )}
                       >
                         <Icon className="w-5 h-5" />
                         {link.label}
-                        {active && (
-                          <ChevronRight className="w-4 h-4 ml-auto" />
-                        )}
+                        {active && <ChevronRight className="w-4 h-4 ml-auto" />}
                       </Link>
                     );
                   })}
@@ -155,16 +145,14 @@ export default function AccountLayout({
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
-                      <User className="w-5 h-5 text-teal-600" />
+                      <User className="w-5 h-5 text-primary" />
                     )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {user?.fullName || 'User'}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user?.email || ''}
-                    </p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
                   </div>
                 </div>
               </div>
@@ -182,7 +170,7 @@ export default function AccountLayout({
                       className={cn(
                         'flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors',
                         active
-                          ? 'bg-teal-50 text-teal-700 border-r-2 border-teal-700'
+                          ? 'bg-teal-50 text-primary border-r-2 border-teal-700'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                       )}
                     >

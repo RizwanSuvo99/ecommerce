@@ -13,14 +13,10 @@ export function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-          isUser
-            ? 'bg-teal-600 text-white rounded-br-md'
-            : 'bg-gray-100 text-gray-900 rounded-bl-md'
+          isUser ? 'bg-primary text-white rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-bl-md'
         }`}
       >
-        <div className="whitespace-pre-wrap break-words">
-          {message.content}
-        </div>
+        <div className="whitespace-pre-wrap break-words">{message.content}</div>
       </div>
     </div>
   );

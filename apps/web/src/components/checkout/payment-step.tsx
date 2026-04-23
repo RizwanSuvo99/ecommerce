@@ -133,7 +133,7 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
         option.disabled
           ? 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-60'
           : isSelected
-            ? 'border-teal-600 bg-teal-50'
+            ? 'border-primary bg-teal-50'
             : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
@@ -141,26 +141,18 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
         {/* Radio indicator */}
         <div
           className={`h-5 w-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-            option.disabled
-              ? 'border-gray-200'
-              : isSelected
-                ? 'border-teal-600'
-                : 'border-gray-300'
+            option.disabled ? 'border-gray-200' : isSelected ? 'border-primary' : 'border-gray-300'
           }`}
         >
           {isSelected && !option.disabled && (
-            <div className="h-2.5 w-2.5 rounded-full bg-teal-600" />
+            <div className="h-2.5 w-2.5 rounded-full bg-primary" />
           )}
         </div>
 
         {/* Icon */}
         <div
           className={`flex-shrink-0 ${
-            option.disabled
-              ? 'text-gray-300'
-              : isSelected
-                ? 'text-teal-600'
-                : 'text-gray-400'
+            option.disabled ? 'text-gray-300' : isSelected ? 'text-primary' : 'text-gray-400'
           }`}
         >
           {option.icon}
@@ -173,9 +165,7 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
             {option.badge && (
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                  option.disabled
-                    ? 'bg-gray-100 text-gray-500'
-                    : 'bg-teal-100 text-teal-700'
+                  option.disabled ? 'bg-gray-100 text-gray-500' : 'bg-teal-100 text-primary'
                 }`}
               >
                 {option.badge}
@@ -199,9 +189,7 @@ function PaymentOptionCard({ option, isSelected, onSelect }: PaymentOptionCardPr
 function CardPaymentForm() {
   return (
     <div className="mt-6 rounded-xl bg-gray-50 border border-gray-200 p-6">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">
-        Card Details
-      </h3>
+      <h3 className="text-sm font-semibold text-gray-900 mb-4">Card Details</h3>
 
       <div className="space-y-4">
         {/* Card number */}
@@ -213,7 +201,7 @@ function CardPaymentForm() {
             id="cardNumber"
             type="text"
             placeholder="4242 4242 4242 4242"
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           />
         </div>
 
@@ -227,7 +215,7 @@ function CardPaymentForm() {
               id="cardExpiry"
               type="text"
               placeholder="MM/YY"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
           <div>
@@ -238,7 +226,7 @@ function CardPaymentForm() {
               id="cardCvc"
               type="text"
               placeholder="123"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
         </div>
@@ -304,12 +292,8 @@ export default function PaymentStep({
 }: PaymentStepProps) {
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
-        Payment Method
-      </h2>
-      <p className="text-sm text-gray-500 mb-6">
-        How would you like to pay?
-      </p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Payment Method</h2>
+      <p className="text-sm text-gray-500 mb-6">How would you like to pay?</p>
 
       {/* Payment options */}
       <div className="space-y-3">
@@ -340,7 +324,7 @@ export default function PaymentStep({
           type="button"
           onClick={onContinue}
           disabled={!selectedMethod}
-          className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Continue to Review
         </button>

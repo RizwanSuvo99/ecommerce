@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  ChevronRight,
-  Heart,
-  ShoppingCart,
-  SlidersHorizontal,
-  Star,
-  X,
-} from 'lucide-react';
+import { ChevronRight, Heart, ShoppingCart, SlidersHorizontal, Star, X } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -122,9 +115,15 @@ export default function CategoryPage() {
       const [sortField = 'createdAt', sortOrder = 'desc'] = sortBy.split(':');
       params.set('sortBy', sortField);
       params.set('sortOrder', sortOrder);
-      if (minPrice) {params.set('priceMin', minPrice);}
-      if (maxPrice) {params.set('priceMax', maxPrice);}
-      if (selectedBrand) {params.set('brandSlug', selectedBrand);}
+      if (minPrice) {
+        params.set('priceMin', minPrice);
+      }
+      if (maxPrice) {
+        params.set('priceMax', maxPrice);
+      }
+      if (selectedBrand) {
+        params.set('brandSlug', selectedBrand);
+      }
 
       const { data } = await apiClient.get(`/products?${params}`);
       const rawList = data.data?.products ?? data.data ?? [];
@@ -173,11 +172,12 @@ export default function CategoryPage() {
     setPage(1);
   };
 
-
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) {return;}
+    if (product.stock <= 0) {
+      return;
+    }
     addItem({ productId: product.id, quantity: 1 });
   };
 
@@ -197,22 +197,18 @@ export default function CategoryPage() {
               Categories
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-white font-medium">
-              {category?.name ?? slug}
-            </span>
+            <span className="text-white font-medium">{category?.name ?? slug}</span>
           </nav>
 
           <h1 className="text-3xl font-bold text-white">
             {categoryLoading ? (
               <span className="inline-block h-9 w-48 animate-pulse rounded bg-white/20" />
             ) : (
-              category?.name ?? slug
+              (category?.name ?? slug)
             )}
           </h1>
 
-          {category?.nameBn && (
-            <p className="mt-1 text-teal-100">{category.nameBn}</p>
-          )}
+          {category?.nameBn && <p className="mt-1 text-teal-100">{category.nameBn}</p>}
           {category?.description && (
             <p className="mt-2 max-w-2xl text-teal-100">{category.description}</p>
           )}
@@ -250,18 +246,23 @@ export default function CategoryPage() {
             <SlidersHorizontal className="h-4 w-4" />
             Filters
             {hasActiveFilters && (
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-white">
                 {[minPrice, maxPrice, selectedBrand].filter(Boolean).length}
               </span>
             )}
           </button>
           <select
             value={sortBy}
-            onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(1);
+            }}
             className="rounded-lg border-gray-300 text-sm"
           >
             {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
             ))}
           </select>
         </div>
@@ -270,18 +271,24 @@ export default function CategoryPage() {
       {/* Mobile filter sheet */}
       {mobileFilterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileFilterOpen(false)}
+          />
           <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Filters</h2>
-              <button onClick={() => setMobileFilterOpen(false)} className="rounded-full p-1 hover:bg-gray-100">
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="rounded-full p-1 hover:bg-gray-100"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             {filterSidebar()}
             <button
               onClick={() => setMobileFilterOpen(false)}
-              className="mt-6 w-full rounded-lg bg-teal-600 py-3 text-sm font-semibold text-white"
+              className="mt-6 w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white"
             >
               Show Results
             </button>
@@ -305,8 +312,10 @@ export default function CategoryPage() {
               <p className="text-sm text-gray-500">
                 {pagination ? (
                   <>
-                    Showing {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}–
-                    {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
+                    Showing{' '}
+                    {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}–
+                    {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+                    {pagination.total}
                   </>
                 ) : (
                   'Loading...'
@@ -314,11 +323,16 @@ export default function CategoryPage() {
               </p>
               <select
                 value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setPage(1);
+                }}
                 className="rounded-lg border-gray-300 text-sm shadow-sm"
               >
                 {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -334,9 +348,14 @@ export default function CategoryPage() {
               <div className="py-20 text-center">
                 <ShoppingCart className="mx-auto h-16 w-16 text-gray-300 mb-4" />
                 <p className="text-xl font-medium text-gray-500">No products found</p>
-                <p className="mt-2 text-gray-400">Try adjusting your filters or browse other categories.</p>
+                <p className="mt-2 text-gray-400">
+                  Try adjusting your filters or browse other categories.
+                </p>
                 {hasActiveFilters && (
-                  <button onClick={clearFilters} className="mt-4 rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-teal-700">
+                  <button
+                    onClick={clearFilters}
+                    className="mt-4 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
+                  >
                     Clear All Filters
                   </button>
                 )}
@@ -356,7 +375,7 @@ export default function CategoryPage() {
                     <Link
                       key={product.id}
                       href={`/products/${product.slug}`}
-                      className="group relative flex flex-col rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-teal-200 hover:-translate-y-0.5"
+                      className="group relative flex flex-col rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-primary hover:-translate-y-0.5"
                     >
                       <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
                         {product.images?.[0] ? (
@@ -366,7 +385,9 @@ export default function CategoryPage() {
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-gray-400">No Image</div>
+                          <div className="flex h-full items-center justify-center text-gray-400">
+                            No Image
+                          </div>
                         )}
 
                         {hasDiscount && (
@@ -376,10 +397,16 @@ export default function CategoryPage() {
                         )}
 
                         <button
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleWishlist(product.id);
+                          }}
                           className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 opacity-0 backdrop-blur-sm shadow-sm transition-all duration-200 group-hover:opacity-100 hover:bg-white hover:scale-110"
                         >
-                          <Heart className={`h-4 w-4 ${wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                          <Heart
+                            className={`h-4 w-4 ${wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+                          />
                         </button>
 
                         {product.stock <= 0 && (
@@ -391,9 +418,9 @@ export default function CategoryPage() {
 
                       <div className="flex flex-1 flex-col p-3 sm:p-4">
                         {product.brandName && (
-                          <p className="text-xs font-medium text-teal-600">{product.brandName}</p>
+                          <p className="text-xs font-medium text-primary">{product.brandName}</p>
                         )}
-                        <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-teal-700">
+                        <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-primary">
                           {product.name}
                         </h3>
 
@@ -414,11 +441,17 @@ export default function CategoryPage() {
                         <div className="mt-auto pt-2">
                           {hasDiscount ? (
                             <div className="flex items-center gap-2">
-                              <span className="text-base font-bold text-teal-700">{formatPrice(effectivePrice)}</span>
-                              <span className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</span>
+                              <span className="text-base font-bold text-primary">
+                                {formatPrice(effectivePrice)}
+                              </span>
+                              <span className="text-xs text-gray-400 line-through">
+                                {formatPrice(product.price)}
+                              </span>
                             </div>
                           ) : (
-                            <span className="text-base font-bold text-teal-700">{formatPrice(effectivePrice)}</span>
+                            <span className="text-base font-bold text-primary">
+                              {formatPrice(effectivePrice)}
+                            </span>
                           )}
                         </div>
 
@@ -427,13 +460,15 @@ export default function CategoryPage() {
                           <button
                             onClick={(e) => handleQuickAdd(e, product)}
                             disabled={isUpdating}
-                            className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-teal-700 disabled:opacity-50"
+                            className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
                           >
                             <ShoppingCart className="h-3.5 w-3.5" />
                             Add to Cart
                           </button>
                         ) : (
-                          <p className="mt-2 text-center text-xs font-medium text-red-500">Out of Stock</p>
+                          <p className="mt-2 text-center text-xs font-medium text-red-500">
+                            Out of Stock
+                          </p>
                         )}
                       </div>
                     </Link>
@@ -468,7 +503,9 @@ export default function CategoryPage() {
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
                       className={`min-w-[36px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        pageNum === page ? 'bg-teal-600 text-white' : 'border text-gray-600 hover:bg-gray-50'
+                        pageNum === page
+                          ? 'bg-primary text-white'
+                          : 'border text-gray-600 hover:bg-gray-50'
                       }`}
                     >
                       {pageNum}
@@ -503,16 +540,22 @@ export default function CategoryPage() {
               type="number"
               placeholder="Min"
               value={minPrice}
-              onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              onChange={(e) => {
+                setMinPrice(e.target.value);
+                setPage(1);
+              }}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <span className="text-gray-400">—</span>
             <input
               type="number"
               placeholder="Max"
               value={maxPrice}
-              onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              onChange={(e) => {
+                setMaxPrice(e.target.value);
+                setPage(1);
+              }}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
@@ -526,9 +569,14 @@ export default function CategoryPage() {
             <ul className="space-y-1">
               <li>
                 <button
-                  onClick={() => { setSelectedBrand(''); setPage(1); }}
+                  onClick={() => {
+                    setSelectedBrand('');
+                    setPage(1);
+                  }}
                   className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                    !selectedBrand ? 'bg-teal-50 font-medium text-teal-700' : 'text-gray-600 hover:bg-gray-50'
+                    !selectedBrand
+                      ? 'bg-teal-50 font-medium text-primary'
+                      : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   All Brands
@@ -537,9 +585,14 @@ export default function CategoryPage() {
               {brands.map((brand) => (
                 <li key={brand.slug}>
                   <button
-                    onClick={() => { setSelectedBrand(brand.slug); setPage(1); }}
+                    onClick={() => {
+                      setSelectedBrand(brand.slug);
+                      setPage(1);
+                    }}
                     className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                      selectedBrand === brand.slug ? 'bg-teal-50 font-medium text-teal-700' : 'text-gray-600 hover:bg-gray-50'
+                      selectedBrand === brand.slug
+                        ? 'bg-teal-50 font-medium text-primary'
+                        : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
                     {brand.name}

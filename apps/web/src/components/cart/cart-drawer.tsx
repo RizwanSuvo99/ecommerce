@@ -1,11 +1,12 @@
 'use client';
 
-import { Fragment } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Fragment } from 'react';
+
+import type { CartItem } from '@/lib/api/cart';
 
 import { useCart } from '@/hooks/use-cart';
-import type { CartItem } from '@/lib/api/cart';
 
 /**
  * Format price in BDT (Bangladeshi Taka).
@@ -44,9 +45,7 @@ function QuantitySelector({ itemId, quantity, maxStock }: QuantitySelectorProps)
         </svg>
       </button>
 
-      <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums">
-        {quantity}
-      </span>
+      <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums">{quantity}</span>
 
       <button
         type="button"
@@ -79,13 +78,7 @@ function CartItemRow({ item }: CartItemRowProps) {
     <div className="flex gap-4 py-4 border-b border-gray-100 last:border-0">
       {/* Product image */}
       <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-        <Image
-          src={imageUrl}
-          alt={item.product.name}
-          fill
-          sizes="80px"
-          className="object-cover"
-        />
+        <Image src={imageUrl} alt={item.product.name} fill sizes="80px" className="object-cover" />
       </div>
 
       {/* Product details */}
@@ -93,14 +86,12 @@ function CartItemRow({ item }: CartItemRowProps) {
         <div>
           <Link
             href={`/products/${item.product.slug}`}
-            className="text-sm font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-2"
+            className="text-sm font-medium text-gray-900 hover:text-primary transition-colors line-clamp-2"
           >
             {item.product.name}
           </Link>
 
-          <p className="mt-0.5 text-sm text-gray-500">
-            {formatPrice(item.price)}
-          </p>
+          <p className="mt-0.5 text-sm text-gray-500">{formatPrice(item.price)}</p>
         </div>
 
         <div className="mt-2 flex items-center justify-between">
@@ -169,9 +160,7 @@ function EmptyCartState() {
         <path d="M16 10a4 4 0 01-8 0" />
       </svg>
 
-      <h3 className="text-lg font-medium text-gray-900 mb-1">
-        Your cart is empty
-      </h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-1">Your cart is empty</h3>
       <p className="text-sm text-gray-500 mb-6">
         Looks like you haven&apos;t added anything to your cart yet.
       </p>
@@ -179,7 +168,7 @@ function EmptyCartState() {
       <button
         type="button"
         onClick={closeCart}
-        className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-teal-700 transition-colors"
+        className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
       >
         Continue Shopping
       </button>
@@ -279,9 +268,7 @@ export function CartDrawer() {
                   <span className="text-green-700">
                     Coupon <strong>{cart.couponCode}</strong> applied
                   </span>
-                  <span className="font-medium text-green-700">
-                    -{formatPrice(cart.discount)}
-                  </span>
+                  <span className="font-medium text-green-700">-{formatPrice(cart.discount)}</span>
                 </div>
               )}
 
@@ -314,7 +301,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={closeCart}
-                className="block w-full rounded-lg bg-teal-600 py-3 text-center text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
+                className="block w-full rounded-lg bg-primary py-3 text-center text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
               >
                 Proceed to Checkout
               </Link>

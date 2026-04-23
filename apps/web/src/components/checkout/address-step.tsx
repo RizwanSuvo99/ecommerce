@@ -12,26 +12,66 @@ import { useState } from 'react';
 const BD_DIVISIONS: Record<string, string[]> = {
   Barishal: ['Barguna', 'Barishal', 'Bhola', 'Jhalokati', 'Patuakhali', 'Pirojpur'],
   Chattogram: [
-    'Bandarban', 'Brahmanbaria', 'Chandpur', 'Chattogram', 'Comilla',
-    'Cox\'s Bazar', 'Feni', 'Khagrachhari', 'Lakshmipur', 'Noakhali', 'Rangamati',
+    'Bandarban',
+    'Brahmanbaria',
+    'Chandpur',
+    'Chattogram',
+    'Comilla',
+    "Cox's Bazar",
+    'Feni',
+    'Khagrachhari',
+    'Lakshmipur',
+    'Noakhali',
+    'Rangamati',
   ],
   Dhaka: [
-    'Dhaka', 'Faridpur', 'Gazipur', 'Gopalganj', 'Kishoreganj',
-    'Madaripur', 'Manikganj', 'Munshiganj', 'Narayanganj', 'Narsingdi',
-    'Rajbari', 'Shariatpur', 'Tangail',
+    'Dhaka',
+    'Faridpur',
+    'Gazipur',
+    'Gopalganj',
+    'Kishoreganj',
+    'Madaripur',
+    'Manikganj',
+    'Munshiganj',
+    'Narayanganj',
+    'Narsingdi',
+    'Rajbari',
+    'Shariatpur',
+    'Tangail',
   ],
   Khulna: [
-    'Bagerhat', 'Chuadanga', 'Jessore', 'Jhenaidah', 'Khulna',
-    'Kushtia', 'Magura', 'Meherpur', 'Narail', 'Satkhira',
+    'Bagerhat',
+    'Chuadanga',
+    'Jessore',
+    'Jhenaidah',
+    'Khulna',
+    'Kushtia',
+    'Magura',
+    'Meherpur',
+    'Narail',
+    'Satkhira',
   ],
   Mymensingh: ['Jamalpur', 'Mymensingh', 'Netrokona', 'Sherpur'],
   Rajshahi: [
-    'Bogura', 'Chapainawabganj', 'Joypurhat', 'Naogaon', 'Natore',
-    'Nawabganj', 'Pabna', 'Rajshahi', 'Sirajganj',
+    'Bogura',
+    'Chapainawabganj',
+    'Joypurhat',
+    'Naogaon',
+    'Natore',
+    'Nawabganj',
+    'Pabna',
+    'Rajshahi',
+    'Sirajganj',
   ],
   Rangpur: [
-    'Dinajpur', 'Gaibandha', 'Kurigram', 'Lalmonirhat', 'Nilphamari',
-    'Panchagarh', 'Rangpur', 'Thakurgaon',
+    'Dinajpur',
+    'Gaibandha',
+    'Kurigram',
+    'Lalmonirhat',
+    'Nilphamari',
+    'Panchagarh',
+    'Rangpur',
+    'Thakurgaon',
   ],
   Sylhet: ['Habiganj', 'Moulvibazar', 'Sunamganj', 'Sylhet'],
 };
@@ -100,9 +140,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-6 p-6 bg-gray-50 rounded-xl">
-      <h3 className="text-base font-semibold text-gray-900 mb-4">
-        Add New Address
-      </h3>
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Add New Address</h3>
 
       {/* Name row */}
       <div className="grid grid-cols-2 gap-4">
@@ -116,7 +154,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             placeholder="First name"
           />
         </div>
@@ -130,7 +168,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.lastName}
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             placeholder="Last name"
           />
         </div>
@@ -147,7 +185,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
           required
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           placeholder="+880 1XXX-XXXXXX"
         />
       </div>
@@ -163,7 +201,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
           required
           value={formData.addressLine1}
           onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           placeholder="House no., road, area"
         />
       </div>
@@ -178,7 +216,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
           type="text"
           value={formData.addressLine2}
           onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           placeholder="Apartment, suite, floor"
         />
       </div>
@@ -194,7 +232,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={division}
             onChange={(e) => handleDivisionChange(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none bg-white"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white"
           >
             <option value="">Select Division</option>
             {Object.keys(BD_DIVISIONS).map((div) => (
@@ -214,7 +252,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             disabled={!division}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
             <option value="">Select District</option>
             {districts.map((dist) => (
@@ -238,7 +276,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.city}
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             placeholder="City"
           />
         </div>
@@ -252,7 +290,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
             required
             value={formData.postalCode}
             onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             placeholder="1000"
           />
         </div>
@@ -269,7 +307,7 @@ function NewAddressForm({ onSave, onCancel }: NewAddressFormProps) {
         </button>
         <button
           type="submit"
-          className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
         >
           Save Address
         </button>
@@ -294,9 +332,7 @@ function AddressCard({ address, isSelected, onSelect }: AddressCardProps) {
       type="button"
       onClick={onSelect}
       className={`w-full text-left rounded-xl border-2 p-4 transition-colors ${
-        isSelected
-          ? 'border-teal-600 bg-teal-50'
-          : 'border-gray-200 hover:border-gray-300 bg-white'
+        isSelected ? 'border-primary bg-teal-50' : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
       <div className="flex items-start justify-between">
@@ -316,19 +352,17 @@ function AddressCard({ address, isSelected, onSelect }: AddressCardProps) {
 
         <div className="flex items-center gap-2">
           {address.isDefault && (
-            <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-teal-700">
+            <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-primary">
               Default
             </span>
           )}
 
           <div
             className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-              isSelected ? 'border-teal-600' : 'border-gray-300'
+              isSelected ? 'border-primary' : 'border-gray-300'
             }`}
           >
-            {isSelected && (
-              <div className="h-2.5 w-2.5 rounded-full bg-teal-600" />
-            )}
+            {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
           </div>
         </div>
       </div>
@@ -364,12 +398,8 @@ export default function AddressStep({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
-        Shipping Address
-      </h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Select a delivery address or add a new one
-      </p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Shipping Address</h2>
+      <p className="text-sm text-gray-500 mb-6">Select a delivery address or add a new one</p>
 
       {/* Saved addresses */}
       {savedAddresses.length > 0 && (
@@ -399,7 +429,7 @@ export default function AddressStep({
         <button
           type="button"
           onClick={() => setShowNewForm(true)}
-          className="flex items-center gap-2 text-sm font-medium text-teal-600 hover:text-teal-800 transition-colors"
+          className="flex items-center gap-2 text-sm font-medium text-primary hover:text-teal-800 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -421,10 +451,7 @@ export default function AddressStep({
 
       {/* New address form */}
       {showNewForm && (
-        <NewAddressForm
-          onSave={handleSaveNewAddress}
-          onCancel={() => setShowNewForm(false)}
-        />
+        <NewAddressForm onSave={handleSaveNewAddress} onCancel={() => setShowNewForm(false)} />
       )}
 
       {/* Continue button */}
@@ -433,7 +460,7 @@ export default function AddressStep({
           type="button"
           onClick={onContinue}
           disabled={!selectedAddressId}
-          className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Continue to Shipping
         </button>

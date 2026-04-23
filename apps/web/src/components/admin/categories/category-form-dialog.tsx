@@ -1,13 +1,7 @@
 'use client';
 
+import { X, Upload, ImageIcon, Loader2, FolderTree } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import {
-  X,
-  Upload,
-  ImageIcon,
-  Loader2,
-  FolderTree,
-} from 'lucide-react';
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
@@ -126,7 +120,9 @@ export function CategoryFormDialog({
   // ─── Load Parent Options ──────────────────────────────────────────
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
 
     async function loadParents() {
       try {
@@ -141,9 +137,7 @@ export function CategoryFormDialog({
         );
         // Exclude self and children when editing
         if (editCategory) {
-          setParentOptions(
-            options.filter((o) => o.id !== editCategory.id),
-          );
+          setParentOptions(options.filter((o) => o.id !== editCategory.id));
         } else {
           setParentOptions(options);
         }
@@ -189,8 +183,12 @@ export function CategoryFormDialog({
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!name.trim()) newErrors.name = 'Category name is required';
-    if (!slug.trim()) newErrors.slug = 'Slug is required';
+    if (!name.trim()) {
+      newErrors.name = 'Category name is required';
+    }
+    if (!slug.trim()) {
+      newErrors.slug = 'Slug is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -199,7 +197,9 @@ export function CategoryFormDialog({
   // ─── Save Handler ─────────────────────────────────────────────────
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     try {
       setIsSaving(true);
@@ -215,7 +215,7 @@ export function CategoryFormDialog({
       };
 
       if (isEditing) {
-        await apiClient.patch(`/admin/categories/${editCategory!.id}`, payload);
+        await apiClient.patch(`/admin/categories/${editCategory.id}`, payload);
       } else {
         await apiClient.post('/admin/categories', payload);
       }
@@ -232,15 +232,14 @@ export function CategoryFormDialog({
 
   // ─── Render ───────────────────────────────────────────────────────
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Dialog */}
       <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
@@ -255,9 +254,7 @@ export function CategoryFormDialog({
                 {isEditing ? 'Edit Category' : 'Create Category'}
               </h2>
               <p className="text-sm text-gray-500">
-                {isEditing
-                  ? 'Update category details'
-                  : 'Add a new product category'}
+                {isEditing ? 'Update category details' : 'Add a new product category'}
               </p>
             </div>
           </div>
@@ -295,16 +292,12 @@ export function CategoryFormDialog({
                   : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
               )}
             />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-            )}
+            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
           </div>
 
           {/* Category Name (Bangla) */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              Name (বাংলা)
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Name (বাংলা)</label>
             <input
               type="text"
               value={nameBn}
@@ -316,9 +309,7 @@ export function CategoryFormDialog({
 
           {/* Slug */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              Slug
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Slug</label>
             <input
               type="text"
               value={slug}
@@ -334,9 +325,7 @@ export function CategoryFormDialog({
             </label>
             <select
               value={selectedParentId ?? ''}
-              onChange={(e) =>
-                setSelectedParentId(e.target.value || null)
-              }
+              onChange={(e) => setSelectedParentId(e.target.value || null)}
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none"
             >
               <option value="">None (Top Level)</option>
@@ -350,9 +339,7 @@ export function CategoryFormDialog({
 
           {/* Description */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              Description
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
             <textarea
               rows={3}
               value={description}
@@ -364,17 +351,11 @@ export function CategoryFormDialog({
 
           {/* Category Image */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              Image
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Image</label>
             <div className="flex items-center gap-4">
               {image ? (
                 <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-gray-200">
-                  <img
-                    src={image}
-                    alt="Category"
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={image} alt="Category" className="h-full w-full object-cover" />
                   <button
                     onClick={() => setImage(null)}
                     className="absolute -right-1 -top-1 rounded-full bg-red-500 p-0.5 text-white shadow"
@@ -405,7 +386,9 @@ export function CategoryFormDialog({
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) handleImageUpload(file);
+                  if (file) {
+                    handleImageUpload(file);
+                  }
                 }}
                 className="hidden"
               />

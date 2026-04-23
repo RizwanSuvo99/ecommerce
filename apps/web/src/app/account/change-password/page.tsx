@@ -1,15 +1,7 @@
 'use client';
 
+import { Lock, Eye, EyeOff, Shield, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import {
-  Lock,
-  Eye,
-  EyeOff,
-  Shield,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-} from 'lucide-react';
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
@@ -24,11 +16,21 @@ interface PasswordStrength {
 function evaluatePasswordStrength(password: string): PasswordStrength {
   let score = 0;
 
-  if (password.length >= 8) score++;
-  if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
-  if (/\d/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
+  if (password.length >= 8) {
+    score++;
+  }
+  if (password.length >= 12) {
+    score++;
+  }
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) {
+    score++;
+  }
+  if (/\d/.test(password)) {
+    score++;
+  }
+  if (/[^A-Za-z0-9]/.test(password)) {
+    score++;
+  }
 
   // Normalize to 0-4 scale
   score = Math.min(4, score);
@@ -37,7 +39,7 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
     { score: 0, label: 'Very Weak', color: 'text-red-600', bg: 'bg-red-500' },
     { score: 1, label: 'Weak', color: 'text-orange-600', bg: 'bg-orange-500' },
     { score: 2, label: 'Fair', color: 'text-yellow-600', bg: 'bg-yellow-500' },
-    { score: 3, label: 'Strong', color: 'text-teal-600', bg: 'bg-teal-500' },
+    { score: 3, label: 'Strong', color: 'text-primary', bg: 'bg-teal-500' },
     { score: 4, label: 'Very Strong', color: 'text-green-600', bg: 'bg-green-500' },
   ];
 
@@ -78,8 +80,7 @@ export default function ChangePasswordPage() {
   }, [formData.newPassword]);
 
   const passwordsMatch =
-    formData.confirmPassword.length > 0 &&
-    formData.newPassword === formData.confirmPassword;
+    formData.confirmPassword.length > 0 && formData.newPassword === formData.confirmPassword;
 
   const canSubmit =
     formData.currentPassword.length > 0 &&
@@ -122,9 +123,7 @@ export default function ChangePasswordPage() {
         confirmPassword: '',
       });
     } catch (err: any) {
-      setError(
-        err.message || 'Failed to change password. Please check your current password.',
-      );
+      setError(err.message || 'Failed to change password. Please check your current password.');
     } finally {
       setIsLoading(false);
     }
@@ -139,9 +138,7 @@ export default function ChangePasswordPage() {
       {/* Header */}
       <div>
         <h2 className="text-xl font-bold text-gray-900">Change Password</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Update your account password
-        </p>
+        <p className="text-sm text-gray-500 mt-1">Update your account password</p>
       </div>
 
       {/* Success/Error Messages */}
@@ -165,10 +162,8 @@ export default function ChangePasswordPage() {
         className="bg-white rounded-xl border border-gray-200 shadow-sm p-6"
       >
         <div className="flex items-center gap-2 mb-6">
-          <Shield className="w-5 h-5 text-teal-600" />
-          <h3 className="text-sm font-semibold text-gray-900">
-            Password Settings
-          </h3>
+          <Shield className="w-5 h-5 text-primary" />
+          <h3 className="text-sm font-semibold text-gray-900">Password Settings</h3>
         </div>
 
         <div className="space-y-5 max-w-md">
@@ -189,7 +184,7 @@ export default function ChangePasswordPage() {
                   }))
                 }
                 placeholder="Enter current password"
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
               />
               <button
                 type="button"
@@ -222,18 +217,14 @@ export default function ChangePasswordPage() {
                   }))
                 }
                 placeholder="Enter new password"
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
               />
               <button
                 type="button"
                 onClick={() => toggleVisibility('new')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                {showPasswords.new ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
+                {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
 
@@ -252,12 +243,7 @@ export default function ChangePasswordPage() {
                       }}
                     />
                   </div>
-                  <span
-                    className={cn(
-                      'text-xs font-medium',
-                      passwordStrength.color,
-                    )}
-                  >
+                  <span className={cn('text-xs font-medium', passwordStrength.color)}>
                     {passwordStrength.label}
                   </span>
                 </div>
@@ -265,19 +251,11 @@ export default function ChangePasswordPage() {
                 {/* Requirements Checklist */}
                 <div className="space-y-1">
                   {requirements.map((req) => (
-                    <div
-                      key={req.label}
-                      className="flex items-center gap-1.5 text-xs"
-                    >
+                    <div key={req.label} className="flex items-center gap-1.5 text-xs">
                       <CheckCircle
-                        className={cn(
-                          'w-3.5 h-3.5',
-                          req.met ? 'text-green-500' : 'text-gray-300',
-                        )}
+                        className={cn('w-3.5 h-3.5', req.met ? 'text-green-500' : 'text-gray-300')}
                       />
-                      <span
-                        className={req.met ? 'text-green-700' : 'text-gray-400'}
-                      >
+                      <span className={req.met ? 'text-green-700' : 'text-gray-400'}>
                         {req.label}
                       </span>
                     </div>
@@ -305,7 +283,7 @@ export default function ChangePasswordPage() {
                 }
                 placeholder="Confirm new password"
                 className={cn(
-                  'w-full px-3 py-2 pr-10 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500',
+                  'w-full px-3 py-2 pr-10 border rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary',
                   formData.confirmPassword.length > 0
                     ? passwordsMatch
                       ? 'border-green-300'
@@ -327,15 +305,8 @@ export default function ChangePasswordPage() {
             </div>
 
             {formData.confirmPassword.length > 0 && (
-              <p
-                className={cn(
-                  'text-xs mt-1',
-                  passwordsMatch ? 'text-green-600' : 'text-red-500',
-                )}
-              >
-                {passwordsMatch
-                  ? 'Passwords match'
-                  : 'Passwords do not match'}
+              <p className={cn('text-xs mt-1', passwordsMatch ? 'text-green-600' : 'text-red-500')}>
+                {passwordsMatch ? 'Passwords match' : 'Passwords do not match'}
               </p>
             )}
           </div>
@@ -346,7 +317,7 @@ export default function ChangePasswordPage() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -360,10 +331,8 @@ export default function ChangePasswordPage() {
 
       {/* Security Tip */}
       <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
-        <h4 className="text-sm font-semibold text-teal-900 mb-1">
-          Security Tips
-        </h4>
-        <ul className="text-xs text-teal-700 space-y-1 list-disc list-inside">
+        <h4 className="text-sm font-semibold text-teal-900 mb-1">Security Tips</h4>
+        <ul className="text-xs text-primary space-y-1 list-disc list-inside">
           <li>Use a unique password that you don&apos;t use on other sites</li>
           <li>Mix uppercase, lowercase, numbers, and special characters</li>
           <li>Avoid using personal information like name or birthday</li>

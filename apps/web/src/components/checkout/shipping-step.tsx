@@ -51,9 +51,7 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
       type="button"
       onClick={onSelect}
       className={`w-full text-left rounded-xl border-2 p-5 transition-colors ${
-        isSelected
-          ? 'border-teal-600 bg-teal-50'
-          : 'border-gray-200 hover:border-gray-300 bg-white'
+        isSelected ? 'border-primary bg-teal-50' : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
       <div className="flex items-center justify-between">
@@ -61,12 +59,10 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
           {/* Radio indicator */}
           <div
             className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-              isSelected ? 'border-teal-600' : 'border-gray-300'
+              isSelected ? 'border-primary' : 'border-gray-300'
             }`}
           >
-            {isSelected && (
-              <div className="h-2.5 w-2.5 rounded-full bg-teal-600" />
-            )}
+            {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
           </div>
 
           <div>
@@ -81,13 +77,11 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
             </div>
 
             {/* Delivery estimate */}
-            <p className="mt-1 text-sm text-gray-500">
-              Estimated delivery: {method.estimatedDays}
-            </p>
+            <p className="mt-1 text-sm text-gray-500">Estimated delivery: {method.estimatedDays}</p>
 
             {/* Free shipping threshold hint */}
             {!method.isFree && method.freeAbove > 0 && (
-              <p className="mt-1 text-xs text-teal-600">
+              <p className="mt-1 text-xs text-primary">
                 Free on orders above {formatPrice(method.freeAbove)}
               </p>
             )}
@@ -101,16 +95,12 @@ function ShippingMethodCard({ method, isSelected, onSelect }: ShippingMethodCard
               <span className="text-lg font-bold text-green-600">Free</span>
               {method.cost === 0 && method.freeAbove > 0 && (
                 <p className="text-xs text-gray-400 line-through">
-                  {formatPrice(
-                    method.zone === 'INSIDE_DHAKA' ? 60 : 120,
-                  )}
+                  {formatPrice(method.zone === 'INSIDE_DHAKA' ? 60 : 120)}
                 </p>
               )}
             </div>
           ) : (
-            <span className="text-lg font-bold text-gray-900">
-              {formatPrice(method.cost)}
-            </span>
+            <span className="text-lg font-bold text-gray-900">{formatPrice(method.cost)}</span>
           )}
         </div>
       </div>
@@ -230,12 +220,8 @@ export default function ShippingStep({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
-        Shipping Method
-      </h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Choose your preferred delivery option
-      </p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Shipping Method</h2>
+      <p className="text-sm text-gray-500 mb-6">Choose your preferred delivery option</p>
 
       {/* Zone indicator */}
       <ZoneInfo zone={zone} />
@@ -276,7 +262,7 @@ export default function ShippingStep({
           type="button"
           onClick={onContinue}
           disabled={!selectedMethodId}
-          className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-white hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Continue to Payment
         </button>

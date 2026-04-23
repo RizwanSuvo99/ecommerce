@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { CheckCircle, Package, ArrowRight, Home } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import type { PaymentRecord } from '@/lib/api/payment';
 
 import { getPaymentByOrder, formatBDT } from '@/lib/api/payment';
-import type { PaymentRecord } from '@/lib/api/payment';
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
@@ -44,32 +45,23 @@ export default function PaymentSuccessPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Payment Successful!
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
         <p className="text-gray-600 mb-6">
-          Thank you for your purchase. Your payment has been processed
-          successfully.
+          Thank you for your purchase. Your payment has been processed successfully.
         </p>
 
         {/* Payment Details */}
         {payment && (
           <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">
-              Payment Details
-            </h3>
+            <h3 className="text-sm font-medium text-gray-500 mb-3">Payment Details</h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Order ID</span>
-                <span className="font-mono text-gray-900">
-                  {orderId?.slice(0, 8)}...
-                </span>
+                <span className="font-mono text-gray-900">{orderId?.slice(0, 8)}...</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Amount</span>
-                <span className="font-semibold text-gray-900">
-                  {formatBDT(payment.amount)}
-                </span>
+                <span className="font-semibold text-gray-900">{formatBDT(payment.amount)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Method</span>

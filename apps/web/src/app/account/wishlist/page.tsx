@@ -1,15 +1,10 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Heart, ShoppingCart, Trash2, Package, Tag } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Heart,
-  ShoppingCart,
-  Trash2,
-  Package,
-  Tag,
-} from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
 
+import { useCart } from '@/hooks/use-cart';
 import {
   getWishlist,
   removeFromWishlist,
@@ -17,7 +12,6 @@ import {
   getDiscountPercentage,
   type WishlistItem,
 } from '@/lib/api/wishlist';
-import { useCart } from '@/hooks/use-cart';
 
 export default function WishlistPage() {
   const [items, setItems] = useState<WishlistItem[]>([]);
@@ -45,9 +39,7 @@ export default function WishlistPage() {
 
     try {
       await removeFromWishlist(productId);
-      setItems((prev) =>
-        prev.filter((item) => item.productId !== productId),
-      );
+      setItems((prev) => prev.filter((item) => item.productId !== productId));
     } catch (error) {
       console.error('Failed to remove from wishlist:', error);
     } finally {
@@ -98,15 +90,13 @@ export default function WishlistPage() {
       ) : items.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
           <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Your wishlist is empty
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Your wishlist is empty</h3>
           <p className="text-sm text-gray-500 mb-4">
             Save products you love for later by clicking the heart icon.
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-colors"
           >
             <Package className="w-5 h-5" />
             Browse Products
@@ -116,10 +106,7 @@ export default function WishlistPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => {
             const { product } = item;
-            const discount = getDiscountPercentage(
-              product.price,
-              product.compareAtPrice,
-            );
+            const discount = getDiscountPercentage(product.price, product.compareAtPrice);
             const isRemoving = removingIds.has(item.productId);
 
             return (
@@ -169,7 +156,7 @@ export default function WishlistPage() {
                   )}
 
                   <Link href={`/products/${product.slug}`}>
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-teal-600 transition-colors">
+                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 hover:text-primary transition-colors">
                       {product.name}
                     </h3>
                   </Link>
@@ -198,7 +185,7 @@ export default function WishlistPage() {
                     <button
                       onClick={() => handleAddToCart(item)}
                       disabled={!product.inStock}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-teal-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       Add to Cart

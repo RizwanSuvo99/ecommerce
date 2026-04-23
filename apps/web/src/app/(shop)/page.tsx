@@ -21,7 +21,6 @@ import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { apiClient } from '@/lib/api/client';
 
-
 // ────────────────────────────────────────────────────────────────────────────
 // Types
 // ────────────────────────────────────────────────────────────────────────────
@@ -80,7 +79,9 @@ function formatBDT(amount: number): string {
 }
 
 function discountPercent(price: number, compare?: number): number {
-  if (!compare || compare <= price) {return 0;}
+  if (!compare || compare <= price) {
+    return 0;
+  }
   return Math.round((1 - price / compare) * 100);
 }
 
@@ -92,7 +93,8 @@ const HERO_SLIDES = [
     cta: 'Shop Now',
     href: '/categories/fashion',
     overlay: 'from-black/70 via-black/50 to-black/30',
-    image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1400&h=700&fit=crop&q=80',
+    image:
+      'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1400&h=700&fit=crop&q=80',
   },
   {
     title: 'Electronics Festival',
@@ -100,7 +102,8 @@ const HERO_SLIDES = [
     cta: 'Explore Deals',
     href: '/categories/electronics',
     overlay: 'from-blue-900/75 via-blue-900/50 to-blue-900/25',
-    image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1400&h=700&fit=crop&q=80',
+    image:
+      'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1400&h=700&fit=crop&q=80',
   },
   {
     title: 'Home & Living Sale',
@@ -108,7 +111,8 @@ const HERO_SLIDES = [
     cta: 'Shop Home',
     href: '/categories/home-living',
     overlay: 'from-emerald-900/75 via-emerald-900/50 to-emerald-900/25',
-    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1400&h=700&fit=crop&q=80',
+    image:
+      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1400&h=700&fit=crop&q=80',
   },
   {
     title: 'Beauty & Wellness',
@@ -116,7 +120,8 @@ const HERO_SLIDES = [
     cta: 'Explore Beauty',
     href: '/categories/beauty-health',
     overlay: 'from-rose-900/70 via-rose-900/45 to-rose-900/20',
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1400&h=700&fit=crop&q=80',
+    image:
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1400&h=700&fit=crop&q=80',
   },
   {
     title: 'Free Delivery Week',
@@ -189,7 +194,6 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-
   const handleAddToCart = useCallback(
     (product: Product) => {
       addItem({ productId: product.id, quantity: 1 });
@@ -220,7 +224,10 @@ export default function HomePage() {
     const imgUrl = product.images[0];
 
     return (
-      <div key={product.id} className="group relative rounded-xl border bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <div
+        key={product.id}
+        className="group relative rounded-xl border bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+      >
         {/* Image */}
         <Link href={`/products/${product.slug}`} className="block">
           <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
@@ -259,10 +266,10 @@ export default function HomePage() {
         {/* Info */}
         <div className="p-3">
           {product.brandName && (
-            <p className="mb-0.5 text-xs font-medium text-teal-600">{product.brandName}</p>
+            <p className="mb-0.5 text-xs font-medium text-primary">{product.brandName}</p>
           )}
           <Link href={`/products/${product.slug}`}>
-            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-teal-700 transition-colors">
+            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
               {product.name}
             </h3>
           </Link>
@@ -285,7 +292,7 @@ export default function HomePage() {
           {product.stock > 0 ? (
             <button
               onClick={() => handleAddToCart(product)}
-              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-teal-700"
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               Add to Cart
@@ -398,14 +405,11 @@ export default function HomePage() {
               key={i}
               onClick={() => setHeroIndex(i)}
               className={`h-2.5 rounded-full transition-all duration-500 ${
-                i === heroIndex
-                  ? 'w-10 bg-white shadow-lg'
-                  : 'w-2.5 bg-white/40 hover:bg-white/60'
+                i === heroIndex ? 'w-10 bg-white shadow-lg' : 'w-2.5 bg-white/40 hover:bg-white/60'
               }`}
             />
           ))}
         </div>
-
       </section>
 
       {/* ─── Shop by Category ────────────────────────────────────────── */}
@@ -417,18 +421,24 @@ export default function HomePage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
           {topCategories.map((cat: any) => {
             const productCount =
-              cat.productCount ?? cat._count?.products ?? cat.children?.reduce((s: number, c: any) => s + (c.productCount ?? c._count?.products ?? 0), 0) ?? 0;
+              cat.productCount ??
+              cat._count?.products ??
+              cat.children?.reduce(
+                (s: number, c: any) => s + (c.productCount ?? c._count?.products ?? 0),
+                0,
+              ) ??
+              0;
             return (
               <Link
                 key={cat.id}
                 href={`/categories/${cat.slug}`}
-                className="group flex items-center gap-4 rounded-xl border bg-white p-4 transition-all hover:border-teal-300 hover:shadow-md"
+                className="group flex items-center gap-4 rounded-xl border bg-white p-4 transition-all hover:border-primary hover:shadow-md"
               >
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-2xl transition-colors group-hover:bg-teal-100">
                   {CATEGORY_ICONS[cat.slug] || '📦'}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-900 group-hover:text-teal-700 truncate">
+                  <h3 className="font-medium text-gray-900 group-hover:text-primary truncate">
                     {cat.name}
                   </h3>
                   {productCount > 0 && (
@@ -454,7 +464,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/products?isFeatured=true"
-              className="hidden items-center gap-1 rounded-lg border border-teal-600 px-4 py-2 text-sm font-medium text-teal-600 transition-colors hover:bg-teal-50 sm:inline-flex"
+              className="hidden items-center gap-1 rounded-lg border border-primary px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-teal-50 sm:inline-flex"
             >
               View All <ArrowRight className="h-4 w-4" />
             </Link>
@@ -470,7 +480,7 @@ export default function HomePage() {
 
           <Link
             href="/products?isFeatured=true"
-            className="mt-6 flex items-center justify-center gap-1 text-sm font-medium text-teal-600 sm:hidden"
+            className="mt-6 flex items-center justify-center gap-1 text-sm font-medium text-primary sm:hidden"
           >
             View All Featured <ArrowRight className="h-4 w-4" />
           </Link>
@@ -488,8 +498,10 @@ export default function HomePage() {
             <div className="pointer-events-none absolute -bottom-4 -left-4 h-28 w-28 rounded-full bg-white/10" />
             <div className="relative">
               <h3 className="text-2xl font-bold">Traditional Wear</h3>
-              <p className="mt-2 text-teal-100">Authentic Bangladeshi clothing for every occasion</p>
-              <span className="mt-4 inline-flex items-center gap-1 rounded-lg bg-white px-5 py-2 text-sm font-medium text-teal-700 transition-transform group-hover:scale-105">
+              <p className="mt-2 text-teal-100">
+                Authentic Bangladeshi clothing for every occasion
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1 rounded-lg bg-white px-5 py-2 text-sm font-medium text-primary transition-transform group-hover:scale-105">
                 Shop Now <ArrowRight className="h-4 w-4" />
               </span>
             </div>
@@ -517,14 +529,14 @@ export default function HomePage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-teal-600" />
+                <TrendingUp className="h-5 w-5 text-primary" />
                 <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">New Arrivals</h2>
               </div>
               <p className="mt-1 text-gray-500">The latest additions to our store</p>
             </div>
             <Link
               href="/products?sortBy=createdAt&sortOrder=desc"
-              className="hidden items-center gap-1 rounded-lg border border-teal-600 px-4 py-2 text-sm font-medium text-teal-600 transition-colors hover:bg-teal-50 sm:inline-flex"
+              className="hidden items-center gap-1 rounded-lg border border-primary px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-teal-50 sm:inline-flex"
             >
               View All <ArrowRight className="h-4 w-4" />
             </Link>
@@ -541,7 +553,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 text-teal-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 text-primary">
                 <Truck className="h-6 w-6" />
               </div>
               <div>

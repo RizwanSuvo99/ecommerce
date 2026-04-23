@@ -48,10 +48,14 @@ export function SearchBar() {
   }, []);
 
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
     debounceRef.current = setTimeout(() => fetchSuggestions(query), 300);
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
     };
   }, [query, fetchSuggestions]);
 
@@ -73,26 +77,26 @@ export function SearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    if (!query.trim()) {
+      return;
+    }
     setIsOpen(false);
     router.push(`/search?q=${encodeURIComponent(query.trim())}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : 0,
-        );
+        setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex((prev) =>
-          prev > 0 ? prev - 1 : suggestions.length - 1,
-        );
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
         break;
       case 'Enter':
         e.preventDefault();
@@ -177,25 +181,27 @@ export function SearchBar() {
               onClick={() => setIsOpen(false)}
             >
               {item.image ? (
-                <img
-                  src={item.image}
-                  alt=""
-                  className="h-10 w-10 rounded-md object-cover"
-                />
+                <img src={item.image} alt="" className="h-10 w-10 rounded-md object-cover" />
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-100">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-medium text-gray-900">
-                  {item.name}
-                </p>
-                {item.categoryName && (
-                  <p className="text-xs text-gray-500">{item.categoryName}</p>
-                )}
+                <p className="truncate text-sm font-medium text-gray-900">{item.name}</p>
+                {item.categoryName && <p className="text-xs text-gray-500">{item.categoryName}</p>}
               </div>
               <div className="text-right">
                 {item.salePrice ? (
@@ -203,14 +209,10 @@ export function SearchBar() {
                     <p className="text-sm font-semibold text-red-600">
                       {formatPrice(item.salePrice)}
                     </p>
-                    <p className="text-xs text-gray-400 line-through">
-                      {formatPrice(item.price)}
-                    </p>
+                    <p className="text-xs text-gray-400 line-through">{formatPrice(item.price)}</p>
                   </>
                 ) : (
-                  <p className="text-sm font-semibold text-gray-900">
-                    {formatPrice(item.price)}
-                  </p>
+                  <p className="text-sm font-semibold text-gray-900">{formatPrice(item.price)}</p>
                 )}
               </div>
             </Link>

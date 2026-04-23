@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { toast } from 'sonner';
 import {
   Upload,
   X,
@@ -12,6 +10,8 @@ import {
   FileImage,
   Loader2,
 } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
@@ -48,12 +48,7 @@ interface UploadingFile {
  * - Primary image selection
  * - Image removal
  */
-export function MediaForm({
-  images,
-  onChange,
-  primaryIndex = 0,
-  onPrimaryChange,
-}: MediaFormProps) {
+export function MediaForm({ images, onChange, primaryIndex = 0, onPrimaryChange }: MediaFormProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -67,10 +62,7 @@ export function MediaForm({
 
     // Create preview
     const preview = URL.createObjectURL(file);
-    setUploadingFiles((prev) => [
-      ...prev,
-      { id: uploadId, name: file.name, progress: 0, preview },
-    ]);
+    setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0, preview }]);
 
     try {
       const formData = new FormData();
@@ -101,16 +93,18 @@ export function MediaForm({
   };
 
   const handleFiles = async (files: FileList | File[]) => {
-    const fileArray = Array.from(files).filter((f) =>
-      f.type.startsWith('image/'),
-    );
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
 
-    if (fileArray.length === 0) return;
+    if (fileArray.length === 0) {
+      return;
+    }
 
     const uploadedUrls: string[] = [];
     for (const file of fileArray) {
       const url = await uploadFile(file);
-      if (url) uploadedUrls.push(url);
+      if (url) {
+        uploadedUrls.push(url);
+      }
     }
 
     if (uploadedUrls.length > 0) {
@@ -172,15 +166,9 @@ export function MediaForm({
     if (onPrimaryChange) {
       if (draggedIndex === primaryIndex) {
         onPrimaryChange(targetIndex);
-      } else if (
-        draggedIndex < primaryIndex &&
-        targetIndex >= primaryIndex
-      ) {
+      } else if (draggedIndex < primaryIndex && targetIndex >= primaryIndex) {
         onPrimaryChange(primaryIndex - 1);
-      } else if (
-        draggedIndex > primaryIndex &&
-        targetIndex <= primaryIndex
-      ) {
+      } else if (draggedIndex > primaryIndex && targetIndex <= primaryIndex) {
         onPrimaryChange(primaryIndex + 1);
       }
     }
@@ -207,9 +195,7 @@ export function MediaForm({
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center gap-2">
           <FileImage className="h-5 w-5 text-gray-400" />
-          <h2 className="text-lg font-semibold text-gray-900">
-            Product Images
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
         </div>
 
         {/* Upload Zone */}
@@ -226,15 +212,10 @@ export function MediaForm({
           )}
         >
           <Upload
-            className={cn(
-              'mx-auto h-10 w-10',
-              isDragging ? 'text-teal-500' : 'text-gray-400',
-            )}
+            className={cn('mx-auto h-10 w-10', isDragging ? 'text-teal-500' : 'text-gray-400')}
           />
           <p className="mt-3 text-sm font-medium text-gray-700">
-            {isDragging
-              ? 'Drop images here...'
-              : 'Drag and drop images, or click to browse'}
+            {isDragging ? 'Drop images here...' : 'Drag and drop images, or click to browse'}
           </p>
           <p className="mt-1 text-xs text-gray-500">
             PNG, JPG, WebP up to 5MB each. Recommended: 1000x1000px or larger.
@@ -281,8 +262,7 @@ export function MediaForm({
         {images.length > 0 && (
           <div className="mt-6">
             <p className="mb-3 text-sm font-medium text-gray-700">
-              {images.length} image{images.length !== 1 ? 's' : ''} — drag to
-              reorder
+              {images.length} image{images.length !== 1 ? 's' : ''} — drag to reorder
             </p>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {images.map((url, index) => (
@@ -327,11 +307,7 @@ export function MediaForm({
                         onPrimaryChange?.(index);
                       }}
                       className="rounded-lg bg-white/90 p-1.5 text-gray-700 hover:bg-white"
-                      title={
-                        index === primaryIndex
-                          ? 'Primary image'
-                          : 'Set as primary'
-                      }
+                      title={index === primaryIndex ? 'Primary image' : 'Set as primary'}
                     >
                       {index === primaryIndex ? (
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />

@@ -65,9 +65,13 @@ export default function DealsCategoryPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <nav className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-gray-700">Home</Link>
+        <Link href="/" className="hover:text-gray-700">
+          Home
+        </Link>
         <span className="mx-2">/</span>
-        <Link href="/deals" className="hover:text-gray-700">Deals</Link>
+        <Link href="/deals" className="hover:text-gray-700">
+          Deals
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">{title}</span>
       </nav>
@@ -88,7 +92,7 @@ export default function DealsCategoryPage() {
       ) : products.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-lg text-gray-500">No deals in {title} right now.</p>
-          <Link href="/deals" className="mt-4 inline-block text-sm text-teal-600 hover:underline">
+          <Link href="/deals" className="mt-4 inline-block text-sm text-primary hover:underline">
             View all deals
           </Link>
         </div>
@@ -114,7 +118,10 @@ export default function DealsCategoryPage() {
                 )}
                 {product.compareAtPrice && (
                   <span className="absolute left-2 top-2 rounded-md bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">
-                    {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
+                    {Math.round(
+                      ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100,
+                    )}
+                    % OFF
                   </span>
                 )}
               </div>
@@ -123,11 +130,17 @@ export default function DealsCategoryPage() {
                 <div className="mt-2 flex items-center gap-2">
                   {product.compareAtPrice ? (
                     <>
-                      <span className="text-sm font-bold text-red-600">{formatPrice(product.price)}</span>
-                      <span className="text-xs text-gray-400 line-through">{formatPrice(product.compareAtPrice)}</span>
+                      <span className="text-sm font-bold text-red-600">
+                        {formatPrice(product.price)}
+                      </span>
+                      <span className="text-xs text-gray-400 line-through">
+                        {formatPrice(product.compareAtPrice)}
+                      </span>
                     </>
                   ) : (
-                    <span className="text-sm font-bold text-gray-900">{formatPrice(product.price)}</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {formatPrice(product.price)}
+                    </span>
                   )}
                 </div>
               </div>

@@ -69,7 +69,9 @@ function normalizeProduct(raw: any): Product {
 }
 
 function normalizePagination(meta: any): Pagination | null {
-  if (!meta) {return null;}
+  if (!meta) {
+    return null;
+  }
   return {
     total: meta.total ?? 0,
     page: meta.page ?? 1,
@@ -156,7 +158,9 @@ export default function ProductsPage() {
   }, []);
 
   const hasActiveFilters = selectedCategory || minPrice || maxPrice || selectedBrand;
-  const activeFilterCount = [selectedCategory, minPrice, maxPrice, selectedBrand].filter(Boolean).length;
+  const activeFilterCount = [selectedCategory, minPrice, maxPrice, selectedBrand].filter(
+    Boolean,
+  ).length;
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -167,10 +171,18 @@ export default function ProductsPage() {
       const [sortField, sortOrder] = sortBy.split(':');
       params.set('sortBy', sortField);
       params.set('sortOrder', sortOrder);
-      if (selectedCategory) {params.set('categorySlug', selectedCategory);}
-      if (minPrice) {params.set('priceMin', minPrice);}
-      if (maxPrice) {params.set('priceMax', maxPrice);}
-      if (selectedBrand) {params.set('brandSlug', selectedBrand);}
+      if (selectedCategory) {
+        params.set('categorySlug', selectedCategory);
+      }
+      if (minPrice) {
+        params.set('priceMin', minPrice);
+      }
+      if (maxPrice) {
+        params.set('priceMax', maxPrice);
+      }
+      if (selectedBrand) {
+        params.set('brandSlug', selectedBrand);
+      }
       const { data } = await apiClient.get(`/products?${params}`);
       const rawList = data.data?.products ?? data.data ?? [];
       const productList = rawList.map(normalizeProduct);
@@ -208,11 +220,12 @@ export default function ProductsPage() {
     setPage(1);
   };
 
-
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.stock <= 0) {return;}
+    if (product.stock <= 0) {
+      return;
+    }
     addItem({ productId: product.id, quantity: 1 });
   };
 
@@ -222,19 +235,29 @@ export default function ProductsPage() {
 
   // Pagination helpers
   const paginationRange = useMemo(() => {
-    if (!pagination) {return [];}
+    if (!pagination) {
+      return [];
+    }
     const { pages: totalPages } = pagination;
     const range: (number | 'ellipsis')[] = [];
 
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) {range.push(i);}
+      for (let i = 1; i <= totalPages; i++) {
+        range.push(i);
+      }
     } else {
       range.push(1);
-      if (page > 3) {range.push('ellipsis');}
+      if (page > 3) {
+        range.push('ellipsis');
+      }
       const start = Math.max(2, page - 1);
       const end = Math.min(totalPages - 1, page + 1);
-      for (let i = start; i <= end; i++) {range.push(i);}
-      if (page < totalPages - 2) {range.push('ellipsis');}
+      for (let i = start; i <= end; i++) {
+        range.push(i);
+      }
+      if (page < totalPages - 2) {
+        range.push('ellipsis');
+      }
       range.push(totalPages);
     }
 
@@ -258,7 +281,7 @@ export default function ProductsPage() {
               }}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                 !selectedCategory
-                  ? 'bg-teal-50 font-medium text-teal-700'
+                  ? 'bg-teal-50 font-medium text-primary'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -276,7 +299,9 @@ export default function ProductsPage() {
               : catCount;
 
             // Skip categories with no products at all
-            if (totalCount === 0 && !hasChildren) {return null;}
+            if (totalCount === 0 && !hasChildren) {
+              return null;
+            }
 
             return (
               <li key={cat.id}>
@@ -288,15 +313,13 @@ export default function ProductsPage() {
                   }}
                   className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
                     selectedCategory === cat.slug
-                      ? 'bg-teal-50 text-teal-700'
+                      ? 'bg-teal-50 text-primary'
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>{cat.name}</span>
                   {totalCount > 0 && (
-                    <span className="ml-1 text-xs font-normal text-gray-400">
-                      ({totalCount})
-                    </span>
+                    <span className="ml-1 text-xs font-normal text-gray-400">({totalCount})</span>
                   )}
                 </button>
 
@@ -305,7 +328,9 @@ export default function ProductsPage() {
                   <ul className="ml-3 border-l border-gray-200 pl-2 space-y-0.5">
                     {cat.children!.map((sub) => {
                       const subCount = sub.productCount ?? sub._count?.products ?? 0;
-                      if (subCount === 0) {return null;}
+                      if (subCount === 0) {
+                        return null;
+                      }
                       return (
                         <li key={sub.id}>
                           <button
@@ -315,14 +340,12 @@ export default function ProductsPage() {
                             }}
                             className={`w-full rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
                               selectedCategory === sub.slug
-                                ? 'bg-teal-50 font-medium text-teal-700'
+                                ? 'bg-teal-50 font-medium text-primary'
                                 : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
                             }`}
                           >
                             <span>{sub.name}</span>
-                            <span className="ml-1 text-xs text-gray-400">
-                              ({subCount})
-                            </span>
+                            <span className="ml-1 text-xs text-gray-400">({subCount})</span>
                           </button>
                         </li>
                       );
@@ -349,7 +372,7 @@ export default function ProductsPage() {
               setMinPrice(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <span className="text-gray-400">—</span>
           <input
@@ -360,7 +383,7 @@ export default function ProductsPage() {
               setMaxPrice(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
       </div>
@@ -380,7 +403,7 @@ export default function ProductsPage() {
                 }}
                 className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                   !selectedBrand
-                    ? 'bg-teal-50 font-medium text-teal-700'
+                    ? 'bg-teal-50 font-medium text-primary'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
@@ -396,7 +419,7 @@ export default function ProductsPage() {
                   }}
                   className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                     selectedBrand === brand.slug
-                      ? 'bg-teal-50 font-medium text-teal-700'
+                      ? 'bg-teal-50 font-medium text-primary'
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
@@ -435,7 +458,7 @@ export default function ProductsPage() {
         <Link
           key={product.id}
           href={`/products/${product.slug}`}
-          className="group flex gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-lg hover:border-teal-200 sm:gap-6"
+          className="group flex gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-lg hover:border-primary sm:gap-6"
         >
           <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 sm:h-44 sm:w-44">
             {product.images?.[0] ? (
@@ -445,9 +468,7 @@ export default function ProductsPage() {
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-gray-400">
-                No Image
-              </div>
+              <div className="flex h-full items-center justify-center text-gray-400">No Image</div>
             )}
             {hasDiscount && (
               <span className="absolute left-2 top-2 rounded-md bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">
@@ -458,11 +479,9 @@ export default function ProductsPage() {
           <div className="flex flex-1 flex-col justify-between py-1">
             <div>
               {product.brandName && (
-                <p className="text-xs font-medium text-teal-600">
-                  {product.brandName}
-                </p>
+                <p className="text-xs font-medium text-primary">{product.brandName}</p>
               )}
-              <h3 className="mt-1 text-base font-semibold text-gray-900 group-hover:text-teal-700 line-clamp-2">
+              <h3 className="mt-1 text-base font-semibold text-gray-900 group-hover:text-primary line-clamp-2">
                 {product.name}
               </h3>
               {product.shortDescription && (
@@ -494,7 +513,7 @@ export default function ProductsPage() {
               <div>
                 {hasDiscount ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-teal-700">
+                    <span className="text-lg font-bold text-primary">
                       {formatPrice(effectivePrice)}
                     </span>
                     <span className="text-sm text-gray-400 line-through">
@@ -502,7 +521,7 @@ export default function ProductsPage() {
                     </span>
                   </div>
                 ) : (
-                  <span className="text-lg font-bold text-teal-700">
+                  <span className="text-lg font-bold text-primary">
                     {formatPrice(effectivePrice)}
                   </span>
                 )}
@@ -511,7 +530,7 @@ export default function ProductsPage() {
                 <button
                   onClick={(e) => handleQuickAdd(e, product)}
                   disabled={isUpdating}
-                  className="flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
                 >
                   <ShoppingCart className="h-4 w-4" />
                   Add to Cart
@@ -531,7 +550,7 @@ export default function ProductsPage() {
       <Link
         key={product.id}
         href={`/products/${product.slug}`}
-        className="group relative flex flex-col rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-teal-200 hover:-translate-y-0.5"
+        className="group relative flex flex-col rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-primary hover:-translate-y-0.5"
       >
         {/* Image */}
         <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
@@ -542,9 +561,7 @@ export default function ProductsPage() {
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-gray-400">
-              No Image
-            </div>
+            <div className="flex h-full items-center justify-center text-gray-400">No Image</div>
           )}
 
           {/* Badges */}
@@ -572,9 +589,7 @@ export default function ProductsPage() {
           >
             <Heart
               className={`h-4 w-4 transition-colors ${
-                wishlist.has(product.id)
-                  ? 'fill-red-500 text-red-500'
-                  : 'text-gray-600'
+                wishlist.has(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'
               }`}
             />
           </button>
@@ -590,11 +605,9 @@ export default function ProductsPage() {
         {/* Info */}
         <div className="flex flex-1 flex-col p-3 sm:p-4">
           {product.brandName && (
-            <p className="text-xs font-medium text-teal-600">
-              {product.brandName}
-            </p>
+            <p className="text-xs font-medium text-primary">{product.brandName}</p>
           )}
-          <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-teal-700">
+          <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-primary">
             {product.name}
           </h3>
 
@@ -619,7 +632,7 @@ export default function ProductsPage() {
           <div className="mt-auto pt-2">
             {hasDiscount ? (
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-teal-700">
+                <span className="text-base font-bold text-primary">
                   {formatPrice(effectivePrice)}
                 </span>
                 <span className="text-xs text-gray-400 line-through">
@@ -627,7 +640,7 @@ export default function ProductsPage() {
                 </span>
               </div>
             ) : (
-              <span className="text-base font-bold text-teal-700">
+              <span className="text-base font-bold text-primary">
                 {formatPrice(effectivePrice)}
               </span>
             )}
@@ -638,7 +651,7 @@ export default function ProductsPage() {
             <button
               onClick={(e) => handleQuickAdd(e, product)}
               disabled={isUpdating}
-              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-teal-700 disabled:opacity-50"
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               Add to Cart
@@ -663,7 +676,7 @@ export default function ProductsPage() {
             <SlidersHorizontal className="h-4 w-4" />
             Filters
             {activeFilterCount > 0 && (
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-600 text-xs text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-white">
                 {activeFilterCount}
               </span>
             )}
@@ -708,7 +721,7 @@ export default function ProductsPage() {
             {filterContent}
             <button
               onClick={() => setMobileFilterOpen(false)}
-              className="mt-6 w-full rounded-lg bg-teal-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-700"
+              className="mt-6 w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
             >
               Show Results
             </button>
@@ -731,7 +744,7 @@ export default function ProductsPage() {
           <aside className="hidden w-64 flex-shrink-0 lg:block">
             <div className="sticky top-6 rounded-xl border border-gray-200 bg-white p-5">
               <div className="mb-4 flex items-center gap-2">
-                <Filter className="h-4 w-4 text-teal-600" />
+                <Filter className="h-4 w-4 text-primary" />
                 <h2 className="font-semibold text-gray-900">Filters</h2>
               </div>
               {filterContent}
@@ -743,22 +756,13 @@ export default function ProductsPage() {
             {/* Header */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  All Products
-                </h1>
+                <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
                 {pagination && (
                   <p className="mt-1 text-sm text-gray-500">
                     Showing{' '}
-                    {Math.min(
-                      (pagination.page - 1) * pagination.limit + 1,
-                      pagination.total,
-                    )}
-                    –
-                    {Math.min(
-                      pagination.page * pagination.limit,
-                      pagination.total,
-                    )}{' '}
-                    of {pagination.total} products
+                    {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}–
+                    {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+                    {pagination.total} products
                   </p>
                 )}
               </div>
@@ -784,7 +788,7 @@ export default function ProductsPage() {
                     onClick={() => setViewMode('grid')}
                     className={`rounded-md p-1.5 transition-colors ${
                       viewMode === 'grid'
-                        ? 'bg-teal-600 text-white'
+                        ? 'bg-primary text-white'
                         : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
@@ -794,7 +798,7 @@ export default function ProductsPage() {
                     onClick={() => setViewMode('list')}
                     className={`rounded-md p-1.5 transition-colors ${
                       viewMode === 'list'
-                        ? 'bg-teal-600 text-white'
+                        ? 'bg-primary text-white'
                         : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
@@ -809,14 +813,10 @@ export default function ProductsPage() {
               <div className="mb-8">
                 <div className="mb-4 flex items-center gap-2">
                   <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
-                  <h2 className="text-lg font-bold text-gray-900">
-                    Featured Products
-                  </h2>
+                  <h2 className="text-lg font-bold text-gray-900">Featured Products</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                  {featuredProducts.slice(0, 4).map((product) =>
-                    renderProductCard(product, true),
-                  )}
+                  {featuredProducts.slice(0, 4).map((product) => renderProductCard(product, true))}
                 </div>
                 <hr className="mt-8 border-gray-200" />
               </div>
@@ -843,16 +843,12 @@ export default function ProductsPage() {
             ) : products.length === 0 ? (
               <div className="py-20 text-center">
                 <ShoppingCart className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-                <p className="text-xl font-medium text-gray-500">
-                  No products found
-                </p>
-                <p className="mt-2 text-gray-400">
-                  Try adjusting your filters or search criteria.
-                </p>
+                <p className="text-xl font-medium text-gray-500">No products found</p>
+                <p className="mt-2 text-gray-400">Try adjusting your filters or search criteria.</p>
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
-                    className="mt-4 rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+                    className="mt-4 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
                   >
                     Clear All Filters
                   </button>
@@ -874,17 +870,9 @@ export default function ProductsPage() {
             {pagination && pagination.pages > 1 && (
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
                 <p className="text-sm text-gray-500">
-                  Showing{' '}
-                  {Math.min(
-                    (pagination.page - 1) * pagination.limit + 1,
-                    pagination.total,
-                  )}
-                  –
-                  {Math.min(
-                    pagination.page * pagination.limit,
-                    pagination.total,
-                  )}{' '}
-                  of {pagination.total} products
+                  Showing {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}
+                  –{Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+                  {pagination.total} products
                 </p>
 
                 <div className="flex items-center gap-1">
@@ -909,10 +897,7 @@ export default function ProductsPage() {
 
                   {paginationRange.map((item, idx) =>
                     item === 'ellipsis' ? (
-                      <span
-                        key={`ellipsis-${idx}`}
-                        className="px-1 text-gray-400"
-                      >
+                      <span key={`ellipsis-${idx}`} className="px-1 text-gray-400">
                         ...
                       </span>
                     ) : (
@@ -921,7 +906,7 @@ export default function ProductsPage() {
                         onClick={() => setPage(item)}
                         className={`min-w-[36px] rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                           item === page
-                            ? 'bg-teal-600 text-white shadow-sm'
+                            ? 'bg-primary text-white shadow-sm'
                             : 'border text-gray-600 hover:bg-gray-50'
                         }`}
                       >
@@ -932,9 +917,7 @@ export default function ProductsPage() {
 
                   {/* Next */}
                   <button
-                    onClick={() =>
-                      setPage((p) => Math.min(pagination.pages, p + 1))
-                    }
+                    onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
                     disabled={page === pagination.pages}
                     className="rounded-lg border p-2 text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
                     title="Next page"

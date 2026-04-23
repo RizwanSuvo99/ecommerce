@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -81,14 +81,12 @@ interface SectionHeaderProps {
 function SectionHeader({ title, onEdit }: SectionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-        {title}
-      </h3>
+      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">{title}</h3>
       {onEdit && (
         <button
           type="button"
           onClick={onEdit}
-          className="text-xs text-teal-600 hover:text-teal-800 font-medium transition-colors"
+          className="text-xs text-primary hover:text-teal-800 font-medium transition-colors"
         >
           Edit
         </button>
@@ -130,9 +128,7 @@ export default function ReviewStep({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">
-        Review Your Order
-      </h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Review Your Order</h2>
       <p className="text-sm text-gray-500 mb-6">
         Please verify everything before placing your order
       </p>
@@ -156,9 +152,7 @@ export default function ReviewStep({
 
               {/* Item info */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                  {item.name}
-                </p>
+                <p className="text-sm font-medium text-gray-900 line-clamp-1">{item.name}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   SKU: {item.sku} &middot; Qty: {item.quantity}
                 </p>
@@ -166,12 +160,8 @@ export default function ReviewStep({
 
               {/* Price */}
               <div className="text-right flex-shrink-0">
-                <p className="text-sm font-semibold text-gray-900">
-                  {formatPrice(item.lineTotal)}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {formatPrice(item.price)} each
-                </p>
+                <p className="text-sm font-semibold text-gray-900">{formatPrice(item.lineTotal)}</p>
+                <p className="text-xs text-gray-400">{formatPrice(item.price)} each</p>
               </div>
             </div>
           ))}
@@ -180,10 +170,7 @@ export default function ReviewStep({
 
       {/* ─── Shipping Address ──────────────────────────────────── */}
       <div className="mb-6">
-        <SectionHeader
-          title="Shipping Address"
-          onEdit={() => onEditStep('address')}
-        />
+        <SectionHeader title="Shipping Address" onEdit={() => onEditStep('address')} />
         {address && (
           <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm">
             <p className="font-medium text-gray-900">{address.name}</p>
@@ -201,10 +188,7 @@ export default function ReviewStep({
 
       {/* ─── Shipping Method ───────────────────────────────────── */}
       <div className="mb-6">
-        <SectionHeader
-          title="Delivery Method"
-          onEdit={() => onEditStep('shipping')}
-        />
+        <SectionHeader title="Delivery Method" onEdit={() => onEditStep('shipping')} />
         <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm">
           <div className="flex items-center justify-between">
             <span className="font-medium text-gray-900">{shippingMethodName}</span>
@@ -221,14 +205,9 @@ export default function ReviewStep({
 
       {/* ─── Payment Method ────────────────────────────────────── */}
       <div className="mb-6">
-        <SectionHeader
-          title="Payment Method"
-          onEdit={() => onEditStep('payment')}
-        />
+        <SectionHeader title="Payment Method" onEdit={() => onEditStep('payment')} />
         <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm">
-          <span className="font-medium text-gray-900">
-            {getPaymentMethodLabel(paymentMethod)}
-          </span>
+          <span className="font-medium text-gray-900">{getPaymentMethodLabel(paymentMethod)}</span>
         </div>
       </div>
 
@@ -238,7 +217,9 @@ export default function ReviewStep({
         <div className="rounded-xl border border-gray-200 bg-white p-4">
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-gray-600">
-              <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'items'})</span>
+              <span>
+                Subtotal ({items.length} {items.length === 1 ? 'item' : 'items'})
+              </span>
               <span className="font-medium text-gray-900">{formatPrice(subtotal)}</span>
             </div>
 
@@ -246,9 +227,7 @@ export default function ReviewStep({
               <div className="flex justify-between text-green-600">
                 <span>
                   Discount
-                  {couponCode && (
-                    <span className="ml-1 text-xs">({couponCode})</span>
-                  )}
+                  {couponCode && <span className="ml-1 text-xs">({couponCode})</span>}
                 </span>
                 <span className="font-medium">-{formatPrice(discount)}</span>
               </div>
@@ -276,14 +255,10 @@ export default function ReviewStep({
 
             <div className="flex justify-between items-baseline">
               <span className="text-base font-semibold text-gray-900">Total</span>
-              <span className="text-xl font-bold text-gray-900">
-                {formatPrice(total)}
-              </span>
+              <span className="text-xl font-bold text-gray-900">{formatPrice(total)}</span>
             </div>
 
-            <p className="text-xs text-gray-400 text-right">
-              BDT ৳ (Bangladeshi Taka)
-            </p>
+            <p className="text-xs text-gray-400 text-right">BDT ৳ (Bangladeshi Taka)</p>
           </div>
         </div>
       </div>
@@ -295,15 +270,15 @@ export default function ReviewStep({
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
           />
           <span className="text-sm text-gray-600">
             I agree to the{' '}
-            <a href="/terms" className="text-teal-600 hover:underline">
+            <a href="/terms" className="text-primary hover:underline">
               Terms &amp; Conditions
             </a>{' '}
             and{' '}
-            <a href="/privacy" className="text-teal-600 hover:underline">
+            <a href="/privacy" className="text-primary hover:underline">
               Privacy Policy
             </a>
             . I understand that my order is subject to the return and refund policy.
@@ -325,9 +300,7 @@ export default function ReviewStep({
           onClick={onPlaceOrder}
           disabled={!canPlaceOrder}
           className={`rounded-xl px-10 py-3.5 text-sm font-semibold text-white transition-colors ${
-            canPlaceOrder
-              ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-gray-300 cursor-not-allowed'
+            canPlaceOrder ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-300 cursor-not-allowed'
           }`}
         >
           {isSubmitting ? (

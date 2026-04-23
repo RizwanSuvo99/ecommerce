@@ -1,8 +1,8 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { XCircle, ArrowLeft, ShoppingCart, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export default function PaymentCancelPage() {
   const searchParams = useSearchParams();
@@ -17,12 +17,9 @@ export default function PaymentCancelPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Payment Cancelled
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Cancelled</h1>
         <p className="text-gray-600 mb-6">
-          Your payment was not completed. Don&apos;t worry — no charges were
-          made to your account.
+          Your payment was not completed. Don&apos;t worry — no charges were made to your account.
         </p>
 
         {/* Order Info */}
@@ -30,9 +27,7 @@ export default function PaymentCancelPage() {
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-600">
               Order ID:{' '}
-              <span className="font-mono font-medium text-gray-900">
-                {orderId.slice(0, 8)}...
-              </span>
+              <span className="font-mono font-medium text-gray-900">{orderId.slice(0, 8)}...</span>
             </p>
             <p className="text-xs text-gray-400 mt-1">
               Your order has been saved. You can complete the payment anytime.
@@ -58,7 +53,7 @@ export default function PaymentCancelPage() {
           {orderId && (
             <Link
               href="/checkout"
-              className="flex items-center justify-center gap-2 w-full bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 transition-colors font-medium"
+              className="flex items-center justify-center gap-2 w-full bg-primary text-white py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors font-medium"
             >
               <ArrowLeft className="w-5 h-5" />
               Return to Checkout

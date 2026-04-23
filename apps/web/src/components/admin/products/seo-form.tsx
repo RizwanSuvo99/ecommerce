@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Search, Globe, Eye } from 'lucide-react';
+import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -32,9 +32,13 @@ function CharacterCount({
   recommended: number;
 }) {
   let color = 'text-gray-400';
-  if (current > max) color = 'text-red-500';
-  else if (current >= recommended) color = 'text-green-500';
-  else if (current > 0) color = 'text-yellow-500';
+  if (current > max) {
+    color = 'text-red-500';
+  } else if (current >= recommended) {
+    color = 'text-green-500';
+  } else if (current > 0) {
+    color = 'text-yellow-500';
+  }
 
   return (
     <span className={cn('text-xs', color)}>
@@ -75,26 +79,17 @@ export function SeoForm({
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center gap-2">
           <Search className="h-5 w-5 text-gray-400" />
-          <h2 className="text-lg font-semibold text-gray-900">
-            Search Engine Optimization
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900">Search Engine Optimization</h2>
         </div>
 
         <div className="space-y-5">
           {/* Meta Title */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label
-                htmlFor="metaTitle"
-                className="text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="metaTitle" className="text-sm font-medium text-gray-700">
                 Meta Title
               </label>
-              <CharacterCount
-                current={metaTitle.length}
-                max={70}
-                recommended={50}
-              />
+              <CharacterCount current={metaTitle.length} max={70} recommended={50} />
             </div>
             <input
               id="metaTitle"
@@ -106,25 +101,17 @@ export function SeoForm({
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Recommended: 50-60 characters. Leave empty to use the product
-              name.
+              Recommended: 50-60 characters. Leave empty to use the product name.
             </p>
           </div>
 
           {/* Meta Description */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label
-                htmlFor="metaDescription"
-                className="text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="metaDescription" className="text-sm font-medium text-gray-700">
                 Meta Description
               </label>
-              <CharacterCount
-                current={metaDescription.length}
-                max={160}
-                recommended={120}
-              />
+              <CharacterCount current={metaDescription.length} max={160} recommended={120} />
             </div>
             <textarea
               id="metaDescription"
@@ -136,8 +123,7 @@ export function SeoForm({
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Recommended: 120-155 characters for optimal display in search
-              results.
+              Recommended: 120-155 characters for optimal display in search results.
             </p>
           </div>
         </div>
@@ -148,9 +134,7 @@ export function SeoForm({
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">
-              Search Preview
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">Search Preview</h3>
           </div>
           <button
             onClick={() => setShowPreview(!showPreview)}
@@ -166,12 +150,8 @@ export function SeoForm({
             {/* Google-style preview */}
             <div className="space-y-1">
               <p className="truncate text-sm text-green-700">{displayUrl}</p>
-              <h4 className="truncate text-xl text-teal-800 hover:underline">
-                {displayTitle}
-              </h4>
-              <p className="line-clamp-2 text-sm text-gray-600">
-                {displayDescription}
-              </p>
+              <h4 className="truncate text-xl text-teal-800 hover:underline">{displayTitle}</h4>
+              <p className="line-clamp-2 text-sm text-gray-600">{displayDescription}</p>
             </div>
           </div>
         )}
@@ -195,34 +175,23 @@ export function SeoForm({
               },
               {
                 label: 'Meta description is 120-155 characters',
-                ok:
-                  metaDescription.length >= 120 &&
-                  metaDescription.length <= 155,
+                ok: metaDescription.length >= 120 && metaDescription.length <= 155,
               },
               {
                 label: 'URL slug is readable',
                 ok: slug.length > 0 && !slug.includes(' '),
               },
             ].map((item, index) => (
-              <li
-                key={index}
-                className="flex items-center gap-2 text-sm"
-              >
+              <li key={index} className="flex items-center gap-2 text-sm">
                 <span
                   className={cn(
                     'flex h-4 w-4 items-center justify-center rounded-full text-xs',
-                    item.ok
-                      ? 'bg-green-100 text-green-600'
-                      : 'bg-gray-100 text-gray-400',
+                    item.ok ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400',
                   )}
                 >
                   {item.ok ? '✓' : '○'}
                 </span>
-                <span
-                  className={cn(
-                    item.ok ? 'text-green-700' : 'text-gray-500',
-                  )}
-                >
+                <span className={cn(item.ok ? 'text-green-700' : 'text-gray-500')}>
                   {item.label}
                 </span>
               </li>

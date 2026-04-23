@@ -1,16 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import {
-  getOrderByNumber,
-  cancelOrder,
-  type OrderDetail,
-} from '@/lib/api/orders';
+import { getOrderByNumber, cancelOrder, type OrderDetail } from '@/lib/api/orders';
 
 // ──────────────────────────────────────────────────────────
 // Order Status Timeline
@@ -34,7 +30,9 @@ function getReachedStatuses(currentStatus: string): string[] {
   const reached: string[] = [];
   for (const step of STATUS_STEPS) {
     reached.push(step.key);
-    if (step.key === currentStatus) break;
+    if (step.key === currentStatus) {
+      break;
+    }
   }
   return reached;
 }
@@ -58,10 +56,14 @@ function StatusTimeline({
 
   const getTimestamp = (key: string): string | null => {
     switch (key) {
-      case 'PENDING': return createdAt;
-      case 'DELIVERED': return deliveredAt;
-      case 'CANCELLED': return cancelledAt;
-      default: return null;
+      case 'PENDING':
+        return createdAt;
+      case 'DELIVERED':
+        return deliveredAt;
+      case 'CANCELLED':
+        return cancelledAt;
+      default:
+        return null;
     }
   };
 
@@ -91,7 +93,7 @@ function StatusTimeline({
                   isCancelledStep
                     ? 'bg-red-100 text-red-600 ring-4 ring-red-50'
                     : isCurrent
-                      ? 'bg-teal-600 text-white ring-4 ring-teal-100'
+                      ? 'bg-primary text-white ring-4 ring-primary/20'
                       : isReached
                         ? 'bg-green-500 text-white'
                         : 'bg-gray-200 text-gray-400'
@@ -145,7 +147,7 @@ function StatusTimeline({
                   isCancelledStep
                     ? 'text-red-600'
                     : isCurrent
-                      ? 'text-teal-600'
+                      ? 'text-primary'
                       : isReached
                         ? 'text-gray-900'
                         : 'text-gray-400'
@@ -153,11 +155,7 @@ function StatusTimeline({
               >
                 {step.label}
               </p>
-              {timestamp && (
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {formatDate(timestamp)}
-                </p>
-              )}
+              {timestamp && <p className="text-xs text-gray-500 mt-0.5">{formatDate(timestamp)}</p>}
             </div>
           </div>
         );
@@ -179,23 +177,35 @@ function formatPrice(amount: number): string {
 
 function getStatusBadgeColor(status: string): string {
   switch (status) {
-    case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-    case 'CONFIRMED': return 'bg-teal-100 text-teal-800';
-    case 'PROCESSING': return 'bg-indigo-100 text-indigo-800';
-    case 'SHIPPED': return 'bg-purple-100 text-purple-800';
-    case 'DELIVERED': return 'bg-green-100 text-green-800';
-    case 'CANCELLED': return 'bg-red-100 text-red-800';
-    case 'REFUNDED': return 'bg-gray-100 text-gray-800';
-    default: return 'bg-gray-100 text-gray-600';
+    case 'PENDING':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'CONFIRMED':
+      return 'bg-teal-100 text-teal-800';
+    case 'PROCESSING':
+      return 'bg-indigo-100 text-indigo-800';
+    case 'SHIPPED':
+      return 'bg-purple-100 text-purple-800';
+    case 'DELIVERED':
+      return 'bg-green-100 text-green-800';
+    case 'CANCELLED':
+      return 'bg-red-100 text-red-800';
+    case 'REFUNDED':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-600';
   }
 }
 
 function getPaymentMethodLabel(method: string): string {
   switch (method) {
-    case 'CARD': return 'Credit/Debit Card';
-    case 'COD': return 'Cash on Delivery';
-    case 'BKASH': return 'bKash';
-    default: return method;
+    case 'CARD':
+      return 'Credit/Debit Card';
+    case 'COD':
+      return 'Cash on Delivery';
+    case 'BKASH':
+      return 'bKash';
+    default:
+      return method;
   }
 }
 
@@ -213,14 +223,14 @@ interface CancelDialogProps {
 function CancelDialog({ isOpen, onClose, onConfirm, isSubmitting }: CancelDialogProps) {
   const [reason, setReason] = useState('');
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Cancel Order
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Cancel Order</h3>
         <p className="text-sm text-gray-500 mb-4">
           Are you sure you want to cancel this order? This action cannot be undone.
         </p>
@@ -285,9 +295,7 @@ export default function OrderDetailPage() {
         const data = await getOrderByNumber(orderNumber);
         setOrder(data);
       } catch (err: any) {
-        setError(err.response?.status === 404
-          ? 'Order not found'
-          : 'Failed to load order details');
+        setError(err.response?.status === 404 ? 'Order not found' : 'Failed to load order details');
       } finally {
         setIsLoading(false);
       }
@@ -296,11 +304,12 @@ export default function OrderDetailPage() {
     fetchOrder();
   }, [orderNumber]);
 
-  const canCancel =
-    order && (order.status === 'PENDING' || order.status === 'CONFIRMED');
+  const canCancel = order && (order.status === 'PENDING' || order.status === 'CONFIRMED');
 
   const handleCancelOrder = async (reason: string) => {
-    if (!order) return;
+    if (!order) {
+      return;
+    }
 
     setIsCancelling(true);
     try {
@@ -336,10 +345,7 @@ export default function OrderDetailPage() {
             ? `We couldn't find order ${orderNumber}. Please check the order number and try again.`
             : 'Failed to load order details. Please try again later.'}
         </p>
-        <Link
-          href="/account/orders"
-          className="text-teal-600 hover:underline text-sm font-medium"
-        >
+        <Link href="/account/orders" className="text-primary hover:underline text-sm font-medium">
           View All Orders
         </Link>
       </div>
@@ -363,13 +369,9 @@ export default function OrderDetailPage() {
               My Orders
             </Link>
             <span className="text-gray-300">/</span>
-            <span className="text-sm text-gray-900 font-medium font-mono">
-              {order.orderNumber}
-            </span>
+            <span className="text-sm text-gray-900 font-medium font-mono">{order.orderNumber}</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Order Details
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Order Details</h1>
           <p className="text-sm text-gray-500 mt-1">
             Placed on{' '}
             {new Date(order.createdAt).toLocaleDateString('en-BD', {
@@ -404,9 +406,7 @@ export default function OrderDetailPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Status Timeline */}
           <div className="rounded-2xl bg-white border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Order Status
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Status</h2>
             <StatusTimeline
               currentStatus={order.status}
               createdAt={order.createdAt}
@@ -440,7 +440,7 @@ export default function OrderDetailPage() {
                   <div className="flex-1 min-w-0">
                     <Link
                       href={`/products/${item.productSlug}`}
-                      className="text-sm font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-1"
+                      className="text-sm font-medium text-gray-900 hover:text-primary transition-colors line-clamp-1"
                     >
                       {item.productName}
                     </Link>
@@ -475,7 +475,8 @@ export default function OrderDetailPage() {
                   {addr.addressLine2 && `, ${addr.addressLine2}`}
                 </p>
                 <p>
-                  {addr.area && `${addr.area}, `}{addr.district}
+                  {addr.area && `${addr.area}, `}
+                  {addr.district}
                 </p>
                 <p>
                   {addr.division} {addr.postalCode}
@@ -495,8 +496,7 @@ export default function OrderDetailPage() {
               </p>
               {paymentStatus && (
                 <p className="mt-1">
-                  Status:{' '}
-                  <span className="font-medium">{paymentStatus}</span>
+                  Status: <span className="font-medium">{paymentStatus}</span>
                 </p>
               )}
             </div>
@@ -521,12 +521,16 @@ export default function OrderDetailPage() {
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
                 <span>
-                  {Number(order.shippingCost) === 0 ? 'Free' : formatPrice(Number(order.shippingCost))}
+                  {Number(order.shippingCost) === 0
+                    ? 'Free'
+                    : formatPrice(Number(order.shippingCost))}
                 </span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Tax</span>
-                <span>{Number(order.taxAmount) > 0 ? formatPrice(Number(order.taxAmount)) : 'Included'}</span>
+                <span>
+                  {Number(order.taxAmount) > 0 ? formatPrice(Number(order.taxAmount)) : 'Included'}
+                </span>
               </div>
               <div className="border-t border-gray-200 my-2" />
               <div className="flex justify-between font-semibold text-gray-900">

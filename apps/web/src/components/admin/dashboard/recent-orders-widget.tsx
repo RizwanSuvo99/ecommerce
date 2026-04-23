@@ -1,22 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ExternalLink, Clock, CheckCircle, Truck, XCircle, Package, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
-import {
-  ExternalLink,
-  Clock,
-  CheckCircle,
-  Truck,
-  XCircle,
-  Package,
-  RotateCcw,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import {
-  fetchDashboardActivity,
-  formatBDT,
-  type RecentOrder,
-} from '@/lib/api/admin';
+import { fetchDashboardActivity, formatBDT, type RecentOrder } from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -25,7 +13,12 @@ import { cn } from '@/lib/utils';
 
 const statusConfig: Record<
   string,
-  { label: string; color: string; bgColor: string; icon: React.ComponentType<{ className?: string }> }
+  {
+    label: string;
+    color: string;
+    bgColor: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }
 > = {
   PENDING: {
     label: 'Pending',
@@ -128,10 +121,7 @@ export function RecentOrdersWidget() {
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-4 h-6 w-40 animate-pulse rounded bg-gray-200" />
         {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="mb-3 h-14 animate-pulse rounded bg-gray-100"
-          />
+          <div key={i} className="mb-3 h-14 animate-pulse rounded bg-gray-100" />
         ))}
       </div>
     );
@@ -157,9 +147,7 @@ export function RecentOrdersWidget() {
       {/* Orders List */}
       <div className="divide-y divide-gray-100">
         {orders.length === 0 ? (
-          <div className="px-6 py-8 text-center text-sm text-gray-500">
-            No orders yet.
-          </div>
+          <div className="px-6 py-8 text-center text-sm text-gray-500">No orders yet.</div>
         ) : (
           orders.slice(0, 7).map((order) => (
             <div

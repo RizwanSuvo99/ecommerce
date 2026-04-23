@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
+
+import type { CartItem } from '@/lib/api/cart';
 
 import { useCart } from '@/hooks/use-cart';
-import type { CartItem } from '@/lib/api/cart';
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -83,20 +84,14 @@ function CartItemRow({ item }: CartItemRowProps) {
     <div className="flex items-center gap-6 py-6 border-b border-gray-100">
       {/* Product image */}
       <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
-        <Image
-          src={imageUrl}
-          alt={item.product.name}
-          fill
-          sizes="96px"
-          className="object-cover"
-        />
+        <Image src={imageUrl} alt={item.product.name} fill sizes="96px" className="object-cover" />
       </div>
 
       {/* Product info */}
       <div className="flex-1 min-w-0">
         <Link
           href={`/products/${item.product.slug}`}
-          className="text-base font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-1"
+          className="text-base font-medium text-gray-900 hover:text-primary transition-colors line-clamp-1"
         >
           {item.product.name}
         </Link>
@@ -104,38 +99,27 @@ function CartItemRow({ item }: CartItemRowProps) {
         <p className="mt-1 text-sm text-gray-500">SKU: {item.product.sku}</p>
 
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-900">
-            {formatPrice(item.price)}
-          </span>
-          {item.product.compareAtPrice &&
-            Number(item.product.compareAtPrice) > item.price && (
-              <span className="text-xs text-gray-400 line-through">
-                {formatPrice(Number(item.product.compareAtPrice))}
-              </span>
-            )}
+          <span className="text-sm font-medium text-gray-900">{formatPrice(item.price)}</span>
+          {item.product.compareAtPrice && Number(item.product.compareAtPrice) > item.price && (
+            <span className="text-xs text-gray-400 line-through">
+              {formatPrice(Number(item.product.compareAtPrice))}
+            </span>
+          )}
         </div>
 
         {item.product.stock < 10 && (
-          <p className="mt-1 text-xs text-orange-600">
-            Only {item.product.stock} left in stock
-          </p>
+          <p className="mt-1 text-xs text-orange-600">Only {item.product.stock} left in stock</p>
         )}
       </div>
 
       {/* Quantity */}
       <div className="flex-shrink-0">
-        <QuantitySelector
-          itemId={item.id}
-          quantity={item.quantity}
-          maxStock={item.product.stock}
-        />
+        <QuantitySelector itemId={item.id} quantity={item.quantity} maxStock={item.product.stock} />
       </div>
 
       {/* Line total */}
       <div className="w-28 flex-shrink-0 text-right">
-        <p className="text-base font-semibold text-gray-900">
-          {formatPrice(item.lineTotal)}
-        </p>
+        <p className="text-base font-semibold text-gray-900">{formatPrice(item.lineTotal)}</p>
       </div>
 
       {/* Remove button */}
@@ -177,7 +161,9 @@ function CouponInput() {
   const [error, setError] = useState<string | null>(null);
 
   const handleApply = async () => {
-    if (!code.trim()) return;
+    if (!code.trim()) {
+      return;
+    }
     setError(null);
 
     try {
@@ -195,9 +181,7 @@ function CouponInput() {
           <p className="text-sm font-medium text-green-800">
             Coupon &quot;{cart.couponCode}&quot; applied
           </p>
-          <p className="text-xs text-green-600 mt-0.5">
-            You save {formatPrice(cart.discount)}
-          </p>
+          <p className="text-xs text-green-600 mt-0.5">You save {formatPrice(cart.discount)}</p>
         </div>
 
         <button
@@ -223,7 +207,7 @@ function CouponInput() {
             setError(null);
           }}
           placeholder="Enter coupon code"
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-colors"
+          className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
         />
         <button
           type="button"
@@ -235,9 +219,7 @@ function CouponInput() {
         </button>
       </div>
 
-      {error && (
-        <p className="mt-2 text-xs text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
@@ -249,21 +231,21 @@ function CouponInput() {
 function OrderSummary() {
   const { cart, isUpdating } = useCart();
 
-  if (!cart) return null;
+  if (!cart) {
+    return null;
+  }
 
   return (
     <div className="rounded-2xl bg-gray-50 p-6 lg:p-8 sticky top-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">
-        Order Summary
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Summary</h2>
 
       {/* Line items summary */}
       <div className="space-y-3 text-sm">
         <div className="flex justify-between text-gray-600">
-          <span>Subtotal ({cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'})</span>
-          <span className="font-medium text-gray-900">
-            {formatPrice(cart.subtotal)}
+          <span>
+            Subtotal ({cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'})
           </span>
+          <span className="font-medium text-gray-900">{formatPrice(cart.subtotal)}</span>
         </div>
 
         {cart.discount > 0 && (
@@ -289,17 +271,11 @@ function OrderSummary() {
 
       {/* Total */}
       <div className="flex justify-between items-baseline">
-        <span className="text-base font-semibold text-gray-900">
-          Estimated Total
-        </span>
-        <span className="text-2xl font-bold text-gray-900">
-          {formatPrice(cart.total)}
-        </span>
+        <span className="text-base font-semibold text-gray-900">Estimated Total</span>
+        <span className="text-2xl font-bold text-gray-900">{formatPrice(cart.total)}</span>
       </div>
 
-      <p className="mt-1 text-xs text-gray-400 text-right">
-        BDT ৳ (Bangladeshi Taka)
-      </p>
+      <p className="mt-1 text-xs text-gray-400 text-right">BDT ৳ (Bangladeshi Taka)</p>
 
       {/* Coupon */}
       <div className="mt-6">
@@ -312,7 +288,7 @@ function OrderSummary() {
         className={`mt-6 block w-full rounded-xl py-3.5 text-center text-sm font-semibold text-white transition-colors ${
           isUpdating || cart.items.length === 0
             ? 'bg-gray-300 cursor-not-allowed pointer-events-none'
-            : 'bg-teal-600 hover:bg-teal-700'
+            : 'bg-primary hover:bg-primary/90'
         }`}
       >
         Proceed to Checkout
@@ -364,17 +340,15 @@ function EmptyCartPage() {
         <path d="M16 10a4 4 0 01-8 0" />
       </svg>
 
-      <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-        Your cart is empty
-      </h2>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-2">Your cart is empty</h2>
       <p className="text-gray-500 mb-8 max-w-md">
-        Looks like you haven&apos;t added anything to your cart yet.
-        Browse our products and find something you love!
+        Looks like you haven&apos;t added anything to your cart yet. Browse our products and find
+        something you love!
       </p>
 
       <Link
         href="/"
-        className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition-colors"
+        className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
       >
         Start Shopping
       </Link>
@@ -412,9 +386,7 @@ export default function CartPage() {
       {/* Page header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-            Shopping Cart
-          </h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Shopping Cart</h1>
           <p className="mt-1 text-sm text-gray-500">
             {cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'} in your cart
           </p>
@@ -453,7 +425,7 @@ export default function CartPage() {
           <div className="mt-6">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-teal-600 hover:text-teal-800 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-teal-800 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

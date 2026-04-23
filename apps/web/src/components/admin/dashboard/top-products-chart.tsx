@@ -12,11 +12,7 @@ import {
   Cell,
 } from 'recharts';
 
-import {
-  fetchDashboardCharts,
-  formatBDT,
-  type TopProduct,
-} from '@/lib/api/admin';
+import { fetchDashboardCharts, formatBDT, type TopProduct } from '@/lib/api/admin';
 
 // ──────────────────────────────────────────────────────────
 // Colors
@@ -48,10 +44,14 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
 
   const product = payload[0]?.payload;
-  if (!product) return null;
+  if (!product) {
+    return null;
+  }
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
@@ -105,9 +105,7 @@ export function TopProductsChart() {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900">Top Products</h3>
-        <p className="mt-4 text-center text-sm text-gray-500">
-          No sales data available yet.
-        </p>
+        <p className="mt-4 text-center text-sm text-gray-500">No sales data available yet.</p>
       </div>
     );
   }
@@ -145,10 +143,7 @@ export function TopProductsChart() {
           <Tooltip content={<CustomTooltip />} />
           <Bar dataKey="totalSold" radius={[0, 4, 4, 0]} barSize={24}>
             {chartData.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={BAR_COLORS[index % BAR_COLORS.length]}
-              />
+              <Cell key={`cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
             ))}
           </Bar>
         </BarChart>

@@ -1,18 +1,9 @@
 'use client';
 
+import { ShoppingCart, UserPlus, AlertTriangle, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-  ShoppingCart,
-  UserPlus,
-  AlertTriangle,
-  Clock,
-} from 'lucide-react';
 
-import {
-  fetchDashboardActivity,
-  formatBDT,
-  type ActivityData,
-} from '@/lib/api/admin';
+import { fetchDashboardActivity, formatBDT, type ActivityData } from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -38,10 +29,18 @@ function timeAgo(date: Date): string {
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (seconds < 60) return 'just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+  if (seconds < 60) {
+    return 'just now';
+  }
+  if (seconds < 3600) {
+    return `${Math.floor(seconds / 60)}m ago`;
+  }
+  if (seconds < 86400) {
+    return `${Math.floor(seconds / 3600)}h ago`;
+  }
+  if (seconds < 604800) {
+    return `${Math.floor(seconds / 86400)}d ago`;
+  }
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
@@ -125,10 +124,7 @@ export function ActivityFeed() {
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-4 h-6 w-36 animate-pulse rounded bg-gray-200" />
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="mb-4 flex gap-3"
-          >
+          <div key={i} className="mb-4 flex gap-3">
             <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
             <div className="flex-1">
               <div className="mb-1 h-4 w-3/4 animate-pulse rounded bg-gray-200" />
@@ -151,9 +147,7 @@ export function ActivityFeed() {
       {/* Activity List */}
       <div className="max-h-96 overflow-y-auto px-6 py-4">
         {activities.length === 0 ? (
-          <div className="py-8 text-center text-sm text-gray-500">
-            No recent activity.
-          </div>
+          <div className="py-8 text-center text-sm text-gray-500">No recent activity.</div>
         ) : (
           <div className="space-y-4">
             {activities.map((activity) => (
@@ -164,17 +158,11 @@ export function ActivityFeed() {
                     activity.iconBg,
                   )}
                 >
-                  <activity.icon
-                    className={cn('h-4 w-4', activity.iconColor)}
-                  />
+                  <activity.icon className={cn('h-4 w-4', activity.iconColor)} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {activity.title}
-                  </p>
-                  <p className="truncate text-xs text-gray-500">
-                    {activity.description}
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                  <p className="truncate text-xs text-gray-500">{activity.description}</p>
                   <div className="mt-1 flex items-center gap-1 text-xs text-gray-400">
                     <Clock className="h-3 w-3" />
                     {timeAgo(activity.time)}

@@ -18,8 +18,16 @@ import type { MostSearchedTerm } from '@/lib/api/admin';
 // ──────────────────────────────────────────────────────────
 
 const BAR_COLORS = [
-  '#7c3aed', '#4f46e5', '#2563eb', '#0891b2', '#059669',
-  '#d97706', '#dc2626', '#db2777', '#4338ca', '#0d9488',
+  '#7c3aed',
+  '#4f46e5',
+  '#2563eb',
+  '#0891b2',
+  '#059669',
+  '#d97706',
+  '#dc2626',
+  '#db2777',
+  '#4338ca',
+  '#0d9488',
 ];
 
 // ──────────────────────────────────────────────────────────
@@ -35,10 +43,14 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
 
   const item = payload[0]?.payload;
-  if (!item) return null;
+  if (!item) {
+    return null;
+  }
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
@@ -63,9 +75,7 @@ export function MostSearchedChart({ data }: MostSearchedChartProps) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900">Most Searched Terms</h3>
-        <p className="mt-4 text-center text-sm text-gray-500">
-          No search data available yet.
-        </p>
+        <p className="mt-4 text-center text-sm text-gray-500">No search data available yet.</p>
       </div>
     );
   }
@@ -102,10 +112,7 @@ export function MostSearchedChart({ data }: MostSearchedChartProps) {
           <Tooltip content={<CustomTooltip />} />
           <Bar dataKey="searchCount" radius={[0, 4, 4, 0]} barSize={24}>
             {chartData.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={BAR_COLORS[index % BAR_COLORS.length]}
-              />
+              <Cell key={`cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
             ))}
           </Bar>
         </BarChart>

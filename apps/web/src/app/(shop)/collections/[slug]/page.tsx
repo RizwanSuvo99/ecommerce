@@ -45,16 +45,16 @@ export default function CollectionPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <nav className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-gray-700">Home</Link>
+        <Link href="/" className="hover:text-gray-700">
+          Home
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">{title}</span>
       </nav>
 
       <div className="mb-8 rounded-xl bg-gradient-to-r from-teal-700 to-teal-900 p-8 text-white">
         <h1 className="text-3xl font-bold">{title}</h1>
-        <p className="mt-2 text-teal-100">
-          Explore our curated {title.toLowerCase()} collection
-        </p>
+        <p className="mt-2 text-teal-100">Explore our curated {title.toLowerCase()} collection</p>
       </div>
 
       {loading ? (
@@ -66,7 +66,7 @@ export default function CollectionPage() {
       ) : products.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-lg text-gray-500">This collection is coming soon.</p>
-          <Link href="/shop" className="mt-4 inline-block text-sm text-teal-600 hover:underline">
+          <Link href="/shop" className="mt-4 inline-block text-sm text-primary hover:underline">
             Browse all products
           </Link>
         </div>
@@ -101,11 +101,17 @@ export default function CollectionPage() {
                 <div className="mt-2">
                   {product.salePrice ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-teal-700">{formatPrice(product.salePrice)}</span>
-                      <span className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</span>
+                      <span className="text-sm font-bold text-primary">
+                        {formatPrice(product.salePrice)}
+                      </span>
+                      <span className="text-xs text-gray-400 line-through">
+                        {formatPrice(product.price)}
+                      </span>
                     </div>
                   ) : (
-                    <span className="text-sm font-bold text-teal-700">{formatPrice(product.price)}</span>
+                    <span className="text-sm font-bold text-primary">
+                      {formatPrice(product.price)}
+                    </span>
                   )}
                 </div>
               </div>

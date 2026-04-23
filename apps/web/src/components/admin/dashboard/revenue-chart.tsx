@@ -12,11 +12,7 @@ import {
   Legend,
 } from 'recharts';
 
-import {
-  fetchDashboardCharts,
-  formatBDT,
-  type ChartDataPoint,
-} from '@/lib/api/admin';
+import { fetchDashboardCharts, formatBDT, type ChartDataPoint } from '@/lib/api/admin';
 
 // ──────────────────────────────────────────────────────────
 // Custom Tooltip
@@ -29,17 +25,16 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
       <p className="mb-2 text-sm font-medium text-gray-700">{label}</p>
       {payload.map((entry) => (
         <div key={entry.dataKey} className="flex items-center gap-2">
-          <div
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: entry.color }}
-          />
+          <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-sm text-gray-600">
             {entry.dataKey === 'revenue'
               ? `Revenue: ${formatBDT(entry.value)}`
@@ -64,9 +59,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export function RevenueChart() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeView, setActiveView] = useState<'revenue' | 'orders' | 'both'>(
-    'both',
-  );
+  const [activeView, setActiveView] = useState<'revenue' | 'orders' | 'both'>('both');
 
   useEffect(() => {
     async function loadCharts() {
@@ -105,9 +98,7 @@ export function RevenueChart() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Revenue & Orders
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">Revenue & Orders</h3>
           <p className="text-sm text-gray-500">Last 30 days performance</p>
         </div>
         <div className="flex rounded-lg border border-gray-200">
@@ -116,9 +107,7 @@ export function RevenueChart() {
               key={view}
               onClick={() => setActiveView(view)}
               className={`px-3 py-1.5 text-xs font-medium capitalize transition-colors first:rounded-l-lg last:rounded-r-lg ${
-                activeView === view
-                  ? 'bg-teal-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-50'
+                activeView === view ? 'bg-teal-600 text-white' : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
               {view}

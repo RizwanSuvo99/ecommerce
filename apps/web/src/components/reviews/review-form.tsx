@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
@@ -47,8 +46,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
       setComment('');
       onSubmitted?.();
     } catch (err: any) {
-      const errorMsg =
-        err?.message ?? 'Failed to submit review. Please try again.';
+      const errorMsg = err?.message ?? 'Failed to submit review. Please try again.';
       setMessage(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -70,9 +68,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
 
       {/* Star Rating Input */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Your Rating
-        </label>
+        <label className="block text-sm font-medium text-gray-700">Your Rating</label>
         <div className="mt-1 flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -84,11 +80,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
               className="text-2xl transition-colors"
             >
               <span
-                className={
-                  star <= (hoverRating || rating)
-                    ? 'text-yellow-400'
-                    : 'text-gray-300'
-                }
+                className={star <= (hoverRating || rating) ? 'text-yellow-400' : 'text-gray-300'}
               >
                 ★
               </span>
@@ -112,9 +104,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Review Title (optional)
-        </label>
+        <label className="block text-sm font-medium text-gray-700">Review Title (optional)</label>
         <input
           type="text"
           value={title}
@@ -127,9 +117,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
 
       {/* Comment */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Your Review
-        </label>
+        <label className="block text-sm font-medium text-gray-700">Your Review</label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -142,11 +130,7 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
       </div>
 
       {message && (
-        <p
-          className={`text-sm ${
-            message.includes('Thank') ? 'text-green-600' : 'text-red-600'
-          }`}
-        >
+        <p className={`text-sm ${message.includes('Thank') ? 'text-green-600' : 'text-red-600'}`}>
           {message}
         </p>
       )}
@@ -160,8 +144,8 @@ export function ReviewForm({ productId, onSubmitted }: Props) {
       </button>
 
       <p className="text-xs text-gray-400">
-        Your review will be published after moderation. You must have purchased
-        this product to leave a review.
+        Your review will be published after moderation. You must have purchased this product to
+        leave a review.
       </p>
     </form>
   );

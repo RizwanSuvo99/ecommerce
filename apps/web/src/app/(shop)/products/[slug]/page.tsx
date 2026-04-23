@@ -1,12 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import {
+  ChevronRight,
+  Heart,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Star,
+  Truck,
+  RotateCcw,
+  Shield,
+} from 'lucide-react';
 import Link from 'next/link';
-import { ChevronRight, Heart, Minus, Plus, ShoppingCart, Star, Truck, RotateCcw, Shield } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { apiClient } from '@/lib/api/client';
 import { useCart } from '@/hooks/use-cart';
+import { apiClient } from '@/lib/api/client';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -91,7 +101,9 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'description' | 'specifications' | 'reviews'>('description');
+  const [activeTab, setActiveTab] = useState<'description' | 'specifications' | 'reviews'>(
+    'description',
+  );
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
 
@@ -114,11 +126,15 @@ export default function ProductPage() {
         setLoading(false);
       }
     }
-    if (slug) fetchProduct();
+    if (slug) {
+      fetchProduct();
+    }
   }, [slug]);
 
   const handleAddToCart = async () => {
-    if (!product || product.quantity <= 0) return;
+    if (!product || product.quantity <= 0) {
+      return;
+    }
     setAddingToCart(true);
     setCartError(null);
     try {
@@ -164,7 +180,7 @@ export default function ProductPage() {
         <p className="mt-2 text-gray-500">The product you are looking for does not exist.</p>
         <Link
           href="/products"
-          className="mt-6 inline-block rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-teal-700"
+          className="mt-6 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
         >
           Browse Products
         </Link>
@@ -188,15 +204,19 @@ export default function ProductPage() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/" className="hover:text-teal-700 transition-colors">Home</Link>
+          <Link href="/" className="hover:text-primary transition-colors">
+            Home
+          </Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <Link href="/products" className="hover:text-teal-700 transition-colors">Products</Link>
+          <Link href="/products" className="hover:text-primary transition-colors">
+            Products
+          </Link>
           {product.category?.parent && (
             <>
               <ChevronRight className="h-3.5 w-3.5" />
               <Link
                 href={`/categories/${product.category.parent.slug}`}
-                className="hover:text-teal-700 transition-colors"
+                className="hover:text-primary transition-colors"
               >
                 {product.category.parent.name}
               </Link>
@@ -205,7 +225,7 @@ export default function ProductPage() {
           <ChevronRight className="h-3.5 w-3.5" />
           <Link
             href={`/categories/${product.category.slug}`}
-            className="hover:text-teal-700 transition-colors"
+            className="hover:text-primary transition-colors"
           >
             {product.category.name}
           </Link>
@@ -244,7 +264,9 @@ export default function ProductPage() {
                     key={img.id}
                     onClick={() => setSelectedImage(i)}
                     className={`aspect-square overflow-hidden rounded-lg border-2 bg-gray-100 transition-colors ${
-                      i === selectedImage ? 'border-teal-500' : 'border-transparent hover:border-gray-300'
+                      i === selectedImage
+                        ? 'border-primary'
+                        : 'border-transparent hover:border-gray-300'
                     }`}
                   >
                     <img
@@ -266,7 +288,7 @@ export default function ProductPage() {
                 <>
                   <Link
                     href={`/brands/${product.brand.slug}`}
-                    className="text-sm font-medium text-teal-600 hover:underline"
+                    className="text-sm font-medium text-primary hover:underline"
                   >
                     {product.brand.name}
                   </Link>
@@ -287,20 +309,23 @@ export default function ProductPage() {
                     <Star
                       key={s}
                       className={`h-4 w-4 ${
-                        s <= Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'
+                        s <= Math.round(rating)
+                          ? 'fill-amber-400 text-amber-400'
+                          : 'fill-gray-200 text-gray-200'
                       }`}
                     />
                   ))}
                 </div>
                 <span className="text-sm text-gray-500">
-                  {Number(rating).toFixed(1)} ({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'})
+                  {Number(rating).toFixed(1)} ({totalReviews}{' '}
+                  {totalReviews === 1 ? 'review' : 'reviews'})
                 </span>
               </div>
             )}
 
             {/* Price */}
             <div className="mb-6 flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-teal-700">{formatBDT(product.price)}</span>
+              <span className="text-3xl font-bold text-primary">{formatBDT(product.price)}</span>
               {product.compareAtPrice && Number(product.compareAtPrice) > product.price && (
                 <>
                   <span className="text-lg text-gray-400 line-through">
@@ -366,7 +391,7 @@ export default function ProductPage() {
                 disabled={!inStock || addingToCart || isUpdating}
                 className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-8 py-3 font-semibold text-white transition-colors ${
                   inStock
-                    ? 'bg-teal-600 hover:bg-teal-700 disabled:opacity-60'
+                    ? 'bg-primary hover:bg-primary/90 disabled:opacity-60'
                     : 'bg-gray-400 cursor-not-allowed'
                 }`}
               >
@@ -381,9 +406,7 @@ export default function ProductPage() {
             </div>
 
             {/* Cart error */}
-            {cartError && (
-              <p className="mb-4 text-sm text-red-600">{cartError}</p>
-            )}
+            {cartError && <p className="mb-4 text-sm text-red-600">{cartError}</p>}
 
             {/* Stock info */}
             <div className="mb-6">
@@ -403,21 +426,21 @@ export default function ProductPage() {
             {/* Delivery info */}
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
               <div className="flex items-center gap-3 text-sm">
-                <Truck className="h-5 w-5 text-teal-600 flex-shrink-0" />
+                <Truck className="h-5 w-5 text-primary flex-shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Free Delivery</p>
                   <p className="text-gray-500">On orders above ৳1,000</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                <RotateCcw className="h-5 w-5 text-teal-600 flex-shrink-0" />
+                <RotateCcw className="h-5 w-5 text-primary flex-shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Easy Returns</p>
                   <p className="text-gray-500">7-day return policy</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                <Shield className="h-5 w-5 text-teal-600 flex-shrink-0" />
+                <Shield className="h-5 w-5 text-primary flex-shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Secure Checkout</p>
                   <p className="text-gray-500">SSL encrypted payment</p>
@@ -454,7 +477,7 @@ export default function ProductPage() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-6 py-3 text-sm font-medium transition-colors ${
                   activeTab === tab.key
-                    ? 'border-b-2 border-teal-600 text-teal-700'
+                    ? 'border-b-2 border-primary text-primary'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -500,7 +523,9 @@ export default function ProductPage() {
                       <td className="py-3 pr-4 text-sm font-medium text-gray-500">Status</td>
                       <td className="py-3 text-sm text-gray-900">
                         {inStock ? (
-                          <span className="text-green-600">In Stock ({product.quantity} available)</span>
+                          <span className="text-green-600">
+                            In Stock ({product.quantity} available)
+                          </span>
                         ) : (
                           <span className="text-red-600">Out of Stock</span>
                         )}
@@ -510,7 +535,9 @@ export default function ProductPage() {
                       <tr key={attr.id} className="border-b">
                         <td className="py-3 pr-4 text-sm font-medium text-gray-500">{attr.name}</td>
                         <td className="py-3 text-sm text-gray-900">
-                          {Array.isArray(attr.values) ? attr.values.join(', ') : String(attr.values)}
+                          {Array.isArray(attr.values)
+                            ? attr.values.join(', ')
+                            : String(attr.values)}
                         </td>
                       </tr>
                     ))}
@@ -526,7 +553,9 @@ export default function ProductPage() {
                     {/* Rating summary */}
                     <div className="flex items-center gap-6 rounded-xl bg-gray-50 p-6">
                       <div className="text-center">
-                        <p className="text-4xl font-bold text-gray-900">{Number(rating).toFixed(1)}</p>
+                        <p className="text-4xl font-bold text-gray-900">
+                          {Number(rating).toFixed(1)}
+                        </p>
                         <div className="mt-1 flex items-center justify-center gap-0.5">
                           {[1, 2, 3, 4, 5].map((s) => (
                             <Star
@@ -566,7 +595,9 @@ export default function ProductPage() {
                   <div className="py-10 text-center">
                     <Star className="mx-auto h-12 w-12 text-gray-300 mb-3" />
                     <p className="text-gray-500">No reviews yet.</p>
-                    <p className="mt-1 text-sm text-gray-400">Be the first to review this product!</p>
+                    <p className="mt-1 text-sm text-gray-400">
+                      Be the first to review this product!
+                    </p>
                   </div>
                 )}
               </div>

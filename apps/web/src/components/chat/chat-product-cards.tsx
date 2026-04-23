@@ -1,10 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { ShoppingCart, Package } from 'lucide-react';
+import Link from 'next/link';
+
+import type { ChatProductCard } from '@/lib/api/chat';
 
 import { useCart } from '@/hooks/use-cart';
-import type { ChatProductCard } from '@/lib/api/chat';
 
 interface ChatProductCardsProps {
   products: ChatProductCard[];
@@ -23,14 +24,9 @@ export function ChatProductCards({ products }: ChatProductCardsProps) {
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
       {products.map((product) => {
-        const hasDiscount =
-          product.compareAtPrice && product.compareAtPrice > product.price;
+        const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
         const discountPercent = hasDiscount
-          ? Math.round(
-              ((product.compareAtPrice! - product.price) /
-                product.compareAtPrice!) *
-                100,
-            )
+          ? Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)
           : 0;
 
         return (
@@ -62,7 +58,7 @@ export function ChatProductCards({ products }: ChatProductCardsProps) {
             <div className="p-2.5 space-y-1.5">
               <Link
                 href={`/products/${product.slug}`}
-                className="block text-xs font-medium text-gray-900 hover:text-teal-600 transition-colors line-clamp-2 leading-tight"
+                className="block text-xs font-medium text-gray-900 hover:text-primary transition-colors line-clamp-2 leading-tight"
               >
                 {product.name}
               </Link>
@@ -89,10 +85,8 @@ export function ChatProductCards({ products }: ChatProductCardsProps) {
 
               {product.inStock ? (
                 <button
-                  onClick={() =>
-                    addItem({ productId: product.id, quantity: 1 })
-                  }
-                  className="flex items-center justify-center gap-1 w-full rounded-lg bg-teal-600 py-1.5 text-[11px] font-medium text-white hover:bg-teal-700 transition-colors"
+                  onClick={() => addItem({ productId: product.id, quantity: 1 })}
+                  className="flex items-center justify-center gap-1 w-full rounded-lg bg-primary py-1.5 text-[11px] font-medium text-white hover:bg-primary/90 transition-colors"
                 >
                   <ShoppingCart className="w-3 h-3" />
                   Add to Cart

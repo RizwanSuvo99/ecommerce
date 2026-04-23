@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
   Package,
   Truck,
@@ -13,10 +11,12 @@ import {
   ArrowRight,
   ShoppingBag,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
+import { PaymentBadge } from '@/components/payment/payment-badge';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api/client';
-import { PaymentBadge } from '@/components/payment/payment-badge';
 
 interface OrderStats {
   totalOrders: number;
@@ -91,7 +91,7 @@ export default function AccountDashboardPage() {
       label: 'Total Orders',
       value: stats?.totalOrders || 0,
       icon: Package,
-      color: 'text-teal-600',
+      color: 'text-primary',
       bg: 'bg-teal-50',
     },
     {
@@ -128,9 +128,7 @@ export default function AccountDashboardPage() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-xl p-6 text-white">
-        <h2 className="text-xl font-bold">
-          Welcome back, {user?.firstName || 'there'}!
-        </h2>
+        <h2 className="text-xl font-bold">Welcome back, {user?.firstName || 'there'}!</h2>
         <p className="text-teal-100 text-sm mt-1">
           Here&apos;s a summary of your account activity.
         </p>
@@ -146,18 +144,12 @@ export default function AccountDashboardPage() {
               className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.bg}`}
-                >
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.bg}`}>
                   <Icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 font-medium">
-                    {stat.label}
-                  </p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {stat.value}
-                  </p>
+                  <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
+                  <p className="text-xl font-bold text-gray-900">{stat.value}</p>
                 </div>
               </div>
             </div>
@@ -168,12 +160,10 @@ export default function AccountDashboardPage() {
       {/* Recent Orders */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Recent Orders
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
           <Link
             href="/account/orders"
-            className="text-sm text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
+            className="text-sm text-primary hover:text-primary font-medium flex items-center gap-1"
           >
             View All
             <ArrowRight className="w-4 h-4" />
@@ -193,9 +183,7 @@ export default function AccountDashboardPage() {
                     <ShoppingBag className="w-5 h-5 text-gray-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      Order #{order.orderNumber}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">Order #{order.orderNumber}</p>
                     <p className="text-xs text-gray-500">
                       {order.itemCount} item{order.itemCount !== 1 ? 's' : ''} •{' '}
                       {new Date(order.createdAt).toLocaleDateString('en-BD')}
@@ -218,7 +206,7 @@ export default function AccountDashboardPage() {
             <p className="text-gray-500 text-sm">No orders yet</p>
             <Link
               href="/"
-              className="text-teal-600 text-sm font-medium hover:text-teal-700 mt-1 inline-block"
+              className="text-primary text-sm font-medium hover:text-primary mt-1 inline-block"
             >
               Start shopping
             </Link>
@@ -234,12 +222,10 @@ export default function AccountDashboardPage() {
             <Link
               key={action.href}
               href={action.href}
-              className="flex flex-col items-center gap-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-teal-200 transition-all"
+              className="flex flex-col items-center gap-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-primary transition-all"
             >
               <Icon className="w-6 h-6 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">
-                {action.label}
-              </span>
+              <span className="text-sm font-medium text-gray-700">{action.label}</span>
             </Link>
           );
         })}

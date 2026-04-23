@@ -1,15 +1,7 @@
 'use client';
 
+import { User, Camera, Save, Phone, Mail, Loader2, CheckCircle } from 'lucide-react';
 import { useState, useRef } from 'react';
-import {
-  User,
-  Camera,
-  Save,
-  Phone,
-  Mail,
-  Loader2,
-  CheckCircle,
-} from 'lucide-react';
 
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api/client';
@@ -34,7 +26,9 @@ export default function ProfilePage() {
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -107,9 +101,7 @@ export default function ProfilePage() {
       {/* Header */}
       <div>
         <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Update your personal information
-        </p>
+        <p className="text-sm text-gray-500 mt-1">Update your personal information</p>
       </div>
 
       {/* Success/Error Messages */}
@@ -128,9 +120,7 @@ export default function ProfilePage() {
 
       {/* Avatar Section */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          Profile Photo
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-4">Profile Photo</h3>
 
         <div className="flex items-center gap-6">
           {/* Avatar Preview */}
@@ -159,7 +149,7 @@ export default function ProfilePage() {
             <button
               onClick={handleAvatarClick}
               disabled={isUploading}
-              className="absolute bottom-0 right-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors"
+              className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
             >
               <Camera className="w-4 h-4" />
             </button>
@@ -174,16 +164,14 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-900">
-              Upload a new photo
-            </p>
+            <p className="text-sm font-medium text-gray-900">Upload a new photo</p>
             <p className="text-xs text-gray-500 mt-1">
               JPG, PNG, or WebP. Max 5MB. Will be resized to 200x200 and 50x50.
             </p>
             <button
               onClick={handleAvatarClick}
               disabled={isUploading}
-              className="mt-2 text-sm text-teal-600 hover:text-teal-700 font-medium"
+              className="mt-2 text-sm text-primary hover:text-primary font-medium"
             >
               {isUploading ? 'Uploading...' : 'Choose file'}
             </button>
@@ -196,9 +184,7 @@ export default function ProfilePage() {
         onSubmit={handleSave}
         className="bg-white rounded-xl border border-gray-200 shadow-sm p-6"
       >
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          Personal Information
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-4">Personal Information</h3>
 
         <div className="space-y-4">
           {/* Name */}
@@ -210,11 +196,9 @@ export default function ProfilePage() {
             <input
               type="text"
               value={formData.name}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               placeholder="Enter your full name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -230,9 +214,7 @@ export default function ProfilePage() {
               disabled
               className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
             />
-            <p className="text-xs text-gray-400 mt-1">
-              Email cannot be changed
-            </p>
+            <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
           </div>
 
           {/* Phone */}
@@ -244,11 +226,9 @@ export default function ProfilePage() {
             <input
               type="tel"
               value={formData.phone}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, phone: e.target.value }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
               placeholder="+8801XXXXXXXXX"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
             />
           </div>
         </div>
@@ -258,13 +238,9 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>

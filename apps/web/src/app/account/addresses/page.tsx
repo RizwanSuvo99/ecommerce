@@ -1,17 +1,9 @@
 'use client';
 
+import { MapPin, Plus, Edit2, Trash2, Star, Phone, Home, Briefcase } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
-import {
-  MapPin,
-  Plus,
-  Edit2,
-  Trash2,
-  Star,
-  Phone,
-  Home,
-  Briefcase,
-} from 'lucide-react';
 
+import { AddressForm } from '@/components/account/address-form';
 import {
   getAddresses,
   createAddress,
@@ -21,7 +13,6 @@ import {
   type Address,
   type CreateAddressData,
 } from '@/lib/api/addresses';
-import { AddressForm } from '@/components/account/address-form';
 
 const labelIcons: Record<string, typeof Home> = {
   Home: Home,
@@ -65,7 +56,9 @@ export default function AddressesPage() {
   };
 
   const handleUpdate = async (data: CreateAddressData) => {
-    if (!editingAddress) return;
+    if (!editingAddress) {
+      return;
+    }
     setIsSaving(true);
     try {
       await updateAddress(editingAddress.id, data);
@@ -79,7 +72,9 @@ export default function AddressesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this address?')) return;
+    if (!window.confirm('Are you sure you want to delete this address?')) {
+      return;
+    }
 
     try {
       await deleteAddress(id);
@@ -118,13 +113,11 @@ export default function AddressesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">My Addresses</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage your delivery addresses
-          </p>
+          <p className="text-sm text-gray-500 mt-1">Manage your delivery addresses</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Address
@@ -135,10 +128,7 @@ export default function AddressesPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(2)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse"
-            >
+            <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
               <div className="h-5 w-24 bg-gray-200 rounded mb-3" />
               <div className="space-y-2">
                 <div className="h-4 w-48 bg-gray-200 rounded" />
@@ -150,15 +140,11 @@ export default function AddressesPage() {
       ) : addresses.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
           <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            No addresses saved
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Add a delivery address to get started.
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">No addresses saved</h3>
+          <p className="text-sm text-gray-500 mb-4">Add a delivery address to get started.</p>
           <button
             onClick={() => setShowForm(true)}
-            className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Your First Address
@@ -173,20 +159,16 @@ export default function AddressesPage() {
               <div
                 key={address.id}
                 className={`bg-white rounded-xl border shadow-sm p-5 ${
-                  address.isDefault
-                    ? 'border-teal-300 ring-1 ring-teal-100'
-                    : 'border-gray-200'
+                  address.isDefault ? 'border-teal-300 ring-1 ring-primary/20' : 'border-gray-200'
                 }`}
               >
                 {/* Label and Badge */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <LabelIcon className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-semibold text-gray-900">
-                      {address.label}
-                    </span>
+                    <span className="text-sm font-semibold text-gray-900">{address.label}</span>
                     {address.isDefault && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 text-teal-700 text-xs font-medium rounded-full">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 text-primary text-xs font-medium rounded-full">
                         <Star className="w-3 h-3" />
                         Default
                       </span>
@@ -196,7 +178,7 @@ export default function AddressesPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setEditingAddress(address)}
-                      className="p-1.5 text-gray-400 hover:text-teal-600 rounded"
+                      className="p-1.5 text-gray-400 hover:text-primary rounded"
                       title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -213,9 +195,7 @@ export default function AddressesPage() {
 
                 {/* Address Details */}
                 <div className="space-y-1 text-sm text-gray-600">
-                  <p className="font-medium text-gray-900">
-                    {address.fullName}
-                  </p>
+                  <p className="font-medium text-gray-900">{address.fullName}</p>
                   <p>{address.addressLine1}</p>
                   {address.addressLine2 && <p>{address.addressLine2}</p>}
                   <p>
@@ -224,9 +204,7 @@ export default function AddressesPage() {
                     {address.postalCode ? ` - ${address.postalCode}` : ''}
                   </p>
                   {address.landmark && (
-                    <p className="text-gray-400 text-xs">
-                      Landmark: {address.landmark}
-                    </p>
+                    <p className="text-gray-400 text-xs">Landmark: {address.landmark}</p>
                   )}
                   <p className="flex items-center gap-1 pt-1">
                     <Phone className="w-3.5 h-3.5" />
@@ -238,7 +216,7 @@ export default function AddressesPage() {
                 {!address.isDefault && (
                   <button
                     onClick={() => handleSetDefault(address.id)}
-                    className="mt-3 text-xs text-teal-600 hover:text-teal-700 font-medium"
+                    className="mt-3 text-xs text-primary hover:text-primary font-medium"
                   >
                     Set as default
                   </button>

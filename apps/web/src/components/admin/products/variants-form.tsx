@@ -1,15 +1,7 @@
 'use client';
 
+import { Plus, X, Layers, GripVertical, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import {
-  Plus,
-  X,
-  Layers,
-  GripVertical,
-  ChevronDown,
-  ChevronUp,
-  Trash2,
-} from 'lucide-react';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -67,9 +59,7 @@ function generateVariantMatrix(
 
   const validOptions = options.filter((o) => o.values.length > 0);
 
-  const combinations: Record<string, string>[] = validOptions.reduce<
-    Record<string, string>[]
-  >(
+  const combinations: Record<string, string>[] = validOptions.reduce<Record<string, string>[]>(
     (acc, option) => {
       if (acc.length === 0) {
         return option.values.map((value) => ({ [option.name]: value }));
@@ -106,12 +96,7 @@ interface OptionTypeEditorProps {
   index: number;
 }
 
-function OptionTypeEditor({
-  option,
-  onChange,
-  onRemove,
-  index,
-}: OptionTypeEditorProps) {
+function OptionTypeEditor({ option, onChange, onRemove, index }: OptionTypeEditorProps) {
   const [newValue, setNewValue] = useState('');
 
   const addValue = () => {
@@ -141,9 +126,7 @@ function OptionTypeEditor({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <GripVertical className="h-4 w-4 cursor-grab text-gray-400" />
-          <span className="text-xs font-medium text-gray-500">
-            Option {index + 1}
-          </span>
+          <span className="text-xs font-medium text-gray-500">Option {index + 1}</span>
         </div>
         <button
           onClick={onRemove}
@@ -155,9 +138,7 @@ function OptionTypeEditor({
 
       {/* Option Name */}
       <div className="mb-3">
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Option Name
-        </label>
+        <label className="mb-1 block text-sm font-medium text-gray-700">Option Name</label>
         <input
           type="text"
           value={option.name}
@@ -169,9 +150,7 @@ function OptionTypeEditor({
 
       {/* Option Values */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Values
-        </label>
+        <label className="mb-1 block text-sm font-medium text-gray-700">Values</label>
         <div className="mb-2 flex flex-wrap gap-2">
           {option.values.map((value, valueIndex) => (
             <span
@@ -234,10 +213,7 @@ export function VariantsForm({
   // ─── Option Handlers ──────────────────────────────────────────────
 
   const addOption = () => {
-    onOptionsChange([
-      ...options,
-      { id: generateId(), name: '', values: [] },
-    ]);
+    onOptionsChange([...options, { id: generateId(), name: '', values: [] }]);
   };
 
   const updateOption = (index: number, option: OptionType) => {
@@ -253,11 +229,11 @@ export function VariantsForm({
   // ─── Generate Variants ────────────────────────────────────────────
 
   const handleGenerateVariants = () => {
-    const validOptions = options.filter(
-      (o) => o.name.trim() && o.values.length > 0,
-    );
+    const validOptions = options.filter((o) => o.name.trim() && o.values.length > 0);
 
-    if (validOptions.length === 0) return;
+    if (validOptions.length === 0) {
+      return;
+    }
 
     const generated = generateVariantMatrix(validOptions, basePrice, baseSku);
     onVariantsChange(generated);
@@ -269,15 +245,14 @@ export function VariantsForm({
   const updateVariant = (index: number, field: keyof Variant, value: unknown) => {
     const updated = [...variants];
     const existing = updated[index];
-    if (!existing) return;
+    if (!existing) {
+      return;
+    }
     updated[index] = { ...existing, [field]: value };
     onVariantsChange(updated);
   };
 
-  const totalVariants = options.reduce(
-    (acc, o) => acc * Math.max(o.values.length, 1),
-    1,
-  );
+  const totalVariants = options.reduce((acc, o) => acc * Math.max(o.values.length, 1), 1);
 
   return (
     <div className="space-y-6">
@@ -286,9 +261,7 @@ export function VariantsForm({
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="h-5 w-5 text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Product Options
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900">Product Options</h2>
           </div>
           <button
             onClick={addOption}
@@ -303,8 +276,8 @@ export function VariantsForm({
           <div className="rounded-lg bg-gray-50 p-6 text-center">
             <Layers className="mx-auto h-8 w-8 text-gray-300" />
             <p className="mt-2 text-sm text-gray-500">
-              No options defined. Add options like Color, Size, or Weight to
-              create product variants.
+              No options defined. Add options like Color, Size, or Weight to create product
+              variants.
             </p>
             <button
               onClick={addOption}
@@ -329,8 +302,7 @@ export function VariantsForm({
             {/* Generate Variants Button */}
             <div className="flex items-center justify-between rounded-lg bg-teal-50 px-4 py-3">
               <p className="text-sm text-teal-700">
-                This will generate{' '}
-                <span className="font-semibold">{totalVariants}</span> variant
+                This will generate <span className="font-semibold">{totalVariants}</span> variant
                 {totalVariants !== 1 ? 's' : ''}
               </p>
               <button
@@ -348,9 +320,7 @@ export function VariantsForm({
       {showVariants && variants.length > 0 && (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Variants ({variants.length})
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">Variants ({variants.length})</h3>
             <button
               onClick={() => setShowVariants(!showVariants)}
               className="text-gray-400 hover:text-gray-600"
@@ -433,11 +403,7 @@ export function VariantsForm({
                         min="0"
                         value={variant.stock}
                         onChange={(e) =>
-                          updateVariant(
-                            index,
-                            'stock',
-                            parseInt(e.target.value, 10) || 0,
-                          )
+                          updateVariant(index, 'stock', parseInt(e.target.value, 10) || 0)
                         }
                         className="w-20 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                       />
@@ -446,9 +412,7 @@ export function VariantsForm({
                       <input
                         type="text"
                         value={variant.sku}
-                        onChange={(e) =>
-                          updateVariant(index, 'sku', e.target.value)
-                        }
+                        onChange={(e) => updateVariant(index, 'sku', e.target.value)}
                         className="w-36 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                       />
                     </td>
@@ -456,9 +420,7 @@ export function VariantsForm({
                       <input
                         type="checkbox"
                         checked={variant.isActive}
-                        onChange={(e) =>
-                          updateVariant(index, 'isActive', e.target.checked)
-                        }
+                        onChange={(e) => updateVariant(index, 'isActive', e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
                     </td>

@@ -1,15 +1,7 @@
 'use client';
 
+import { Plus, Package, ShoppingCart, Users, Tag, BarChart3, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Plus,
-  Package,
-  ShoppingCart,
-  Users,
-  Tag,
-  BarChart3,
-  type LucideIcon,
-} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 

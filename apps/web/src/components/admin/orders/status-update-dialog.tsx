@@ -2,7 +2,14 @@
 
 import React, { useState, useCallback } from 'react';
 
-type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
+type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'returned';
 
 interface StatusUpdateDialogProps {
   orderId: string;
@@ -81,7 +88,8 @@ const STATUS_OPTIONS: StatusOption[] = [
     icon: '↩️',
     requiresTracking: false,
     requiresConfirmation: true,
-    confirmMessage: 'Are you sure you want to mark this order as returned? This will initiate the return process.',
+    confirmMessage:
+      'Are you sure you want to mark this order as returned? This will initiate the return process.',
   },
 ];
 
@@ -152,7 +160,9 @@ export default function StatusUpdateDialog({
   };
 
   const handleConfirmUpdate = async () => {
-    if (!selectedStatus) return;
+    if (!selectedStatus) {
+      return;
+    }
 
     setSubmitting(true);
     setError('');
@@ -184,7 +194,9 @@ export default function StatusUpdateDialog({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -201,7 +213,12 @@ export default function StatusUpdateDialog({
           </div>
           <button onClick={handleClose} className="text-gray-400 hover:text-gray-600">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -211,14 +228,22 @@ export default function StatusUpdateDialog({
           <div className="px-6 py-6">
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
-                <svg className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <svg
+                  className="h-6 w-6 text-yellow-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirm Status Change</h3>
-              <p className="text-sm text-gray-600 mb-6">
-                {selectedOption?.confirmMessage}
-              </p>
+              <p className="text-sm text-gray-600 mb-6">{selectedOption?.confirmMessage}</p>
             </div>
             <div className="flex gap-3 justify-end">
               <button
@@ -329,7 +354,9 @@ export default function StatusUpdateDialog({
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notes (optional)
+              </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

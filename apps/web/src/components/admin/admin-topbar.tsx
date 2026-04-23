@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import {
   Bell,
   Search,
@@ -13,6 +12,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -46,9 +46,7 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle, onDesktopToggle }:
   }, []);
 
   return (
-    <header
-      className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4"
-    >
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4">
       {/* Left side */}
       <div className="flex items-center gap-3">
         {/* Mobile menu toggle */}
@@ -119,17 +117,17 @@ export function AdminTopbar({ sidebarCollapsed, onMenuToggle, onDesktopToggle }:
               {user?.fullName?.charAt(0)?.toUpperCase() ?? 'A'}
             </div>
             <div className="hidden text-left md:block">
-              <p className="text-sm font-medium text-gray-700">
-                {user?.fullName ?? 'Admin'}
-              </p>
+              <p className="text-sm font-medium text-gray-700">{user?.fullName ?? 'Admin'}</p>
               <p className="text-xs text-gray-500">
                 {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Administrator'}
               </p>
             </div>
-            <ChevronDown className={cn(
-              'hidden h-4 w-4 text-gray-400 transition-transform md:block',
-              showUserMenu && 'rotate-180',
-            )} />
+            <ChevronDown
+              className={cn(
+                'hidden h-4 w-4 text-gray-400 transition-transform md:block',
+                showUserMenu && 'rotate-180',
+              )}
+            />
           </button>
 
           {/* Dropdown */}

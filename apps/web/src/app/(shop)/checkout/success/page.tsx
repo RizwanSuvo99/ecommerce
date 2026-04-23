@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // ──────────────────────────────────────────────────────────
 // Confetti Animation (CSS-only)
@@ -121,9 +121,7 @@ export default function CheckoutSuccessPage() {
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">
-            Order Placed Successfully!
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">Order Placed Successfully!</h1>
 
           <p className="text-lg text-gray-600 mb-2">
             Thank you for your order. We&apos;re getting it ready for you.
@@ -133,21 +131,17 @@ export default function CheckoutSuccessPage() {
           {orderNumber && (
             <div className="mt-6 mb-8 inline-flex items-center gap-2 rounded-xl bg-gray-50 border border-gray-200 px-6 py-4">
               <span className="text-sm text-gray-500">Order Number:</span>
-              <span className="text-lg font-bold text-gray-900 font-mono">
-                {orderNumber}
-              </span>
+              <span className="text-lg font-bold text-gray-900 font-mono">{orderNumber}</span>
             </div>
           )}
 
           {/* Order details card */}
           <div className="mt-8 rounded-2xl bg-white border border-gray-200 p-6 lg:p-8 text-left">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              What happens next?
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">What happens next?</h2>
 
             <div className="space-y-4">
               <div className="flex gap-4">
-                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-semibold">
+                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-primary text-sm font-semibold">
                   1
                 </div>
                 <div>
@@ -159,7 +153,7 @@ export default function CheckoutSuccessPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-semibold">
+                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-primary text-sm font-semibold">
                   2
                 </div>
                 <div>
@@ -171,7 +165,7 @@ export default function CheckoutSuccessPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 text-sm font-semibold">
+                <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-primary text-sm font-semibold">
                   3
                 </div>
                 <div>
@@ -201,7 +195,7 @@ export default function CheckoutSuccessPage() {
             {orderNumber && (
               <Link
                 href={`/account/orders/${orderNumber}`}
-                className="rounded-xl bg-teal-600 px-8 py-3 text-sm font-semibold text-white hover:bg-teal-700 transition-colors w-full sm:w-auto text-center"
+                className="rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors w-full sm:w-auto text-center"
               >
                 Track Your Order
               </Link>
@@ -218,7 +212,7 @@ export default function CheckoutSuccessPage() {
           {/* Help text */}
           <p className="mt-8 text-xs text-gray-400">
             Have a question about your order?{' '}
-            <a href="/contact" className="text-teal-600 hover:underline">
+            <a href="/contact" className="text-primary hover:underline">
               Contact our support team
             </a>
           </p>

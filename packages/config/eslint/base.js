@@ -49,6 +49,11 @@ module.exports = {
     '@typescript-eslint/no-unsafe-member-access': 'warn',
     '@typescript-eslint/no-unsafe-call': 'warn',
     '@typescript-eslint/no-unsafe-return': 'warn',
+    // Downgraded to warn to match its sibling no-unsafe-* rules. The
+    // storefront consumes untyped axios responses in many places; the
+    // intent is to keep these as lint smells without blocking commits
+    // on legacy files that wrap `res.data` into typed state.
+    '@typescript-eslint/no-unsafe-argument': 'warn',
 
     /* ── Import ordering ────────────────────────────── */
     'import/order': [

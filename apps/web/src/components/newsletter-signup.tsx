@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
 
 type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -10,10 +10,7 @@ interface NewsletterSignupProps {
   className?: string;
 }
 
-export function NewsletterSignup({
-  variant = 'card',
-  className = '',
-}: NewsletterSignupProps) {
+export function NewsletterSignup({ variant = 'card', className = '' }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<SubmitStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,9 +45,8 @@ export function NewsletterSignup({
       toast.success('Subscribed! Check your inbox for confirmation.');
     } catch (error) {
       setStatus('error');
-      const msg = error instanceof Error
-        ? error.message
-        : 'Something went wrong. Please try again.';
+      const msg =
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.';
       setErrorMessage(msg);
       toast.error(msg);
     }
@@ -90,9 +86,7 @@ export function NewsletterSignup({
   if (variant === 'footer') {
     return (
       <div className={`${className}`}>
-        <h3 className="text-lg font-semibold text-white mb-1">
-          Subscribe to our newsletter
-        </h3>
+        <h3 className="text-lg font-semibold text-white mb-1">Subscribe to our newsletter</h3>
         <p className="text-sm text-gray-400 mb-1 font-bengali">
           আমাদের নিউজলেটারে সাবস্ক্রাইব করুন
         </p>
@@ -102,8 +96,18 @@ export function NewsletterSignup({
 
         {status === 'success' ? (
           <div className="flex items-center gap-2 text-green-400">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span className="text-sm">
               Thank you for subscribing! / সাবস্ক্রাইব করার জন্য ধন্যবাদ!
@@ -160,23 +164,29 @@ export function NewsletterSignup({
         </div>
 
         <h2 className="text-2xl font-bold mb-2">Stay in the Loop</h2>
-        <p className="text-blue-100 mb-1 font-bengali">
-          সর্বশেষ আপডেট পেতে সাবস্ক্রাইব করুন
-        </p>
+        <p className="text-blue-100 mb-1 font-bengali">সর্বশেষ আপডেট পেতে সাবস্ক্রাইব করুন</p>
         <p className="text-blue-100 mb-6">
-          Subscribe for exclusive deals, new arrivals, and special offers
-          delivered straight to your inbox.
+          Subscribe for exclusive deals, new arrivals, and special offers delivered straight to your
+          inbox.
         </p>
 
         {status === 'success' ? (
           <div className="bg-white/10 rounded-xl p-6">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <svg className="h-6 w-6 text-green-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="h-6 w-6 text-green-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
-              <span className="text-lg font-semibold">
-                You&apos;re subscribed!
-              </span>
+              <span className="text-lg font-semibold">You&apos;re subscribed!</span>
             </div>
             <p className="text-sm text-blue-100">
               Thank you! Check your inbox for a confirmation email.
@@ -207,11 +217,7 @@ export function NewsletterSignup({
               >
                 {status === 'loading' ? (
                   <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -239,8 +245,7 @@ export function NewsletterSignup({
             )}
 
             <p className="mt-4 text-xs text-blue-200">
-              No spam, unsubscribe anytime. By subscribing you agree to our
-              Privacy Policy.
+              No spam, unsubscribe anytime. By subscribing you agree to our Privacy Policy.
             </p>
           </>
         )}

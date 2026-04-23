@@ -1,7 +1,12 @@
 import { CreditCard, Banknote, Wallet } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
-type PaymentMethod = 'STRIPE' | 'COD' | string;
+// Payment method value from the API. Admin can enable/disable
+// individual providers; the component falls back to a default icon
+// when the string doesn't match a known value, so keeping the type as
+// plain `string` is simpler than a union-with-string-literals trick.
+type PaymentMethod = string;
 
 interface PaymentMethodIconProps {
   method: PaymentMethod;
@@ -24,7 +29,7 @@ const methodConfig: Record<
     label: 'Card Payment',
     description: 'Paid via Stripe',
     icon: CreditCard,
-    color: 'text-teal-600',
+    color: 'text-primary',
     bg: 'bg-teal-50',
   },
   COD: {

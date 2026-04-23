@@ -58,7 +58,9 @@ export default function DealsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <nav className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-gray-700">Home</Link>
+        <Link href="/" className="hover:text-gray-700">
+          Home
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">Deals</span>
       </nav>
@@ -80,10 +82,8 @@ export default function DealsPage() {
       ) : products.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-lg text-gray-500">No deals available right now.</p>
-          <p className="mt-2 text-sm text-gray-400">
-            Check back soon for exciting offers!
-          </p>
-          <Link href="/shop" className="mt-4 inline-block text-sm text-teal-600 hover:underline">
+          <p className="mt-2 text-sm text-gray-400">Check back soon for exciting offers!</p>
+          <Link href="/shop" className="mt-4 inline-block text-sm text-primary hover:underline">
             Browse all products
           </Link>
         </div>
@@ -109,14 +109,15 @@ export default function DealsPage() {
                 )}
                 {product.compareAtPrice && (
                   <span className="absolute left-2 top-2 rounded-md bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">
-                    {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}% OFF
+                    {Math.round(
+                      ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100,
+                    )}
+                    % OFF
                   </span>
                 )}
               </div>
               <div className="mt-3">
-                {product.brandName && (
-                  <p className="text-xs text-gray-500">{product.brandName}</p>
-                )}
+                {product.brandName && <p className="text-xs text-gray-500">{product.brandName}</p>}
                 <h3 className="mt-0.5 line-clamp-2 text-sm font-medium text-gray-900">
                   {product.name}
                 </h3>
@@ -124,7 +125,14 @@ export default function DealsPage() {
                   <div className="mt-1 flex items-center gap-1">
                     <div className="flex text-xs">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <span key={s} className={s <= Math.round(product.averageRating) ? 'text-yellow-400' : 'text-gray-300'}>
+                        <span
+                          key={s}
+                          className={
+                            s <= Math.round(product.averageRating)
+                              ? 'text-yellow-400'
+                              : 'text-gray-300'
+                          }
+                        >
                           ★
                         </span>
                       ))}

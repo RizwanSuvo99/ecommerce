@@ -1,12 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ArrowLeft, Mail } from 'lucide-react';
-
 import {
   Button,
   Input,
@@ -17,6 +10,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@ecommerce/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { forgotPassword } from '@/lib/api/auth';
 import { ApiClientError } from '@/lib/api/client';
@@ -26,10 +25,7 @@ import { ApiClientError } from '@/lib/api/client';
 // ──────────────────────────────────────────────────────────
 
 const forgotPasswordSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
 });
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
@@ -64,13 +60,9 @@ export default function ForgotPasswordPage() {
         // Don't reveal whether the email exists — show success anyway
         // unless it's a rate-limit or server error
         if (error.status === 429) {
-          setServerError(
-            'Too many requests. Please wait a few minutes before trying again.',
-          );
+          setServerError('Too many requests. Please wait a few minutes before trying again.');
         } else if (error.isServerError) {
-          setServerError(
-            'Something went wrong on our end. Please try again later.',
-          );
+          setServerError('Something went wrong on our end. Please try again later.');
         } else {
           // For security: show success even if email is not found
           setSubmittedEmail(values.email);
@@ -97,8 +89,8 @@ export default function ForgotPasswordPage() {
           <h1 className="text-2xl font-bold tracking-tight">Check your email</h1>
           <p className="text-sm text-muted-foreground">
             We sent a password reset link to{' '}
-            <span className="font-medium text-foreground">{submittedEmail}</span>.
-            Please check your inbox and click the link to reset your password.
+            <span className="font-medium text-foreground">{submittedEmail}</span>. Please check your
+            inbox and click the link to reset your password.
           </p>
         </div>
 
@@ -136,12 +128,10 @@ export default function ForgotPasswordPage() {
     <div className="w-full max-w-md space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Forgot your password?
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Forgot your password?</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          No worries! Enter the email address associated with your account and
-          we&apos;ll send you a link to reset your password.
+          No worries! Enter the email address associated with your account and we&apos;ll send you a
+          link to reset your password.
         </p>
       </div>
 

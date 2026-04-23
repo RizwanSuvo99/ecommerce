@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
 import {
   Package,
   Clock,
@@ -13,14 +11,12 @@ import {
   ChevronRight,
   ShoppingBag,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState, useCallback } from 'react';
 
-import {
-  getOrderHistory,
-  type Order,
-  type OrderPagination,
-} from '@/lib/api/orders';
 import { PaymentBadge } from '@/components/payment/payment-badge';
 import { PaymentMethodIcon } from '@/components/payment/payment-method-icon';
+import { getOrderHistory, type Order, type OrderPagination } from '@/lib/api/orders';
 
 const statusTabs = [
   { key: '', label: 'All', icon: Package },
@@ -70,9 +66,7 @@ export default function OrderHistoryPage() {
       {/* Page Title */}
       <div>
         <h2 className="text-xl font-bold text-gray-900">Order History</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Track and manage all your orders
-        </p>
+        <p className="text-sm text-gray-500 mt-1">Track and manage all your orders</p>
       </div>
 
       {/* Status Tabs */}
@@ -88,7 +82,7 @@ export default function OrderHistoryPage() {
                 onClick={() => handleTabChange(tab.key)}
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                   isActive
-                    ? 'bg-teal-50 text-teal-700'
+                    ? 'bg-teal-50 text-primary'
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -104,10 +98,7 @@ export default function OrderHistoryPage() {
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse"
-            >
+            <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
               <div className="flex justify-between">
                 <div className="h-5 w-32 bg-gray-200 rounded" />
                 <div className="h-5 w-20 bg-gray-200 rounded" />
@@ -122,9 +113,7 @@ export default function OrderHistoryPage() {
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
           <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            No orders found
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">No orders found</h3>
           <p className="text-sm text-gray-500 mb-4">
             {activeTab
               ? `You don't have any ${activeTab.toLowerCase()} orders.`
@@ -132,7 +121,7 @@ export default function OrderHistoryPage() {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-teal-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-colors"
           >
             <ShoppingBag className="w-5 h-5" />
             Start Shopping
@@ -144,19 +133,15 @@ export default function OrderHistoryPage() {
             <Link
               key={order.id}
               href={`/account/orders/${order.orderNumber}`}
-              className="block bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all"
+              className="block bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-primary transition-all"
             >
               {/* Order Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                  <p className="text-sm font-semibold text-gray-900">
-                    Order #{order.orderNumber}
-                  </p>
+                  <p className="text-sm font-semibold text-gray-900">Order #{order.orderNumber}</p>
                   <PaymentBadge status={order.status} size="sm" />
                 </div>
-                <p className="text-lg font-bold text-gray-900">
-                  {order.totalFormatted}
-                </p>
+                <p className="text-lg font-bold text-gray-900">{order.totalFormatted}</p>
               </div>
 
               {/* Order Items Preview */}
@@ -193,9 +178,7 @@ export default function OrderHistoryPage() {
 
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-600 truncate">
-                      {order.items
-                        .map((item) => item.productName)
-                        .join(', ')}
+                      {order.items.map((item) => item.productName).join(', ')}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {order.itemCount} item{order.itemCount !== 1 ? 's' : ''} •{' '}
@@ -208,10 +191,7 @@ export default function OrderHistoryPage() {
                   </div>
 
                   {order.paymentMethod && (
-                    <PaymentMethodIcon
-                      method={order.paymentMethod}
-                      size="sm"
-                    />
+                    <PaymentMethodIcon method={order.paymentMethod} size="sm" />
                   )}
                 </div>
               </div>
@@ -225,8 +205,8 @@ export default function OrderHistoryPage() {
         <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 px-6 py-4">
           <p className="text-sm text-gray-500">
             Showing {(pagination.page - 1) * pagination.limit + 1}-
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-            {pagination.total} orders
+            {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}{' '}
+            orders
           </p>
 
           <div className="flex items-center gap-2">
@@ -243,9 +223,7 @@ export default function OrderHistoryPage() {
             </span>
 
             <button
-              onClick={() =>
-                setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))
-              }
+              onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
               disabled={!pagination.hasMore}
               className="p-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
             >

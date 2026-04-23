@@ -1,20 +1,11 @@
 'use client';
 
+import { FolderTree, Tag, Building2, Search, Check, ChevronRight, Plus, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-  FolderTree,
-  Tag,
-  Building2,
-  Search,
-  Check,
-  ChevronRight,
-  Plus,
-  X,
-} from 'lucide-react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -58,12 +49,7 @@ interface CategoryTreeItemProps {
   level: number;
 }
 
-function CategoryTreeItem({
-  category,
-  selectedId,
-  onSelect,
-  level,
-}: CategoryTreeItemProps) {
+function CategoryTreeItem({ category, selectedId, onSelect, level }: CategoryTreeItemProps) {
   const [expanded, setExpanded] = useState(false);
   const hasChildren = category.children && category.children.length > 0;
   const isSelected = category.id === selectedId;
@@ -74,9 +60,7 @@ function CategoryTreeItem({
         onClick={() => onSelect(category.id)}
         className={cn(
           'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors',
-          isSelected
-            ? 'bg-teal-50 text-teal-700'
-            : 'text-gray-700 hover:bg-gray-50',
+          isSelected ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-50',
         )}
         style={{ paddingLeft: `${level * 16 + 12}px` }}
       >
@@ -89,10 +73,7 @@ function CategoryTreeItem({
             className="flex-shrink-0"
           >
             <ChevronRight
-              className={cn(
-                'h-4 w-4 text-gray-400 transition-transform',
-                expanded && 'rotate-90',
-              )}
+              className={cn('h-4 w-4 text-gray-400 transition-transform', expanded && 'rotate-90')}
             />
           </button>
         )}
@@ -100,9 +81,7 @@ function CategoryTreeItem({
         <span className="flex-1 text-left">{category.name}</span>
         {isSelected && <Check className="h-4 w-4 text-teal-600" />}
         {category._count && (
-          <span className="text-xs text-gray-400">
-            {category._count.products}
-          </span>
+          <span className="text-xs text-gray-400">{category._count.products}</span>
         )}
       </button>
       {expanded && hasChildren && (
@@ -226,13 +205,9 @@ export function CategorizationForm({
         {/* Category Tree */}
         <div className="max-h-64 overflow-y-auto rounded-lg border border-gray-200">
           {isLoadingCategories ? (
-            <div className="p-4 text-center text-sm text-gray-500">
-              Loading categories...
-            </div>
+            <div className="p-4 text-center text-sm text-gray-500">Loading categories...</div>
           ) : categories.length === 0 ? (
-            <div className="p-4 text-center text-sm text-gray-500">
-              No categories found.
-            </div>
+            <div className="p-4 text-center text-sm text-gray-500">No categories found.</div>
           ) : (
             categories.map((category) => (
               <CategoryTreeItem
@@ -267,9 +242,7 @@ export function CategorizationForm({
 
         <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200">
           {isLoadingBrands ? (
-            <div className="p-4 text-center text-sm text-gray-500">
-              Loading brands...
-            </div>
+            <div className="p-4 text-center text-sm text-gray-500">Loading brands...</div>
           ) : (
             filteredBrands.map((brand) => (
               <button
@@ -294,9 +267,7 @@ export function CategorizationForm({
                   </div>
                 )}
                 <span className="flex-1 text-left">{brand.name}</span>
-                {brand.id === brandId && (
-                  <Check className="h-4 w-4 text-teal-600" />
-                )}
+                {brand.id === brandId && <Check className="h-4 w-4 text-teal-600" />}
               </button>
             ))
           )}
@@ -361,9 +332,7 @@ export function CategorizationForm({
             className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
           />
           <div>
-            <p className="text-sm font-medium text-gray-900">
-              Featured Product
-            </p>
+            <p className="text-sm font-medium text-gray-900">Featured Product</p>
             <p className="text-xs text-gray-500">
               Display this product in the featured section on the homepage
             </p>

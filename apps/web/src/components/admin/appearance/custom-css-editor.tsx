@@ -46,7 +46,9 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea) {
+      return;
+    }
 
     // Tab key inserts spaces instead of switching focus
     if (e.key === 'Tab') {
@@ -76,7 +78,9 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
 
   const insertSnippet = (css: string) => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea) {
+      return;
+    }
 
     const start = textarea.selectionStart;
     const prefix = value ? '\n\n' : '';
@@ -87,12 +91,12 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
 
   const formatCSS = () => {
     // Basic CSS formatting
-    let formatted = value
+    const formatted = value
       .replace(/\s*{\s*/g, ' {\n  ')
       .replace(/\s*}\s*/g, '\n}\n\n')
       .replace(/;\s*/g, ';\n  ')
       .replace(/\n\s*\n\s*\n/g, '\n\n')
-      .replace(/\n  \n}/g, '\n}')
+      .replace(/\n {2}\n}/g, '\n}')
       .trim();
     onChange(formatted);
   };
@@ -197,7 +201,10 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
                 const textarea = textareaRef.current;
                 if (textarea) {
                   const start = textarea.selectionStart;
-                  const newValue = value.substring(0, start) + `var(${varName})` + value.substring(textarea.selectionEnd);
+                  const newValue =
+                    value.substring(0, start) +
+                    `var(${varName})` +
+                    value.substring(textarea.selectionEnd);
                   onChange(newValue);
                   textarea.focus();
                 }
@@ -263,14 +270,25 @@ export default function CustomCSSEditor({ value, onChange }: CustomCSSEditorProp
       {/* Warning */}
       <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
         <div className="flex items-start gap-2">
-          <svg className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
           <div>
             <p className="text-sm text-amber-800 font-medium">Caution</p>
             <p className="text-xs text-amber-700 mt-0.5">
-              Custom CSS is applied globally. Incorrect CSS may break your store's appearance.
-              Use <code className="bg-amber-100 px-1 rounded">!important</code> sparingly. Test changes thoroughly before publishing.
+              Custom CSS is applied globally. Incorrect CSS may break your store's appearance. Use{' '}
+              <code className="bg-amber-100 px-1 rounded">!important</code> sparingly. Test changes
+              thoroughly before publishing.
             </p>
           </div>
         </div>

@@ -1,13 +1,5 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  type ConfirmationResult,
-} from 'firebase/auth';
-import { toast } from 'sonner';
-
 import {
   Button,
   Input,
@@ -17,10 +9,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@ecommerce/ui';
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
-import { firebaseAuth } from '@/lib/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { ApiClientError } from '@/lib/api/client';
+import { firebaseAuth } from '@/lib/firebase';
 
 interface PhoneLoginDialogProps {
   open: boolean;
@@ -28,11 +23,7 @@ interface PhoneLoginDialogProps {
   onSuccess: () => void;
 }
 
-export function PhoneLoginDialog({
-  open,
-  onOpenChange,
-  onSuccess,
-}: PhoneLoginDialogProps) {
+export function PhoneLoginDialog({ open, onOpenChange, onSuccess }: PhoneLoginDialogProps) {
   const { loginWithPhone, isSubmitting } = useAuth();
 
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -49,7 +40,9 @@ export function PhoneLoginDialog({
   // ── Countdown timer for resend ──────────────────────────
 
   useEffect(() => {
-    if (countdown <= 0) return;
+    if (countdown <= 0) {
+      return;
+    }
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
@@ -91,11 +84,14 @@ export function PhoneLoginDialog({
     });
 
     // Pre-render to get the widget ready
-    verifier.render().then((widgetId) => {
-      recaptchaWidgetId.current = widgetId;
-    }).catch(() => {
-      // reCAPTCHA render failed, will retry on send
-    });
+    verifier
+      .render()
+      .then((widgetId) => {
+        recaptchaWidgetId.current = widgetId;
+      })
+      .catch(() => {
+        // reCAPTCHA render failed, will retry on send
+      });
 
     recaptchaRef.current = verifier;
 
@@ -128,11 +124,7 @@ export function PhoneLoginDialog({
 
     setLoading(true);
     try {
-      const confirmation = await signInWithPhoneNumber(
-        firebaseAuth,
-        cleaned,
-        recaptchaRef.current,
-      );
+      const confirmation = await signInWithPhoneNumber(firebaseAuth, cleaned, recaptchaRef.current);
       confirmationRef.current = confirmation;
       setStep('otp');
       setCountdown(60);
@@ -141,7 +133,11 @@ export function PhoneLoginDialog({
       console.error('Phone auth error:', err);
 
       // Reset reCAPTCHA for retry
-      if (recaptchaWidgetId.current !== null && typeof window !== 'undefined' && (window as any).grecaptcha) {
+      if (
+        recaptchaWidgetId.current !== null &&
+        typeof window !== 'undefined' &&
+        (window as any).grecaptcha
+      ) {
         try {
           (window as any).grecaptcha.reset(recaptchaWidgetId.current);
         } catch {
@@ -217,9 +213,7 @@ export function PhoneLoginDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {step === 'phone' ? 'Enter your phone number' : 'Enter OTP'}
-          </DialogTitle>
+          <DialogTitle>{step === 'phone' ? 'Enter your phone number' : 'Enter OTP'}</DialogTitle>
           <DialogDescription>
             {step === 'phone'
               ? 'We will send a verification code to your phone.'
@@ -257,21 +251,14 @@ export function PhoneLoginDialog({
                 </p>
               </div>
 
-              <Button
-                className="w-full"
-                onClick={handleSendOtp}
-                disabled={isLoading}
-              >
+              <Button className="w-full" onClick={handleSendOtp} disabled={isLoading}>
                 {isLoading ? 'Sending...' : 'Send OTP'}
               </Button>
             </>
           ) : (
             <>
               <div>
-                <label
-                  htmlFor="otp-input"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="otp-input" className="block text-sm font-medium text-gray-700 mb-1">
                   Verification Code
                 </label>
                 <Input
@@ -281,9 +268,7 @@ export function PhoneLoginDialog({
                   maxLength={6}
                   placeholder="000000"
                   value={otp}
-                  onChange={(e) =>
-                    setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
-                  }
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   disabled={isLoading}
                   autoFocus
                   className="text-center text-2xl tracking-[0.5em] font-mono"
@@ -300,9 +285,7 @@ export function PhoneLoginDialog({
 
               <div className="text-center">
                 {countdown > 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Resend code in {countdown}s
-                  </p>
+                  <p className="text-sm text-muted-foreground">Resend code in {countdown}s</p>
                 ) : (
                   <button
                     type="button"

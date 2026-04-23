@@ -1,20 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-import {
-  fetchDashboardCharts,
-  formatBDT,
-  type CategoryRevenue,
-} from '@/lib/api/admin';
+import { fetchDashboardCharts, formatBDT, type CategoryRevenue } from '@/lib/api/admin';
 
 // ──────────────────────────────────────────────────────────
 // Colors
@@ -43,16 +32,18 @@ interface CustomTooltipProps {
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
 
   const category = payload[0]?.payload;
-  if (!category) return null;
+  if (!category) {
+    return null;
+  }
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
-      <p className="mb-1 text-sm font-medium text-gray-900">
-        {category.category}
-      </p>
+      <p className="mb-1 text-sm font-medium text-gray-900">{category.category}</p>
       <p className="text-sm text-gray-600">
         Revenue: <span className="font-medium">{formatBDT(category.revenue)}</span>
       </p>
@@ -73,16 +64,15 @@ interface LegendPayloadItem {
 }
 
 function CustomLegend({ payload }: { payload?: LegendPayloadItem[] }) {
-  if (!payload?.length) return null;
+  if (!payload?.length) {
+    return null;
+  }
 
   return (
     <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2">
       {payload.map((entry, index) => (
         <div key={index} className="flex items-center gap-1.5">
-          <div
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: entry.color }}
-          />
+          <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-xs text-gray-600">{entry.value}</span>
         </div>
       ))}
@@ -128,12 +118,8 @@ export function CategoryRevenueChart() {
   if (categories.length === 0) {
     return (
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Revenue by Category
-        </h3>
-        <p className="mt-4 text-center text-sm text-gray-500">
-          No category data available yet.
-        </p>
+        <h3 className="text-lg font-semibold text-gray-900">Revenue by Category</h3>
+        <p className="mt-4 text-center text-sm text-gray-500">No category data available yet.</p>
       </div>
     );
   }
@@ -143,9 +129,7 @@ export function CategoryRevenueChart() {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Revenue by Category
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900">Revenue by Category</h3>
         <p className="text-sm text-gray-500">
           Total: {formatBDT(totalRevenue)} in the last 30 days
         </p>
@@ -164,10 +148,7 @@ export function CategoryRevenueChart() {
             nameKey="category"
           >
             {categories.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={PIE_COLORS[index % PIE_COLORS.length]}
-              />
+              <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />

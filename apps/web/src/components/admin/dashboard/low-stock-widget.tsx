@@ -1,18 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { AlertTriangle, ExternalLink, Package, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
-import {
-  AlertTriangle,
-  ExternalLink,
-  Package,
-  ImageIcon,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import {
-  fetchDashboardActivity,
-  type LowStockAlert,
-} from '@/lib/api/admin';
+import { fetchDashboardActivity, type LowStockAlert } from '@/lib/api/admin';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -23,8 +15,12 @@ function StockIndicator({ stock, threshold }: { stock: number; threshold: number
   const percentage = Math.min((stock / Math.max(threshold, 1)) * 100, 100);
 
   let barColor = 'bg-red-500';
-  if (percentage > 50) barColor = 'bg-yellow-500';
-  if (percentage > 80) barColor = 'bg-green-500';
+  if (percentage > 50) {
+    barColor = 'bg-yellow-500';
+  }
+  if (percentage > 80) {
+    barColor = 'bg-green-500';
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -34,12 +30,7 @@ function StockIndicator({ stock, threshold }: { stock: number; threshold: number
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span
-        className={cn(
-          'text-xs font-medium',
-          stock <= 5 ? 'text-red-600' : 'text-yellow-600',
-        )}
-      >
+      <span className={cn('text-xs font-medium', stock <= 5 ? 'text-red-600' : 'text-yellow-600')}>
         {stock} left
       </span>
     </div>
@@ -90,12 +81,9 @@ export function LowStockWidget() {
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-orange-500" />
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Low Stock Alerts
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">Low Stock Alerts</h3>
             <p className="text-sm text-gray-500">
-              {alerts.length} product{alerts.length !== 1 ? 's' : ''} need
-              restocking
+              {alerts.length} product{alerts.length !== 1 ? 's' : ''} need restocking
             </p>
           </div>
         </div>
@@ -113,24 +101,15 @@ export function LowStockWidget() {
         {alerts.length === 0 ? (
           <div className="px-6 py-8 text-center">
             <Package className="mx-auto h-8 w-8 text-green-400" />
-            <p className="mt-2 text-sm text-gray-500">
-              All products are well stocked!
-            </p>
+            <p className="mt-2 text-sm text-gray-500">All products are well stocked!</p>
           </div>
         ) : (
           alerts.slice(0, 8).map((alert) => (
-            <div
-              key={alert.id}
-              className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
-            >
+            <div key={alert.id} className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50">
               {/* Product Image */}
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
                 {alert.image ? (
-                  <img
-                    src={alert.image}
-                    alt={alert.name}
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={alert.image} alt={alert.name} className="h-full w-full object-cover" />
                 ) : (
                   <ImageIcon className="h-5 w-5 text-gray-300" />
                 )}
@@ -148,10 +127,7 @@ export function LowStockWidget() {
               </div>
 
               {/* Stock Level */}
-              <StockIndicator
-                stock={alert.stock}
-                threshold={alert.lowStockThreshold}
-              />
+              <StockIndicator stock={alert.stock} threshold={alert.lowStockThreshold} />
             </div>
           ))
         )}

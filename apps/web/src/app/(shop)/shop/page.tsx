@@ -66,7 +66,9 @@ export default function ShopPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <nav className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-gray-700">Home</Link>
+        <Link href="/" className="hover:text-gray-700">
+          Home
+        </Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">All Products</span>
       </nav>
@@ -82,11 +84,16 @@ export default function ShopPage() {
         </div>
         <select
           value={sortBy}
-          onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSortBy(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border-gray-300 text-sm shadow-sm"
         >
           {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
       </div>
@@ -129,9 +136,7 @@ export default function ShopPage() {
                 )}
               </div>
               <div className="mt-3">
-                {product.brandName && (
-                  <p className="text-xs text-gray-500">{product.brandName}</p>
-                )}
+                {product.brandName && <p className="text-xs text-gray-500">{product.brandName}</p>}
                 <h3 className="mt-0.5 line-clamp-2 text-sm font-medium text-gray-900">
                   {product.name}
                 </h3>
@@ -139,7 +144,14 @@ export default function ShopPage() {
                   <div className="mt-1 flex items-center gap-1">
                     <div className="flex text-xs">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <span key={s} className={s <= Math.round(product.averageRating) ? 'text-yellow-400' : 'text-gray-300'}>
+                        <span
+                          key={s}
+                          className={
+                            s <= Math.round(product.averageRating)
+                              ? 'text-yellow-400'
+                              : 'text-gray-300'
+                          }
+                        >
                           ★
                         </span>
                       ))}
@@ -150,11 +162,17 @@ export default function ShopPage() {
                 <div className="mt-2">
                   {product.salePrice ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-teal-700">{formatPrice(product.salePrice)}</span>
-                      <span className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</span>
+                      <span className="text-sm font-bold text-primary">
+                        {formatPrice(product.salePrice)}
+                      </span>
+                      <span className="text-xs text-gray-400 line-through">
+                        {formatPrice(product.price)}
+                      </span>
                     </div>
                   ) : (
-                    <span className="text-sm font-bold text-teal-700">{formatPrice(product.price)}</span>
+                    <span className="text-sm font-bold text-primary">
+                      {formatPrice(product.price)}
+                    </span>
                   )}
                 </div>
               </div>
@@ -179,7 +197,7 @@ export default function ShopPage() {
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
                 className={`rounded-md px-3 py-2 text-sm ${
-                  pageNum === page ? 'bg-teal-600 text-white' : 'border hover:bg-gray-50'
+                  pageNum === page ? 'bg-primary text-white' : 'border hover:bg-gray-50'
                 }`}
               >
                 {pageNum}

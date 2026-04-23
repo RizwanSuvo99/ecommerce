@@ -48,7 +48,7 @@ function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search products..."
-          className="w-full rounded-full border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm placeholder:text-gray-400 focus:border-teal-300 focus:bg-white focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+          className="w-full rounded-full border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm placeholder:text-gray-400 focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-primary/20 outline-none transition-all"
           aria-label="Search products"
         />
       </div>
@@ -78,7 +78,7 @@ function AuthLinks() {
         </Link>
         <Link
           href="/register"
-          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
         >
           Sign Up
         </Link>
@@ -94,7 +94,7 @@ function AuthLinks() {
         aria-label="Account menu"
       >
         {/* User avatar or initial */}
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-teal-700">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-primary">
           {user?.firstName?.charAt(0)?.toUpperCase() || 'U'}
         </div>
         <span className="hidden md:inline text-sm font-medium">{user?.firstName}</span>
@@ -314,7 +314,7 @@ export function Header({ siteName = 'ShopBD', logoUrl, menu }: HeaderProps = {})
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-teal-600"
+                  className="text-primary"
                 >
                   <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                   <line x1="3" y1="6" x2="21" y2="6" />

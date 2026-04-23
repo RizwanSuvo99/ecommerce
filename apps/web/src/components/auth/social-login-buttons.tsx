@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@ecommerce/ui';
 import { useGoogleLogin } from '@react-oauth/google';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@ecommerce/ui';
+import { PhoneLoginDialog } from './phone-login-dialog';
+
 import { useAuth } from '@/hooks/use-auth';
 import { ApiClientError } from '@/lib/api/client';
-import { PhoneLoginDialog } from './phone-login-dialog';
 
 // ──────────────────────────────────────────────────────────
 // Facebook SDK helper
@@ -202,9 +203,7 @@ export function SocialLoginButtons({ mode = 'login' }: SocialLoginButtonsProps) 
           onClick={() => googleLogin()}
         >
           <GoogleIcon className="mr-2 h-5 w-5" />
-          {socialLoading === 'google'
-            ? 'Connecting...'
-            : `${label} with Google`}
+          {socialLoading === 'google' ? 'Connecting...' : `${label} with Google`}
         </Button>
 
         {/* Facebook */}
@@ -216,9 +215,7 @@ export function SocialLoginButtons({ mode = 'login' }: SocialLoginButtonsProps) 
           onClick={handleFacebookLogin}
         >
           <FacebookIcon className="mr-2 h-5 w-5" />
-          {socialLoading === 'facebook'
-            ? 'Connecting...'
-            : `${label} with Facebook`}
+          {socialLoading === 'facebook' ? 'Connecting...' : `${label} with Facebook`}
         </Button>
 
         {/* Phone */}
@@ -229,7 +226,7 @@ export function SocialLoginButtons({ mode = 'login' }: SocialLoginButtonsProps) 
           disabled={isLoading}
           onClick={() => setPhoneDialogOpen(true)}
         >
-          <PhoneIcon className="mr-2 h-5 w-5 text-teal-600" />
+          <PhoneIcon className="mr-2 h-5 w-5 text-primary" />
           {`${label} with Phone`}
         </Button>
       </div>
@@ -240,9 +237,7 @@ export function SocialLoginButtons({ mode = 'login' }: SocialLoginButtonsProps) 
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            or continue with email
-          </span>
+          <span className="bg-background px-2 text-muted-foreground">or continue with email</span>
         </div>
       </div>
 
