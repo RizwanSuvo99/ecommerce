@@ -412,7 +412,7 @@ export default function HomePage() {
 
             {/* Content */}
             <div className="relative flex h-full items-center">
-              <div className="mx-auto w-full max-w-7xl px-4">
+              <div className="site-container w-full px-4">
                 <div className="max-w-xl">
                   <span
                     className={`mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm transition-all duration-700 delay-200 ${
@@ -479,7 +479,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── Shop by Category ────────────────────────────────────────── */}
-      <section className="mx-auto max-w-7xl px-4 py-14">
+      <section className="site-container px-4 py-14">
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">Shop by Category</h2>
           <p className="mt-2 text-gray-500">Browse our wide range of product categories</p>
@@ -519,7 +519,7 @@ export default function HomePage() {
 
       {/* ─── Featured Products ───────────────────────────────────────── */}
       <section className="bg-gray-50 py-14">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="site-container px-4">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -554,7 +554,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── Promo Banners ───────────────────────────────────────────── */}
-      <section className="mx-auto max-w-7xl px-4 py-14">
+      <section className="site-container px-4 py-14">
         <div className="grid gap-4 md:grid-cols-2">
           <Link
             href="/categories/fashion"
@@ -591,7 +591,7 @@ export default function HomePage() {
 
       {/* ─── New Arrivals ────────────────────────────────────────────── */}
       <section className="bg-white py-14">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="site-container px-4">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -616,7 +616,7 @@ export default function HomePage() {
 
       {/* ─── Trust Badges ────────────────────────────────────────────── */}
       <section className="border-t bg-gray-50 py-10">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="site-container px-4">
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100 text-primary">

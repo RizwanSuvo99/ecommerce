@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
@@ -46,12 +46,11 @@ interface ThemeBorders {
 }
 
 interface ThemeLayout {
-  headerStyle: string;
-  footerStyle: string;
-  heroStyle: string;
-  productCardStyle: string;
+  // Structural toggles (headerStyle, footerStyle, heroStyle,
+  // productCardStyle, sidebarPosition) are persisted by the API but not
+  // edited here until the storefront components grow matching render
+  // branches — hiding them keeps the editor honest.
   containerMaxWidth: string;
-  sidebarPosition: string;
 }
 
 interface Theme {
@@ -95,18 +94,19 @@ const FONT_OPTIONS = [
   'Source Sans Pro',
 ];
 
-const BANGLA_FONT_OPTIONS = [
-  'Noto Sans Bengali',
-  'Hind Siliguri',
-  'Baloo Da 2',
-  'Anek Bangla',
-];
+const BANGLA_FONT_OPTIONS = ['Noto Sans Bengali', 'Hind Siliguri', 'Baloo Da 2', 'Anek Bangla'];
 
 export default function AdminThemePage() {
   const [theme, setTheme] = useState<Theme | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'colors' | 'typography' | 'borders' | 'layout' | 'advanced'>('colors');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
+  const [activeTab, setActiveTab] = useState<
+    'colors' | 'typography' | 'borders' | 'layout' | 'advanced'
+  >('colors');
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadTheme() {
@@ -123,7 +123,9 @@ export default function AdminThemePage() {
   }, []);
 
   const saveTheme = async () => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setSaving(true);
     try {
       const { data } = await apiClient.patch('/admin/theme', theme);
@@ -137,7 +139,9 @@ export default function AdminThemePage() {
   };
 
   const resetTheme = async () => {
-    if (!confirm('Reset theme to defaults? All customizations will be lost.')) return;
+    if (!confirm('Reset theme to defaults? All customizations will be lost.')) {
+      return;
+    }
     setSaving(true);
     try {
       const { data } = await apiClient.post('/admin/theme/reset');
@@ -151,35 +155,88 @@ export default function AdminThemePage() {
   };
 
   const updateColor = (key: keyof ThemeColors, value: string) => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setTheme({ ...theme, colors: { ...theme.colors, [key]: value } });
   };
 
   const updateTypography = (key: keyof ThemeTypography, value: string) => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setTheme({ ...theme, typography: { ...theme.typography, [key]: value } });
   };
 
   const updateBorders = (key: keyof ThemeBorders, value: string) => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setTheme({ ...theme, borders: { ...theme.borders, [key]: value } });
   };
 
   const updateLayout = (key: keyof ThemeLayout, value: string) => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setTheme({ ...theme, layout: { ...theme.layout, [key]: value } });
+  };
+
+  const uploadBrandingImage = async (file: File, kind: 'logo' | 'favicon') => {
+    const setUploading = kind === 'logo' ? setUploadingLogo : setUploadingFavicon;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const { data } = await apiClient.post('/upload/image?directory=branding', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const result = data?.data ?? data;
+      const url: string | undefined = result?.url;
+      if (!url) {
+        throw new Error('Upload response missing url');
+      }
+      setTheme((prev) =>
+        prev ? { ...prev, [kind === 'logo' ? 'logoUrl' : 'faviconUrl']: url } : prev,
+      );
+      toast.success(`${kind === 'logo' ? 'Logo' : 'Favicon'} uploaded — don't forget to save`);
+    } catch {
+      toast.error(`Failed to upload ${kind}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleBrandingFilePicked = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    kind: 'logo' | 'favicon',
+  ) => {
+    const file = e.target.files?.[0];
+    // Reset the input so picking the same file again still fires onChange.
+    e.target.value = '';
+    if (file) {
+      void uploadBrandingImage(file, kind);
+    }
+  };
+
+  const clearBrandingImage = (kind: 'logo' | 'favicon') => {
+    setTheme((prev) =>
+      prev ? { ...prev, [kind === 'logo' ? 'logoUrl' : 'faviconUrl']: '' } : prev,
+    );
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
       </div>
     );
   }
 
   if (!theme) {
-    return <div className="text-center py-12 text-gray-500">Failed to load theme configuration.</div>;
+    return (
+      <div className="text-center py-12 text-gray-500">Failed to load theme configuration.</div>
+    );
   }
 
   const tabs = [
@@ -262,20 +319,42 @@ export default function AdminThemePage() {
           </div>
 
           {/* Preview */}
-          <div className="mt-6 p-4 rounded-lg border border-gray-200" style={{ backgroundColor: theme.colors.surface }}>
+          <div
+            className="mt-6 p-4 rounded-lg border border-gray-200"
+            style={{ backgroundColor: theme.colors.surface }}
+          >
             <h3 className="text-sm font-medium text-gray-700 mb-3">Preview</h3>
             <div className="flex items-center gap-3">
-              <button className="px-4 py-2 rounded-lg text-sm text-white" style={{ backgroundColor: theme.colors.primary }}>
+              <button
+                className="px-4 py-2 rounded-lg text-sm text-white"
+                style={{ backgroundColor: theme.colors.primary }}
+              >
                 Primary Button
               </button>
-              <button className="px-4 py-2 rounded-lg text-sm text-white" style={{ backgroundColor: theme.colors.secondary }}>
+              <button
+                className="px-4 py-2 rounded-lg text-sm text-white"
+                style={{ backgroundColor: theme.colors.secondary }}
+              >
                 Secondary
               </button>
-              <button className="px-4 py-2 rounded-lg text-sm text-white" style={{ backgroundColor: theme.colors.accent }}>
+              <button
+                className="px-4 py-2 rounded-lg text-sm text-white"
+                style={{ backgroundColor: theme.colors.accent }}
+              >
                 Accent
               </button>
-              <span className="px-3 py-1 rounded-full text-xs text-white" style={{ backgroundColor: theme.colors.success }}>Success</span>
-              <span className="px-3 py-1 rounded-full text-xs text-white" style={{ backgroundColor: theme.colors.error }}>Error</span>
+              <span
+                className="px-3 py-1 rounded-full text-xs text-white"
+                style={{ backgroundColor: theme.colors.success }}
+              >
+                Success
+              </span>
+              <span
+                className="px-3 py-1 rounded-full text-xs text-white"
+                style={{ backgroundColor: theme.colors.error }}
+              >
+                Error
+              </span>
             </div>
           </div>
         </div>
@@ -293,7 +372,11 @@ export default function AdminThemePage() {
                 onChange={(e) => updateTypography('headingFont', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                {FONT_OPTIONS.map((f) => <option key={f} value={f}>{f}</option>)}
+                {FONT_OPTIONS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -303,7 +386,11 @@ export default function AdminThemePage() {
                 onChange={(e) => updateTypography('bodyFont', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                {FONT_OPTIONS.map((f) => <option key={f} value={f}>{f}</option>)}
+                {FONT_OPTIONS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -313,7 +400,11 @@ export default function AdminThemePage() {
                 onChange={(e) => updateTypography('banglaFont', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                {BANGLA_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f}</option>)}
+                {BANGLA_FONT_OPTIONS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -323,7 +414,11 @@ export default function AdminThemePage() {
                 onChange={(e) => updateTypography('baseFontSize', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                {['14px', '15px', '16px', '17px', '18px'].map((s) => <option key={s} value={s}>{s}</option>)}
+                {['14px', '15px', '16px', '17px', '18px'].map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -333,7 +428,11 @@ export default function AdminThemePage() {
                 onChange={(e) => updateTypography('headingWeight', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                {['400', '500', '600', '700', '800'].map((w) => <option key={w} value={w}>{w}</option>)}
+                {['400', '500', '600', '700', '800'].map((w) => (
+                  <option key={w} value={w}>
+                    {w}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -343,7 +442,11 @@ export default function AdminThemePage() {
                 onChange={(e) => updateTypography('lineHeight', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
-                {['1.4', '1.5', '1.6', '1.7', '1.8'].map((l) => <option key={l} value={l}>{l}</option>)}
+                {['1.4', '1.5', '1.6', '1.7', '1.8'].map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -351,13 +454,33 @@ export default function AdminThemePage() {
           {/* Typography Preview */}
           <div className="mt-6 p-4 rounded-lg border border-gray-200">
             <h3 className="text-sm font-medium text-gray-700 mb-3">Preview</h3>
-            <h2 style={{ fontFamily: theme.typography.headingFont, fontWeight: Number(theme.typography.headingWeight) }} className="text-xl text-gray-900 mb-1">
+            <h2
+              style={{
+                fontFamily: theme.typography.headingFont,
+                fontWeight: Number(theme.typography.headingWeight),
+              }}
+              className="text-xl text-gray-900 mb-1"
+            >
               Heading Text Preview
             </h2>
-            <p style={{ fontFamily: theme.typography.bodyFont, fontSize: theme.typography.baseFontSize, lineHeight: theme.typography.lineHeight }} className="text-gray-600">
-              Body text preview. This is how your content will look with the selected typography settings.
+            <p
+              style={{
+                fontFamily: theme.typography.bodyFont,
+                fontSize: theme.typography.baseFontSize,
+                lineHeight: theme.typography.lineHeight,
+              }}
+              className="text-gray-600"
+            >
+              Body text preview. This is how your content will look with the selected typography
+              settings.
             </p>
-            <p style={{ fontFamily: theme.typography.banglaFont, fontSize: theme.typography.baseFontSize }} className="text-gray-600 mt-1">
+            <p
+              style={{
+                fontFamily: theme.typography.banglaFont,
+                fontSize: theme.typography.baseFontSize,
+              }}
+              className="text-gray-600 mt-1"
+            >
               বাংলা টেক্সট প্রিভিউ। এই হল আপনার বাংলা কন্টেন্ট।
             </p>
           </div>
@@ -369,13 +492,15 @@ export default function AdminThemePage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Borders & Radius</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {([
-              ['radius', 'Default Radius'],
-              ['radiusSm', 'Small Radius'],
-              ['radiusMd', 'Medium Radius'],
-              ['radiusLg', 'Large Radius'],
-              ['width', 'Border Width'],
-            ] as [keyof ThemeBorders, string][]).map(([key, label]) => (
+            {(
+              [
+                ['radius', 'Default Radius'],
+                ['radiusSm', 'Small Radius'],
+                ['radiusMd', 'Medium Radius'],
+                ['radiusLg', 'Large Radius'],
+                ['width', 'Border Width'],
+              ] as [keyof ThemeBorders, string][]
+            ).map(([key, label]) => (
               <div key={key}>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
                 <input
@@ -430,56 +555,9 @@ export default function AdminThemePage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Layout Options</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Header Style</label>
-              <select
-                value={theme.layout.headerStyle}
-                onChange={(e) => updateLayout('headerStyle', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="default">Default</option>
-                <option value="centered">Centered</option>
-                <option value="minimal">Minimal</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Footer Style</label>
-              <select
-                value={theme.layout.footerStyle}
-                onChange={(e) => updateLayout('footerStyle', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="default">Default</option>
-                <option value="minimal">Minimal</option>
-                <option value="expanded">Expanded</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Hero Style</label>
-              <select
-                value={theme.layout.heroStyle}
-                onChange={(e) => updateLayout('heroStyle', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="slider">Slider</option>
-                <option value="static">Static</option>
-                <option value="video">Video</option>
-                <option value="none">None</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product Card Style</label>
-              <select
-                value={theme.layout.productCardStyle}
-                onChange={(e) => updateLayout('productCardStyle', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="default">Default</option>
-                <option value="compact">Compact</option>
-                <option value="detailed">Detailed</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Container Max Width</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Container Max Width
+              </label>
               <select
                 value={theme.layout.containerMaxWidth}
                 onChange={(e) => updateLayout('containerMaxWidth', e.target.value)}
@@ -490,18 +568,6 @@ export default function AdminThemePage() {
                 <option value="1280px">1280px (Default)</option>
                 <option value="1440px">1440px</option>
                 <option value="1536px">1536px</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sidebar Position</label>
-              <select
-                value={theme.layout.sidebarPosition}
-                onChange={(e) => updateLayout('sidebarPosition', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-                <option value="none">None</option>
               </select>
             </div>
           </div>
@@ -515,28 +581,104 @@ export default function AdminThemePage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Branding</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Logo uploader */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
                 <input
-                  type="text"
-                  value={theme.logoUrl}
-                  onChange={(e) => setTheme({ ...theme, logoUrl: e.target.value })}
-                  placeholder="https://example.com/logo.png"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  hidden
+                  onChange={(e) => handleBrandingFilePicked(e, 'logo')}
                 />
-                {theme.logoUrl && (
-                  <img src={theme.logoUrl} alt="Logo preview" className="mt-2 h-12 object-contain" />
-                )}
+                <div className="flex items-center gap-3">
+                  {theme.logoUrl ? (
+                    <img
+                      src={theme.logoUrl}
+                      alt="Logo preview"
+                      className="h-14 max-w-[160px] object-contain rounded border border-gray-200 bg-white p-1"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded border border-dashed border-gray-300 text-xs text-gray-400">
+                      None
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={uploadingLogo || saving}
+                      className="px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50"
+                    >
+                      {uploadingLogo ? 'Uploading…' : theme.logoUrl ? 'Replace' : 'Upload logo'}
+                    </button>
+                    {theme.logoUrl && !uploadingLogo && (
+                      <button
+                        type="button"
+                        onClick={() => clearBrandingImage('logo')}
+                        disabled={saving}
+                        className="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  PNG, JPG, WebP or SVG. Uploaded to Cloudinary.
+                </p>
               </div>
+
+              {/* Favicon uploader */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Favicon URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
                 <input
-                  type="text"
-                  value={theme.faviconUrl}
-                  onChange={(e) => setTheme({ ...theme, faviconUrl: e.target.value })}
-                  placeholder="https://example.com/favicon.ico"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  ref={faviconInputRef}
+                  type="file"
+                  accept="image/png,image/svg+xml,image/webp"
+                  hidden
+                  onChange={(e) => handleBrandingFilePicked(e, 'favicon')}
                 />
+                <div className="flex items-center gap-3">
+                  {theme.faviconUrl ? (
+                    <img
+                      src={theme.faviconUrl}
+                      alt="Favicon preview"
+                      className="h-10 w-10 object-contain rounded border border-gray-200 bg-white p-1"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded border border-dashed border-gray-300 text-xs text-gray-400">
+                      None
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => faviconInputRef.current?.click()}
+                      disabled={uploadingFavicon || saving}
+                      className="px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50"
+                    >
+                      {uploadingFavicon
+                        ? 'Uploading…'
+                        : theme.faviconUrl
+                          ? 'Replace'
+                          : 'Upload favicon'}
+                    </button>
+                    {theme.faviconUrl && !uploadingFavicon && (
+                      <button
+                        type="button"
+                        onClick={() => clearBrandingImage('favicon')}
+                        disabled={saving}
+                        className="px-3 py-1.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  32×32 or 64×64 PNG/SVG recommended. Uploaded to Cloudinary.
+                </p>
               </div>
             </div>
           </div>

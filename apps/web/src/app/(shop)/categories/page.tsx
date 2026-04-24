@@ -70,7 +70,7 @@ export default function CategoriesPage() {
         <div className="absolute -bottom-16 right-10 h-56 w-56 rounded-full bg-white/5" />
         <div className="absolute right-1/3 top-10 h-32 w-32 rounded-full bg-white/5" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-20">
+        <div className="relative site-container px-4 py-16 sm:py-20">
           <nav className="mb-6 flex items-center gap-2 text-sm text-teal-100">
             <Link href="/" className="hover:text-white transition-colors">
               Home
@@ -104,7 +104,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* Category Cards */}
-      <div className="mx-auto max-w-7xl px-4 py-10">
+      <div className="site-container px-4 py-10">
         {loading ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 9 }).map((_, i) => (

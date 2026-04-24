@@ -32,11 +32,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
-        bengali: [
-          'var(--font-noto-sans-bengali)',
-          'Noto Sans Bengali',
-          'sans-serif',
-        ],
+        bengali: ['var(--font-noto-sans-bengali)', 'Noto Sans Bengali', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       colors: {
@@ -120,9 +116,13 @@ const config: Config = {
         '3xl': '1920px',
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        // Admin theme variants (see apps/web/src/lib/theme/css-vars.ts).
+        // Fallbacks keep today's behaviour when the admin hasn't set the
+        // variant — `rounded-lg` still collapses to `--radius`, etc.
+        sm: 'var(--radius-sm, calc(var(--radius) - 4px))',
+        md: 'var(--radius-md, calc(var(--radius) - 2px))',
+        lg: 'var(--radius-lg, var(--radius))',
+        full: 'var(--radius-full, 9999px)',
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],

@@ -1,6 +1,6 @@
 export default function CategoryLoading() {
   return (
-    <div className="mx-auto max-w-7xl animate-pulse px-4 py-8">
+    <div className="site-container animate-pulse px-4 py-8">
       <div className="mb-6 h-8 w-48 rounded bg-gray-200" />
       <div className="flex gap-6">
         {/* Filters skeleton */}

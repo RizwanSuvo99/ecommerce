@@ -124,7 +124,7 @@ export default function SearchPage() {
 
   if (!q) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+      <div className="site-container px-4 py-20 text-center">
         <Search className="mx-auto h-16 w-16 text-gray-300 mb-4" />
         <h1 className="text-2xl font-bold text-gray-900">Search Products</h1>
         <p className="mt-2 text-gray-500">
@@ -138,7 +138,7 @@ export default function SearchPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-6">
+        <div className="site-container px-4 py-6">
           <nav className="mb-3 flex items-center gap-2 text-sm text-gray-500">
             <Link href="/" className="hover:text-gray-700">
               Home
@@ -173,7 +173,7 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="site-container px-4 py-8">
         {/* Results */}
         {loading ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">

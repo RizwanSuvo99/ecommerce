@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from 'next';
 
 import { getSiteConfig } from '@/lib/config/site-config';
 import { themeToCssVars } from '@/lib/theme/css-vars';
+import { getGoogleFontsUrl } from '@/lib/theme/google-fonts';
 import { Providers } from '@/providers';
 
 import './globals.css';
@@ -110,6 +111,7 @@ export default async function RootLayout({
   const faviconUrl = theme.faviconUrl;
   const themeCss = themeToCssVars(theme);
   const customCss = theme.customCSS;
+  const googleFontsUrl = getGoogleFontsUrl(theme.typography);
   const gaId = settings.seo.google_analytics_id;
   const fbPixelId = settings.seo.facebook_pixel_id;
 
@@ -120,6 +122,16 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Admin-selected Google Fonts, loaded before the theme style
+            block so the chosen families are available when the CSS
+            custom properties take effect. */}
+        {googleFontsUrl && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            <link rel="stylesheet" href={googleFontsUrl} />
+          </>
+        )}
         {/* Admin-set theme tokens; emitted server-side so there is no
             flash between the default palette and the configured one. */}
         <style
@@ -170,7 +182,10 @@ export default async function RootLayout({
           />
         )}
       </head>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      {/* `font-sans` is intentionally omitted so the body's font-family
+          is driven by the admin typography tokens defined in
+          globals.css (which read `--font-body`). */}
+      <body className="min-h-screen bg-background antialiased">
         <NextTopLoader color="#0d9488" height={3} showSpinner={false} />
         <Providers>{children}</Providers>
       </body>

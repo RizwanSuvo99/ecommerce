@@ -668,7 +668,7 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Sticky mobile filter bar */}
       <div className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur-sm lg:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+        <div className="site-container flex items-center justify-between px-4 py-3">
           <button
             onClick={() => setMobileFilterOpen(true)}
             className="relative flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
@@ -729,7 +729,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 py-6">
+      <div className="site-container px-4 py-6">
         {/* Breadcrumb */}
         <nav className="mb-4 flex items-center gap-2 text-sm text-gray-500">
           <Link href="/" className="hover:text-gray-700 transition-colors">

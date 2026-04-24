@@ -187,7 +187,7 @@ export default function CategoryPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Category hero */}
       <div className="bg-gradient-to-r from-teal-700 to-emerald-600">
-        <div className="mx-auto max-w-7xl px-4 py-10">
+        <div className="site-container px-4 py-10">
           <nav className="mb-4 flex items-center gap-2 text-sm text-teal-100">
             <Link href="/" className="hover:text-white transition-colors">
               Home
@@ -238,7 +238,7 @@ export default function CategoryPage() {
 
       {/* Sticky mobile filter bar */}
       <div className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur-sm lg:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+        <div className="site-container flex items-center justify-between px-4 py-3">
           <button
             onClick={() => setMobileFilterOpen(true)}
             className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700"
@@ -296,7 +296,7 @@ export default function CategoryPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="site-container px-4 py-8">
         <div className="flex gap-8">
           {/* Desktop sidebar */}
           <aside className="hidden w-60 flex-shrink-0 lg:block">

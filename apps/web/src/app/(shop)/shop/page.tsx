@@ -64,7 +64,7 @@ export default function ShopPage() {
   const formatPrice = (price: number) => `৳${price.toLocaleString('en-BD')}`;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
+    <div className="site-container px-4 py-6">
       <nav className="mb-4 text-sm text-gray-500">
         <Link href="/" className="hover:text-gray-700">
           Home

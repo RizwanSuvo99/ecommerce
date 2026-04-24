@@ -11,16 +11,12 @@ export const metadata: Metadata = {
  * Provides a clean, distraction-free layout for the checkout flow.
  * Removes the standard shop navigation to keep focus on completing the order.
  */
-export default function CheckoutLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Minimal header */}
       <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="site-container px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <a href="/" className="text-xl font-bold text-gray-900">
               Ecommerce

@@ -5,7 +5,7 @@ export default function ShopLoading() {
       <div className="h-80 bg-gray-200" />
 
       {/* Categories skeleton */}
-      <div className="mx-auto max-w-7xl px-4 py-12">
+      <div className="site-container px-4 py-12">
         <div className="mx-auto mb-8 h-8 w-48 rounded bg-gray-200" />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -19,7 +19,7 @@ export default function ShopLoading() {
 
       {/* Products skeleton */}
       <div className="bg-gray-50 py-12">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="site-container px-4">
           <div className="mb-8 h-8 w-48 rounded bg-gray-200" />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
             {Array.from({ length: 6 }).map((_, i) => (

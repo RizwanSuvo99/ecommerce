@@ -95,11 +95,35 @@
 
   html {
     scroll-behavior: smooth;
+    /* Admin-set base font size; falls back to the browser default
+       when the theme has not defined it. */
+    font-size: var(--font-size-base, 16px);
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     min-height: 100dvh;
+    /* Typography is driven by the admin theme tokens (see
+       lib/theme/css-vars.ts). Inter — loaded via next/font — is the
+       fallback so the site stays readable when the API is unreachable. */
+    font-family: var(--font-body, var(--font-inter)), 'Inter', system-ui, sans-serif;
+    font-weight: var(--font-weight-body, 400);
+    line-height: var(--line-height, 1.6);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading, var(--font-body, var(--font-inter))), 'Inter', sans-serif;
+    font-weight: var(--font-weight-heading, 700);
+  }
+
+  .font-bengali,
+  [lang='bn'] {
+    font-family: var(--font-bangla, var(--font-noto-sans-bengali)), 'Noto Sans Bengali', sans-serif;
   }
 
   main {
@@ -151,6 +175,14 @@
 }
 
 @layer utilities {
+  /* Site-wide content wrapper. Max width is driven by the admin
+     Layout setting (`theme.layout.containerMaxWidth`); falls back to
+     80rem (the previous hard-coded `max-w-7xl`) when unset. */
+  .site-container {
+    max-width: var(--container-max-width, 80rem);
+    margin-inline: auto;
+  }
+
   .header-blur {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);

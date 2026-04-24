@@ -365,7 +365,7 @@ export default function CartPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="site-container px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-center py-20">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-teal-600" />
         </div>
@@ -375,14 +375,14 @@ export default function CartPage() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="site-container px-4 sm:px-6 lg:px-8 py-12">
         <EmptyCartPage />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div className="site-container px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       {/* Page header */}
       <div className="flex items-center justify-between mb-8">
         <div>

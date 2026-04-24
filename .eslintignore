@@ -1,2 +1,6 @@
 apps/api/api/
 packages/database/prisma/
+# Root-level lint-staged has no TS parser for bare config files in
+# the shared UI package, and the file is a static Tailwind preset
+# with nothing to lint.
+packages/ui/tailwind.config.ts
