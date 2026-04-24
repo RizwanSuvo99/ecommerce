@@ -8,15 +8,16 @@ import {
 import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductFilterDto, ProductSortBy, SortOrder } from './dto/product-filter.dto';
-import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
 import {
   BulkUpdateStatusDto,
   BulkDeleteDto,
   BulkAssignCategoryDto,
 } from './dto/bulk-operation.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
+import { ProductFilterDto, ProductSortBy, SortOrder } from './dto/product-filter.dto';
+import { ReplaceVariantsDto } from './dto/replace-variants.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -52,13 +53,15 @@ export class ProductsService {
   }
 
   generateVariantSku(productSlug: string, attributeValues: string[]): string {
-    const base = productSlug
-      .toUpperCase()
-      .replace(/-/g, '')
-      .substring(0, 6);
+    const base = productSlug.toUpperCase().replace(/-/g, '').substring(0, 6);
 
     const attrPart = attributeValues
-      .map((v) => v.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 3))
+      .map((v) =>
+        v
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, '')
+          .substring(0, 3),
+      )
       .join('-');
 
     const random = Math.random().toString(36).substring(2, 5).toUpperCase();
@@ -70,6 +73,7 @@ export class ProductsService {
     let currentSlug = slug;
     let counter = 0;
 
+    // eslint-disable-next-line no-constant-condition -- loop exits via return once a unique slug is found
     while (true) {
       const existing = await this.prisma.product.findUnique({
         where: { slug: currentSlug },
@@ -88,6 +92,7 @@ export class ProductsService {
   private async ensureUniqueSku(sku: string): Promise<string> {
     let currentSku = sku;
 
+    // eslint-disable-next-line no-constant-condition -- loop exits via return once a unique sku is found
     while (true) {
       const existing = await this.prisma.product.findUnique({
         where: { sku: currentSku },
@@ -106,6 +111,7 @@ export class ProductsService {
   private async ensureUniqueVariantSku(sku: string): Promise<string> {
     let currentSku = sku;
 
+    // eslint-disable-next-line no-constant-condition -- loop exits via return once a unique sku is found
     while (true) {
       const existing = await this.prisma.productVariant.findUnique({
         where: { sku: currentSku },
@@ -316,9 +322,10 @@ export class ProductsService {
 
     // Log search term for analytics (fire-and-forget)
     if (search?.trim()) {
-      this.prisma.searchLog.create({
-        data: { term: search.trim().toLowerCase(), resultsCount: total },
-      })// eslint-disable-next-line @typescript-eslint/no-empty-function
+      this.prisma.searchLog
+        .create({
+          data: { term: search.trim().toLowerCase(), resultsCount: total },
+        }) // eslint-disable-next-line @typescript-eslint/no-empty-function
         .catch(() => {});
     }
 
@@ -335,6 +342,45 @@ export class ProductsService {
         hasPreviousPage: page > 1,
       },
     };
+  }
+
+  async findById(id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        brand: { select: { id: true, name: true, slug: true } },
+        images: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            url: true,
+            thumbnailUrl: true,
+            alt: true,
+            isPrimary: true,
+            sortOrder: true,
+          },
+        },
+        variants: {
+          orderBy: { sortOrder: 'asc' },
+          include: {
+            attributeValues: {
+              include: { attribute: { select: { id: true, name: true, type: true } } },
+            },
+            images: {
+              orderBy: { sortOrder: 'asc' },
+              select: { id: true, url: true, thumbnailUrl: true, alt: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
+
+    return product;
   }
 
   async findBySlug(slug: string) {
@@ -462,7 +508,7 @@ export class ProductsService {
 
     const existing = await this.prisma.product.findUnique({
       where: { id },
-      select: { id: true, name: true, slug: true },
+      select: { id: true, name: true, slug: true, sku: true },
     });
 
     if (!existing) {
@@ -471,34 +517,90 @@ export class ProductsService {
 
     const updateData: Prisma.ProductUpdateInput = {};
 
+    // Explicit slug wins over auto-regeneration from a name change.
+    const explicitSlug = dto.slug?.trim().toLowerCase();
+    if (explicitSlug) {
+      updateData.slug = await this.ensureUniqueSlug(explicitSlug, id);
+    }
+
     if (dto.name !== undefined) {
       updateData.name = dto.name;
 
-      if (dto.name !== existing.name) {
+      if (!explicitSlug && dto.name !== existing.name) {
         const rawSlug = this.generateSlug(dto.name);
         updateData.slug = await this.ensureUniqueSlug(rawSlug, id);
       }
     }
 
-    if (dto.nameBn !== undefined) updateData.nameBn = dto.nameBn;
-    if (dto.description !== undefined) updateData.description = dto.description;
-    if (dto.descriptionBn !== undefined) updateData.descriptionBn = dto.descriptionBn;
-    if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription;
-    if (dto.price !== undefined) updateData.price = dto.price;
-    if (dto.compareAtPrice !== undefined) updateData.compareAtPrice = dto.compareAtPrice;
-    if (dto.costPrice !== undefined) updateData.costPrice = dto.costPrice;
-    if (dto.quantity !== undefined) updateData.quantity = dto.quantity;
-    if (dto.status !== undefined) updateData.status = dto.status;
-    if (dto.tags !== undefined) updateData.tags = dto.tags;
-    if (dto.weight !== undefined) updateData.weight = dto.weight;
-    if (dto.weightUnit !== undefined) updateData.weightUnit = dto.weightUnit;
-    if (dto.length !== undefined) updateData.length = dto.length;
-    if (dto.width !== undefined) updateData.width = dto.width;
-    if (dto.height !== undefined) updateData.height = dto.height;
-    if (dto.isFeatured !== undefined) updateData.isFeatured = dto.isFeatured;
-    if (dto.isDigital !== undefined) updateData.isDigital = dto.isDigital;
-    if (dto.metaTitle !== undefined) updateData.metaTitle = dto.metaTitle;
-    if (dto.metaDescription !== undefined) updateData.metaDescription = dto.metaDescription;
+    const explicitSku = dto.sku?.trim().toUpperCase();
+    if (explicitSku && explicitSku !== existing.sku) {
+      const clash = await this.prisma.product.findFirst({
+        where: { sku: explicitSku, NOT: { id } },
+        select: { id: true },
+      });
+      if (clash) {
+        throw new BadRequestException(`SKU "${explicitSku}" is already in use`);
+      }
+      updateData.sku = explicitSku;
+    }
+
+    if (dto.nameBn !== undefined) {
+      updateData.nameBn = dto.nameBn;
+    }
+    if (dto.description !== undefined) {
+      updateData.description = dto.description;
+    }
+    if (dto.descriptionBn !== undefined) {
+      updateData.descriptionBn = dto.descriptionBn;
+    }
+    if (dto.shortDescription !== undefined) {
+      updateData.shortDescription = dto.shortDescription;
+    }
+    if (dto.price !== undefined) {
+      updateData.price = dto.price;
+    }
+    if (dto.compareAtPrice !== undefined) {
+      updateData.compareAtPrice = dto.compareAtPrice;
+    }
+    if (dto.costPrice !== undefined) {
+      updateData.costPrice = dto.costPrice;
+    }
+    if (dto.quantity !== undefined) {
+      updateData.quantity = dto.quantity;
+    }
+    if (dto.status !== undefined) {
+      updateData.status = dto.status;
+    }
+    if (dto.tags !== undefined) {
+      updateData.tags = dto.tags;
+    }
+    if (dto.weight !== undefined) {
+      updateData.weight = dto.weight;
+    }
+    if (dto.weightUnit !== undefined) {
+      updateData.weightUnit = dto.weightUnit;
+    }
+    if (dto.length !== undefined) {
+      updateData.length = dto.length;
+    }
+    if (dto.width !== undefined) {
+      updateData.width = dto.width;
+    }
+    if (dto.height !== undefined) {
+      updateData.height = dto.height;
+    }
+    if (dto.isFeatured !== undefined) {
+      updateData.isFeatured = dto.isFeatured;
+    }
+    if (dto.isDigital !== undefined) {
+      updateData.isDigital = dto.isDigital;
+    }
+    if (dto.metaTitle !== undefined) {
+      updateData.metaTitle = dto.metaTitle;
+    }
+    if (dto.metaDescription !== undefined) {
+      updateData.metaDescription = dto.metaDescription;
+    }
 
     if (dto.categoryId !== undefined) {
       const category = await this.prisma.category.findUnique({
@@ -700,15 +802,33 @@ export class ProductsService {
 
     const updateData: Prisma.ProductVariantUpdateInput = {};
 
-    if (dto.name !== undefined) updateData.name = dto.name;
-    if (dto.price !== undefined) updateData.price = dto.price;
-    if (dto.compareAtPrice !== undefined) updateData.compareAtPrice = dto.compareAtPrice;
-    if (dto.costPrice !== undefined) updateData.costPrice = dto.costPrice;
-    if (dto.quantity !== undefined) updateData.quantity = dto.quantity;
-    if (dto.weight !== undefined) updateData.weight = dto.weight;
-    if (dto.weightUnit !== undefined) updateData.weightUnit = dto.weightUnit;
-    if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
-    if (dto.sortOrder !== undefined) updateData.sortOrder = dto.sortOrder;
+    if (dto.name !== undefined) {
+      updateData.name = dto.name;
+    }
+    if (dto.price !== undefined) {
+      updateData.price = dto.price;
+    }
+    if (dto.compareAtPrice !== undefined) {
+      updateData.compareAtPrice = dto.compareAtPrice;
+    }
+    if (dto.costPrice !== undefined) {
+      updateData.costPrice = dto.costPrice;
+    }
+    if (dto.quantity !== undefined) {
+      updateData.quantity = dto.quantity;
+    }
+    if (dto.weight !== undefined) {
+      updateData.weight = dto.weight;
+    }
+    if (dto.weightUnit !== undefined) {
+      updateData.weightUnit = dto.weightUnit;
+    }
+    if (dto.isActive !== undefined) {
+      updateData.isActive = dto.isActive;
+    }
+    if (dto.sortOrder !== undefined) {
+      updateData.sortOrder = dto.sortOrder;
+    }
 
     if (dto.attributeValues) {
       await this.prisma.productVariantAttributeValue.deleteMany({
@@ -775,6 +895,276 @@ export class ProductsService {
     return { deleted: true, id: variantId, sku: variant.sku };
   }
 
+  /**
+   * Bulk-replace all variants for a product.
+   *
+   * The admin UI sends the full desired variant list as an `options` map per
+   * variant (e.g. `{ Color: "Red", Size: "M" }`). This method:
+   *   1. Upserts `ProductAttribute` rows per option key and unions their values.
+   *   2. Diffs payload variants against existing ones using a canonical
+   *      option-tuple fingerprint.
+   *   3. Updates matched variants, deletes unmatched ones (or deactivates them
+   *      if they have order history), creates brand-new ones.
+   *   4. Resyncs `ProductVariantAttributeValue` join rows to match the payload.
+   *   5. Cleans up `ProductAttribute` rows that no longer back any variant.
+   */
+  async replaceVariants(productId: string, dto: ReplaceVariantsDto) {
+    this.logger.log(`Replacing variants for product ${productId}: ${dto.variants.length} items`);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, slug: true, price: true },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product with ID "${productId}" not found`);
+    }
+
+    const fingerprint = (opts: Record<string, string>): string =>
+      JSON.stringify(
+        Object.fromEntries(Object.entries(opts).sort(([a], [b]) => a.localeCompare(b))),
+      );
+
+    // Validate: no duplicate option-tuples in the payload.
+    const payloadFps = new Set<string>();
+    for (const v of dto.variants) {
+      const fp = fingerprint(v.options);
+      if (payloadFps.has(fp)) {
+        throw new BadRequestException(`Duplicate variant combination: ${fp}`);
+      }
+      payloadFps.add(fp);
+    }
+
+    // Collect per-attribute value sets from the payload.
+    const attrValuesMap = new Map<string, Set<string>>();
+    for (const v of dto.variants) {
+      for (const [attrName, val] of Object.entries(v.options)) {
+        if (!attrValuesMap.has(attrName)) {
+          attrValuesMap.set(attrName, new Set());
+        }
+        attrValuesMap.get(attrName)!.add(val);
+      }
+    }
+
+    // Generate fresh SKUs for any payload variants missing one, OUTSIDE the
+    // transaction (ensureUniqueVariantSku uses the base prisma client).
+    const payloadSkus = await Promise.all(
+      dto.variants.map(async (v) => {
+        if (v.sku?.trim()) {
+          return v.sku.trim().toUpperCase();
+        }
+        const raw = this.generateVariantSku(product.slug, Object.values(v.options));
+        return this.ensureUniqueVariantSku(raw);
+      }),
+    );
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Upsert ProductAttribute rows and capture their IDs.
+      const attrsByName = new Map<string, { id: string }>();
+      for (const [name, values] of attrValuesMap) {
+        const existing = await tx.productAttribute.findFirst({
+          where: { productId, name },
+          select: { id: true, values: true },
+        });
+        if (existing) {
+          const union = Array.from(new Set([...existing.values, ...values])).sort();
+          await tx.productAttribute.update({
+            where: { id: existing.id },
+            data: { values: union },
+          });
+          attrsByName.set(name, { id: existing.id });
+        } else {
+          const created = await tx.productAttribute.create({
+            data: {
+              productId,
+              name,
+              values: Array.from(values).sort(),
+              type: 'CUSTOM',
+            },
+            select: { id: true },
+          });
+          attrsByName.set(name, created);
+        }
+      }
+
+      // 2. Load existing variants with their attribute values + order count.
+      const existingVariants = await tx.productVariant.findMany({
+        where: { productId },
+        include: {
+          attributeValues: {
+            include: { attribute: { select: { id: true, name: true } } },
+          },
+          _count: { select: { orderItems: true } },
+        },
+      });
+
+      // 3. Fingerprint existing + payload.
+      const existingByFp = new Map<string, (typeof existingVariants)[number]>();
+      for (const v of existingVariants) {
+        const opts: Record<string, string> = {};
+        for (const av of v.attributeValues) {
+          opts[av.attribute.name] = av.value;
+        }
+        existingByFp.set(fingerprint(opts), v);
+      }
+
+      // 4. Delete or deactivate variants that are no longer present.
+      for (const [fp, variant] of existingByFp) {
+        if (payloadFps.has(fp)) {
+          continue;
+        }
+        if (variant._count.orderItems > 0) {
+          await tx.productVariant.update({
+            where: { id: variant.id },
+            data: { isActive: false },
+          });
+        } else {
+          // Drop variant-scoped images first so they don't land back in the
+          // product gallery as orphans via onDelete: SetNull.
+          await tx.productImage.deleteMany({
+            where: { productId, variantId: variant.id },
+          });
+          await tx.productVariant.delete({ where: { id: variant.id } });
+        }
+      }
+
+      // 5. Update matched + create new.
+      const zipped = dto.variants.map((payload, idx) => ({
+        payload,
+        sku: payloadSkus[idx] ?? '',
+        idx,
+      }));
+      for (const { payload, sku: desiredSku, idx } of zipped) {
+        const fp = fingerprint(payload.options);
+        const name = Object.values(payload.options).join(' / ') || 'Default';
+        const price =
+          payload.price !== undefined && payload.price !== null ? payload.price : product.price;
+
+        const existing = existingByFp.get(fp);
+
+        let variantId: string;
+        if (existing) {
+          const data: Prisma.ProductVariantUpdateInput = {
+            name,
+            price,
+            quantity: payload.stock,
+            isActive: payload.isActive,
+          };
+          if (desiredSku && desiredSku !== existing.sku) {
+            // Check for clash on the new SKU; skip rename silently on conflict.
+            const clash = await tx.productVariant.findFirst({
+              where: { sku: desiredSku, NOT: { id: existing.id } },
+              select: { id: true },
+            });
+            if (!clash) {
+              data.sku = desiredSku;
+            }
+          }
+          await tx.productVariant.update({ where: { id: existing.id }, data });
+          await tx.productVariantAttributeValue.deleteMany({
+            where: { variantId: existing.id },
+          });
+          for (const [attrName, val] of Object.entries(payload.options)) {
+            const attr = attrsByName.get(attrName);
+            if (!attr) {
+              continue;
+            }
+            await tx.productVariantAttributeValue.create({
+              data: { variantId: existing.id, attributeId: attr.id, value: val },
+            });
+          }
+          variantId = existing.id;
+        } else {
+          const created = await tx.productVariant.create({
+            data: {
+              productId,
+              name,
+              sku: desiredSku,
+              price,
+              quantity: payload.stock,
+              isActive: payload.isActive,
+              sortOrder: idx,
+            },
+            select: { id: true },
+          });
+          for (const [attrName, val] of Object.entries(payload.options)) {
+            const attr = attrsByName.get(attrName);
+            if (!attr) {
+              continue;
+            }
+            await tx.productVariantAttributeValue.create({
+              data: { variantId: created.id, attributeId: attr.id, value: val },
+            });
+          }
+          variantId = created.id;
+        }
+
+        // Reconcile this variant's image. Variant images are ProductImage
+        // rows with `variantId` set; product-level images (variantId=null)
+        // stay untouched. When the URL changes or is cleared, we drop the
+        // previous variant-scoped row and create a fresh one pointing at
+        // the new URL (cloning metadata from the matching product image).
+        const wantUrl = payload.imageUrl?.trim() || null;
+        const currentVariantImage = await tx.productImage.findFirst({
+          where: { productId, variantId },
+          select: { id: true, url: true },
+        });
+
+        if (!wantUrl) {
+          if (currentVariantImage) {
+            await tx.productImage.delete({ where: { id: currentVariantImage.id } });
+          }
+        } else if (!currentVariantImage || currentVariantImage.url !== wantUrl) {
+          if (currentVariantImage) {
+            await tx.productImage.delete({ where: { id: currentVariantImage.id } });
+          }
+          const source = await tx.productImage.findFirst({
+            where: { productId, url: wantUrl, variantId: null },
+            select: { thumbnailUrl: true, alt: true, width: true, height: true, blurHash: true },
+          });
+          await tx.productImage.create({
+            data: {
+              productId,
+              variantId,
+              url: wantUrl,
+              thumbnailUrl: source?.thumbnailUrl ?? null,
+              alt: source?.alt ?? null,
+              width: source?.width ?? null,
+              height: source?.height ?? null,
+              blurHash: source?.blurHash ?? null,
+              isPrimary: false,
+              sortOrder: 0,
+            },
+          });
+        }
+      }
+
+      // 6. Clean up attributes no longer referenced by any variant value.
+      const orphanAttrs = await tx.productAttribute.findMany({
+        where: { productId, variantValues: { none: {} } },
+        select: { id: true },
+      });
+      if (orphanAttrs.length > 0) {
+        await tx.productAttribute.deleteMany({
+          where: { id: { in: orphanAttrs.map((a) => a.id) } },
+        });
+      }
+
+      return tx.productVariant.findMany({
+        where: { productId },
+        orderBy: { sortOrder: 'asc' },
+        include: {
+          attributeValues: {
+            include: { attribute: { select: { id: true, name: true, type: true } } },
+          },
+          images: {
+            orderBy: { sortOrder: 'asc' },
+            select: { id: true, url: true, thumbnailUrl: true, alt: true },
+          },
+        },
+      });
+    });
+  }
+
   // ─── Image Management ──────────────────────────────────────────────────────
 
   async addImage(
@@ -823,9 +1213,7 @@ export class ProductsService {
     const image = await this.prisma.productImage.create({
       data: {
         product: { connect: { id: productId } },
-        variant: imageData.variantId
-          ? { connect: { id: imageData.variantId } }
-          : undefined,
+        variant: imageData.variantId ? { connect: { id: imageData.variantId } } : undefined,
         url: imageData.url,
         thumbnailUrl: imageData.thumbnailUrl,
         alt: imageData.alt,
@@ -943,9 +1331,7 @@ export class ProductsService {
     const missingIds = dto.productIds.filter((id) => !existingIds.has(id));
 
     if (missingIds.length > 0) {
-      throw new NotFoundException(
-        `Products not found: ${missingIds.join(', ')}`,
-      );
+      throw new NotFoundException(`Products not found: ${missingIds.join(', ')}`);
     }
 
     const result = await this.prisma.product.updateMany({
@@ -985,9 +1371,7 @@ export class ProductsService {
     const missingIds = dto.productIds.filter((id) => !existingIds.has(id));
 
     if (missingIds.length > 0) {
-      throw new NotFoundException(
-        `Products not found: ${missingIds.join(', ')}`,
-      );
+      throw new NotFoundException(`Products not found: ${missingIds.join(', ')}`);
     }
 
     // Separate products that can be deleted vs those that must be archived
@@ -1021,9 +1405,7 @@ export class ProductsService {
       deletedCount = deleteResult.count;
     }
 
-    this.logger.log(
-      `Bulk delete completed: ${deletedCount} deleted, ${archivedCount} archived`,
-    );
+    this.logger.log(`Bulk delete completed: ${deletedCount} deleted, ${archivedCount} archived`);
 
     return {
       deleted: deletedCount,
@@ -1061,9 +1443,7 @@ export class ProductsService {
     const missingIds = dto.productIds.filter((id) => !existingIds.has(id));
 
     if (missingIds.length > 0) {
-      throw new NotFoundException(
-        `Products not found: ${missingIds.join(', ')}`,
-      );
+      throw new NotFoundException(`Products not found: ${missingIds.join(', ')}`);
     }
 
     const result = await this.prisma.product.updateMany({

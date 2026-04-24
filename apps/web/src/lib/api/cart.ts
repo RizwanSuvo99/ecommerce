@@ -4,6 +4,16 @@ import { apiClient } from './client';
 // Types
 // ──────────────────────────────────────────────────────────
 
+export interface CartItemVariant {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  quantity: number;
+  isActive: boolean;
+  options: Record<string, string>;
+}
+
 export interface CartItem {
   id: string;
   productId: string;
@@ -22,6 +32,7 @@ export interface CartItem {
     images: Array<{ url: string; alt?: string }>;
     status: string;
   };
+  variant: CartItemVariant | null;
 }
 
 export interface Cart {
@@ -62,7 +73,9 @@ const SESSION_ID_KEY = 'cart_session_id';
  * Get or create a persistent session ID for guest cart tracking.
  */
 export function getSessionId(): string {
-  if (typeof window === 'undefined') return '';
+  if (typeof window === 'undefined') {
+    return '';
+  }
 
   let sessionId = localStorage.getItem(SESSION_ID_KEY);
 
@@ -122,11 +135,9 @@ export async function updateCartItem(
   itemId: string,
   payload: UpdateCartItemPayload,
 ): Promise<Cart> {
-  const { data } = await apiClient.patch<Cart>(
-    `/cart/items/${itemId}`,
-    payload,
-    { headers: sessionHeaders() },
-  );
+  const { data } = await apiClient.patch<Cart>(`/cart/items/${itemId}`, payload, {
+    headers: sessionHeaders(),
+  });
   return data;
 }
 
@@ -134,10 +145,9 @@ export async function updateCartItem(
  * Remove an item from the cart.
  */
 export async function removeCartItem(itemId: string): Promise<Cart> {
-  const { data } = await apiClient.delete<Cart>(
-    `/cart/items/${itemId}`,
-    { headers: sessionHeaders() },
-  );
+  const { data } = await apiClient.delete<Cart>(`/cart/items/${itemId}`, {
+    headers: sessionHeaders(),
+  });
   return data;
 }
 

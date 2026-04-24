@@ -1,13 +1,9 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
-import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { ApplyCouponDto } from './dto/apply-coupon.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
 /**
  * Cart summary with calculated totals.
@@ -24,6 +20,16 @@ export interface CartSummary {
   couponCode: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface CartItemVariantSummary {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  quantity: number;
+  isActive: boolean;
+  options: Record<string, string>;
 }
 
 export interface CartItemWithProduct {
@@ -45,6 +51,7 @@ export interface CartItemWithProduct {
     images: any[];
     status: string;
   };
+  variant: CartItemVariantSummary | null;
 }
 
 /**
@@ -80,7 +87,7 @@ export class CartService {
       },
       include: {
         items: {
-          include: { product: this.productSelect() },
+          include: { product: this.productSelect(), variant: this.variantSelect() },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -111,11 +118,7 @@ export class CartService {
   /**
    * Add an item to the cart with stock validation.
    */
-  async addItem(
-    dto: AddCartItemDto,
-    userId?: string,
-    sessionId?: string,
-  ): Promise<CartSummary> {
+  async addItem(dto: AddCartItemDto, userId?: string, sessionId?: string): Promise<CartSummary> {
     const product = await this.prisma.product.findUnique({
       where: { id: dto.productId },
     });
@@ -128,10 +131,28 @@ export class CartService {
       throw new BadRequestException('Product is not available for purchase');
     }
 
-    if (product.quantity < dto.quantity) {
-      throw new BadRequestException(
-        `Insufficient stock. Only ${product.quantity} items available.`,
-      );
+    // If a variant was specified, resolve it and use its price/stock.
+    // Otherwise fall back to the base product's price/stock.
+    let variant: { id: string; price: unknown; quantity: number; isActive: boolean } | null = null;
+    if (dto.variantId) {
+      variant = await this.prisma.productVariant.findFirst({
+        where: { id: dto.variantId, productId: dto.productId },
+        select: { id: true, price: true, quantity: true, isActive: true },
+      });
+
+      if (!variant) {
+        throw new NotFoundException('Variant not found for this product');
+      }
+      if (!variant.isActive) {
+        throw new BadRequestException('The selected variant is not available');
+      }
+    }
+
+    const availableStock = variant ? variant.quantity : product.quantity;
+    const lineUnitPrice = variant ? variant.price : product.price;
+
+    if (availableStock < dto.quantity) {
+      throw new BadRequestException(`Insufficient stock. Only ${availableStock} items available.`);
     }
 
     const cartSummary = await this.getOrCreateCart(userId, sessionId);
@@ -147,15 +168,15 @@ export class CartService {
     if (existingItem) {
       const newQuantity = existingItem.quantity + dto.quantity;
 
-      if (product.quantity < newQuantity) {
+      if (availableStock < newQuantity) {
         throw new BadRequestException(
-          `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in cart and only ${product.quantity} are available.`,
+          `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in cart and only ${availableStock} are available.`,
         );
       }
 
       await this.prisma.cartItem.update({
         where: { id: existingItem.id },
-        data: { quantity: newQuantity },
+        data: { quantity: newQuantity, price: lineUnitPrice as never },
       });
     } else {
       await this.prisma.cartItem.create({
@@ -164,7 +185,7 @@ export class CartService {
           productId: dto.productId,
           variantId: dto.variantId || null,
           quantity: dto.quantity,
-          price: product.price,
+          price: lineUnitPrice as never,
         },
       });
     }
@@ -183,7 +204,7 @@ export class CartService {
   ): Promise<CartSummary> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: itemId },
-      include: { cart: true, product: true },
+      include: { cart: true, product: true, variant: true },
     });
 
     if (!cartItem) {
@@ -192,10 +213,10 @@ export class CartService {
 
     this.verifyCartOwnership(cartItem.cart, userId, sessionId);
 
-    if (cartItem.product.quantity < dto.quantity) {
-      throw new BadRequestException(
-        `Insufficient stock. Only ${cartItem.product.quantity} items available.`,
-      );
+    const availableStock = cartItem.variant ? cartItem.variant.quantity : cartItem.product.quantity;
+
+    if (availableStock < dto.quantity) {
+      throw new BadRequestException(`Insufficient stock. Only ${availableStock} items available.`);
     }
 
     await this.prisma.cartItem.update({
@@ -209,11 +230,7 @@ export class CartService {
   /**
    * Remove a specific item from the cart.
    */
-  async removeItem(
-    itemId: string,
-    userId?: string,
-    sessionId?: string,
-  ): Promise<CartSummary> {
+  async removeItem(itemId: string, userId?: string, sessionId?: string): Promise<CartSummary> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: itemId },
       include: { cart: true },
@@ -309,7 +326,7 @@ export class CartService {
 
     if (coupon.minOrderAmount && cartSummary.subtotal < Number(coupon.minOrderAmount)) {
       throw new BadRequestException(
-        `Minimum order amount of ৳${coupon.minOrderAmount} required for this coupon`,
+        `Minimum order amount of ৳${Number(coupon.minOrderAmount)} required for this coupon`,
       );
     }
 
@@ -354,10 +371,7 @@ export class CartService {
    * @param sessionId - Guest session identifier (optional)
    * @returns Updated cart summary with coupon removed
    */
-  async removeCoupon(
-    userId?: string,
-    sessionId?: string,
-  ): Promise<CartSummary> {
+  async removeCoupon(userId?: string, sessionId?: string): Promise<CartSummary> {
     const cart = await this.findCartRaw(userId, sessionId);
 
     if (!cart) {
@@ -443,7 +457,7 @@ export class CartService {
       where: { id: cartId },
       include: {
         items: {
-          include: { product: this.productSelect() },
+          include: { product: this.productSelect(), variant: this.variantSelect() },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -459,7 +473,9 @@ export class CartService {
   // ─── Private Helpers ────────────────────────────────────────────────────────
 
   private async findCartRaw(userId?: string, sessionId?: string) {
-    if (!userId && !sessionId) return null;
+    if (!userId && !sessionId) {
+      return null;
+    }
 
     return this.prisma.cart.findFirst({
       where: {
@@ -467,7 +483,7 @@ export class CartService {
       },
       include: {
         items: {
-          include: { product: this.productSelect() },
+          include: { product: this.productSelect(), variant: this.variantSelect() },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -490,19 +506,59 @@ export class CartService {
     };
   }
 
-  private buildCartSummary(cart: any): CartSummary {
-    const items: CartItemWithProduct[] = (cart.items || []).map((item: any) => ({
-      id: item.id,
-      productId: item.productId,
-      variantId: item.variantId,
-      quantity: item.quantity,
-      price: Number(item.price),
-      lineTotal: Number(item.price) * item.quantity,
-      product: {
-        ...item.product,
-        stock: item.product.quantity,
+  private variantSelect() {
+    return {
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        price: true,
+        quantity: true,
+        isActive: true,
+        attributeValues: {
+          select: {
+            value: true,
+            attribute: { select: { id: true, name: true, type: true } },
+          },
+        },
       },
-    }));
+    };
+  }
+
+  private buildCartSummary(cart: any): CartSummary {
+    const items: CartItemWithProduct[] = (cart.items || []).map((item: any) => {
+      let variant: CartItemVariantSummary | null = null;
+      if (item.variant) {
+        const options: Record<string, string> = {};
+        for (const av of item.variant.attributeValues ?? []) {
+          if (av?.attribute?.name) {
+            options[av.attribute.name] = av.value;
+          }
+        }
+        variant = {
+          id: item.variant.id,
+          name: item.variant.name,
+          sku: item.variant.sku,
+          price: Number(item.variant.price),
+          quantity: item.variant.quantity,
+          isActive: item.variant.isActive,
+          options,
+        };
+      }
+      return {
+        id: item.id,
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: Number(item.price),
+        lineTotal: Number(item.price) * item.quantity,
+        product: {
+          ...item.product,
+          stock: item.product.quantity,
+        },
+        variant,
+      };
+    });
 
     const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
     const discount = Number(cart.discount || 0);
@@ -524,13 +580,13 @@ export class CartService {
     };
   }
 
-  private verifyCartOwnership(
-    cart: any,
-    userId?: string,
-    sessionId?: string,
-  ): void {
-    if (userId && cart.userId === userId) return;
-    if (sessionId && cart.sessionId === sessionId && !cart.userId) return;
+  private verifyCartOwnership(cart: any, userId?: string, sessionId?: string): void {
+    if (userId && cart.userId === userId) {
+      return;
+    }
+    if (sessionId && cart.sessionId === sessionId && !cart.userId) {
+      return;
+    }
 
     throw new BadRequestException('You do not have access to this cart');
   }

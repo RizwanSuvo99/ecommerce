@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
@@ -5,11 +6,11 @@ import {
   IsEnum,
   IsBoolean,
   IsArray,
+  Matches,
   Min,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 import { ProductStatus } from './create-product.dto';
 
@@ -29,6 +30,24 @@ export class UpdateProductDto {
   @IsOptional()
   @MaxLength(255)
   nameBn?: string;
+
+  @IsString()
+  @IsOptional()
+  @MinLength(2)
+  @MaxLength(255)
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'slug must be lowercase alphanumerics separated by single hyphens',
+  })
+  slug?: string;
+
+  @IsString()
+  @IsOptional()
+  @MinLength(2)
+  @MaxLength(64)
+  @Matches(/^[A-Z0-9-]+$/, {
+    message: 'sku must be uppercase alphanumerics and hyphens only',
+  })
+  sku?: string;
 
   @IsString()
   @IsOptional()

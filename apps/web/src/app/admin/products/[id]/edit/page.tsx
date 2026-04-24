@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
 import {
   Save,
   ArrowLeft,
@@ -14,19 +12,30 @@ import {
   Eye,
   Loader2,
 } from 'lucide-react';
-
+import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { apiClient } from '@/lib/api/client';
-import { PricingForm } from '@/components/admin/products/pricing-form';
-import { MediaForm } from '@/components/admin/products/media-form';
-import { VariantsForm } from '@/components/admin/products/variants-form';
+
 import { CategorizationForm } from '@/components/admin/products/categorization-form';
+import { MediaForm } from '@/components/admin/products/media-form';
+import { PricingForm } from '@/components/admin/products/pricing-form';
 import { SeoForm } from '@/components/admin/products/seo-form';
+import { VariantsForm } from '@/components/admin/products/variants-form';
+import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
 // Types
 // ──────────────────────────────────────────────────────────
+
+interface ProductImage {
+  id: string;
+  url: string;
+  thumbnailUrl?: string | null;
+  alt?: string | null;
+  isPrimary?: boolean;
+  sortOrder?: number;
+}
 
 interface ProductFormData {
   name: string;
@@ -66,6 +75,7 @@ interface Variant {
   stock: number;
   sku: string;
   isActive: boolean;
+  imageUrl?: string | null;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -96,6 +106,69 @@ function generateSlug(name: string): string {
 }
 
 // ──────────────────────────────────────────────────────────
+// Variant hydration
+// ──────────────────────────────────────────────────────────
+
+interface ApiVariantAttributeValue {
+  attribute: { id: string; name: string };
+  value: string;
+}
+interface ApiVariantImage {
+  id: string;
+  url: string;
+  thumbnailUrl?: string | null;
+  alt?: string | null;
+}
+interface ApiVariant {
+  id: string;
+  sku: string;
+  price: number | string | null;
+  quantity: number;
+  isActive: boolean;
+  attributeValues?: ApiVariantAttributeValue[];
+  images?: ApiVariantImage[];
+}
+
+/**
+ * Convert the API variant shape (attributeValues → attribute.name) into the
+ * admin-form shape (flat options map per variant + distinct options list).
+ */
+function hydrateVariants(raw: unknown): { options: OptionType[]; variants: Variant[] } {
+  if (!Array.isArray(raw)) {
+    return { options: [], variants: [] };
+  }
+
+  const valuesByName = new Map<string, Set<string>>();
+  const variants: Variant[] = (raw as ApiVariant[]).map((v) => {
+    const options: Record<string, string> = {};
+    for (const av of v.attributeValues ?? []) {
+      options[av.attribute.name] = av.value;
+      if (!valuesByName.has(av.attribute.name)) {
+        valuesByName.set(av.attribute.name, new Set());
+      }
+      valuesByName.get(av.attribute.name)!.add(av.value);
+    }
+    return {
+      id: v.id,
+      options,
+      price: v.price !== null && v.price !== undefined ? Number(v.price) : null,
+      stock: v.quantity ?? 0,
+      sku: v.sku ?? '',
+      isActive: v.isActive ?? true,
+      imageUrl: v.images && v.images.length > 0 ? v.images[0]!.url : null,
+    };
+  });
+
+  const options: OptionType[] = Array.from(valuesByName.entries()).map(([name, vals]) => ({
+    id: `opt-${name}`,
+    name,
+    values: Array.from(vals).sort(),
+  }));
+
+  return { options, variants };
+}
+
+// ──────────────────────────────────────────────────────────
 // Product Edit Page
 // ──────────────────────────────────────────────────────────
 
@@ -116,6 +189,7 @@ export default function AdminProductEditPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
 
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -148,9 +222,12 @@ export default function AdminProductEditPage() {
     async function loadProduct() {
       try {
         setIsLoading(true);
-        const { data } = await apiClient.get(`/products/${productId}`);
+        const { data } = await apiClient.get(`/products/by-id/${productId}`);
         const product = data.data ?? data;
+        const images: ProductImage[] = Array.isArray(product.images) ? product.images : [];
+        const { options, variants } = hydrateVariants(product.variants);
 
+        setExistingImages(images);
         setFormData({
           name: product.name ?? '',
           nameBn: product.nameBn ?? '',
@@ -158,26 +235,34 @@ export default function AdminProductEditPage() {
           description: product.description ?? '',
           descriptionBn: product.descriptionBn ?? '',
           sku: product.sku ?? '',
-          price: product.price ?? 0,
-          compareAtPrice: product.compareAtPrice ?? null,
-          costPrice: product.costPrice ?? null,
+          price: Number(product.price ?? 0),
+          compareAtPrice:
+            product.compareAtPrice !== null && product.compareAtPrice !== undefined
+              ? Number(product.compareAtPrice)
+              : null,
+          costPrice:
+            product.costPrice !== null && product.costPrice !== undefined
+              ? Number(product.costPrice)
+              : null,
           quantity: product.quantity ?? 0,
-          lowStockThreshold: 10,
-          weight: product.weight ?? null,
-          categoryId: product.categoryId ?? '',
-          brandId: product.brandId ?? '',
+          lowStockThreshold: product.lowStockThreshold ?? 10,
+          weight:
+            product.weight !== null && product.weight !== undefined ? Number(product.weight) : null,
+          categoryId: product.categoryId ?? product.category?.id ?? '',
+          brandId: product.brandId ?? product.brand?.id ?? '',
           tags: product.tags ?? [],
-          images: product.images ?? [],
+          images: images.map((img) => img.url),
           status: product.status ?? 'DRAFT',
           isFeatured: product.isFeatured ?? false,
           metaTitle: product.metaTitle ?? '',
           metaDescription: product.metaDescription ?? '',
-          options: product.options ?? [],
-          variants: product.variants ?? [],
+          options,
+          variants,
         });
       } catch (err) {
         console.error('Failed to load product:', err);
         setErrors({ _form: 'Failed to load product data.' });
+        toast.error('Failed to load product');
       } finally {
         setIsLoading(false);
       }
@@ -190,10 +275,7 @@ export default function AdminProductEditPage() {
 
   // ─── Form Update Handler ──────────────────────────────────────────
 
-  const updateField = <K extends keyof ProductFormData>(
-    field: K,
-    value: ProductFormData[K],
-  ) => {
+  const updateField = <K extends keyof ProductFormData>(field: K, value: ProductFormData[K]) => {
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
       if (field === 'name' && typeof value === 'string') {
@@ -214,21 +296,143 @@ export default function AdminProductEditPage() {
   // ─── Save Handler ─────────────────────────────────────────────────
 
   const handleSave = async () => {
+    const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) {
-      setErrors({ name: 'Product name is required' });
-      setActiveTab('basic');
+      newErrors.name = 'Product name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    }
+    if (!formData.price || formData.price <= 0) {
+      newErrors.price = 'Selling price is required';
+    }
+    if (!formData.categoryId) {
+      newErrors.categoryId = 'Please select a category';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      if (newErrors.name || newErrors.description) {
+        setActiveTab('basic');
+      } else if (newErrors.price) {
+        setActiveTab('pricing');
+      } else if (newErrors.categoryId) {
+        setActiveTab('categorization');
+      }
+      toast.error('Please fix the errors before saving');
       return;
     }
 
     try {
       setIsSaving(true);
-      const { lowStockThreshold, ...payload } = formData;
-      await apiClient.patch(`/products/${productId}`, payload);
+      const payload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        slug: formData.slug.trim().toLowerCase() || undefined,
+        sku: formData.sku.trim().toUpperCase() || undefined,
+        price: formData.price,
+        compareAtPrice: formData.compareAtPrice ?? undefined,
+        costPrice: formData.costPrice ?? undefined,
+        quantity: formData.quantity,
+        weight: formData.weight ?? undefined,
+        categoryId: formData.categoryId,
+        brandId: formData.brandId || undefined,
+        tags: formData.tags,
+        isFeatured: formData.isFeatured,
+        status: formData.status,
+        metaTitle: formData.metaTitle.trim() || undefined,
+        metaDescription: formData.metaDescription.trim() || undefined,
+      };
+      const { data: patchResponse } = await apiClient.patch(`/products/${productId}`, payload);
+      const updated = patchResponse?.data ?? patchResponse;
+
+      if (updated) {
+        setFormData((prev) => ({
+          ...prev,
+          name: updated.name ?? prev.name,
+          slug: updated.slug ?? prev.slug,
+          sku: updated.sku ?? prev.sku,
+        }));
+      }
+
+      const existingUrls = new Set(existingImages.map((img) => img.url));
+      const currentUrls = new Set(formData.images);
+
+      const toRemove = existingImages.filter((img) => !currentUrls.has(img.url));
+      const toAdd = formData.images.filter((url) => !existingUrls.has(url));
+
+      await Promise.all([
+        ...toRemove.map((img) =>
+          apiClient
+            .delete(`/products/${productId}/images/${img.id}`)
+            .catch((err) => console.error(`Failed to remove image ${img.id}:`, err)),
+        ),
+        ...toAdd.map((url) =>
+          apiClient
+            .post(`/products/${productId}/images`, { url })
+            .catch((err) => console.error(`Failed to add image ${url}:`, err)),
+        ),
+      ]);
+
+      // Bulk-replace variants. The API matches existing rows by option-tuple
+      // fingerprint, so we just send the cleaned current list and skip any
+      // half-entered rows whose options map is empty.
+      const cleanVariants = formData.variants
+        .map((v) => {
+          const cleanOptions: Record<string, string> = {};
+          for (const [k, val] of Object.entries(v.options)) {
+            const key = k.trim();
+            const value = typeof val === 'string' ? val.trim() : '';
+            if (key && value) {
+              cleanOptions[key] = value;
+            }
+          }
+          return {
+            options: cleanOptions,
+            price: v.price,
+            stock: v.stock,
+            sku: v.sku.trim() || undefined,
+            isActive: v.isActive,
+            imageUrl: v.imageUrl ?? null,
+          };
+        })
+        .filter((v) => Object.keys(v.options).length > 0);
+
+      await apiClient
+        .put(`/products/${productId}/variants/replace`, { variants: cleanVariants })
+        .catch((err) => {
+          console.error('Failed to replace variants:', err);
+          toast.error('Variant sync failed — other changes were saved');
+          throw err;
+        });
+
+      // Refetch so new variant IDs, images, and any server-normalised fields
+      // flow back into local state.
+      const { data } = await apiClient.get(`/products/by-id/${productId}`);
+      const fresh = data.data ?? data;
+      const images: ProductImage[] = Array.isArray(fresh.images) ? fresh.images : [];
+      const hydrated = hydrateVariants(fresh.variants);
+      setExistingImages(images);
+      setFormData((prev) => ({
+        ...prev,
+        images: images.map((img) => img.url),
+        options: hydrated.options,
+        variants: hydrated.variants,
+        slug: fresh.slug ?? prev.slug,
+        sku: fresh.sku ?? prev.sku,
+        name: fresh.name ?? prev.name,
+      }));
+
       setLastSaved(new Date());
       toast.success('Product saved');
     } catch (err) {
       console.error('Failed to save product:', err);
-      toast.error('Failed to save product');
+      const msg = err instanceof Error ? err.message : 'Failed to save product';
+      toast.error(msg);
     } finally {
       setIsSaving(false);
     }
@@ -279,9 +483,7 @@ export default function AdminProductEditPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Edit Product
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
             <p className="text-sm text-gray-500">
               {formData.name || 'Untitled Product'}
               {lastSaved && (
@@ -385,9 +587,7 @@ export default function AdminProductEditPage() {
       {/* Tab Content */}
       {activeTab === 'basic' && (
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-6 text-lg font-semibold text-gray-900">
-            Basic Information
-          </h2>
+          <h2 className="mb-6 text-lg font-semibold text-gray-900">Basic Information</h2>
           <div className="space-y-6">
             <div>
               <label htmlFor="edit-name" className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -409,19 +609,6 @@ export default function AdminProductEditPage() {
             </div>
 
             <div>
-              <label htmlFor="edit-nameBn" className="mb-1.5 block text-sm font-medium text-gray-700">
-                Product Name (বাংলা)
-              </label>
-              <input
-                id="edit-nameBn"
-                type="text"
-                value={formData.nameBn}
-                onChange={(e) => updateField('nameBn', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-              />
-            </div>
-
-            <div>
               <label htmlFor="edit-slug" className="mb-1.5 block text-sm font-medium text-gray-700">
                 URL Slug
               </label>
@@ -433,14 +620,28 @@ export default function AdminProductEditPage() {
                   id="edit-slug"
                   type="text"
                   value={formData.slug}
-                  onChange={(e) => updateField('slug', e.target.value)}
+                  onChange={(e) =>
+                    updateField(
+                      'slug',
+                      e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9-]/g, '-')
+                        .replace(/-+/g, '-'),
+                    )
+                  }
                   className="flex-1 rounded-r-lg px-4 py-2.5 text-sm focus:outline-none"
                 />
               </div>
+              <p className="mt-1.5 text-xs text-amber-700">
+                ⚠️ Changing the URL will break existing links to this product.
+              </p>
             </div>
 
             <div>
-              <label htmlFor="edit-description" className="mb-1.5 block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="edit-description"
+                className="mb-1.5 block text-sm font-medium text-gray-700"
+              >
                 Description
               </label>
               <textarea
@@ -448,19 +649,6 @@ export default function AdminProductEditPage() {
                 rows={5}
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="edit-descriptionBn" className="mb-1.5 block text-sm font-medium text-gray-700">
-                Description (বাংলা)
-              </label>
-              <textarea
-                id="edit-descriptionBn"
-                rows={4}
-                value={formData.descriptionBn}
-                onChange={(e) => updateField('descriptionBn', e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
@@ -497,10 +685,7 @@ export default function AdminProductEditPage() {
       )}
 
       {activeTab === 'media' && (
-        <MediaForm
-          images={formData.images}
-          onChange={(images) => updateField('images', images)}
-        />
+        <MediaForm images={formData.images} onChange={(images) => updateField('images', images)} />
       )}
 
       {activeTab === 'variants' && (
@@ -511,6 +696,7 @@ export default function AdminProductEditPage() {
           onVariantsChange={(variants) => updateField('variants', variants)}
           basePrice={formData.price}
           baseSku={formData.sku}
+          productImages={formData.images}
         />
       )}
 

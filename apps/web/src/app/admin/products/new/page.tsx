@@ -1,24 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { Save, ArrowLeft, Info, DollarSign, ImageIcon, Layers, Tag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import {
-  Save,
-  ArrowLeft,
-  Info,
-  DollarSign,
-  ImageIcon,
-  Layers,
-  Tag,
-} from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { apiClient } from '@/lib/api/client';
-import { PricingForm } from '@/components/admin/products/pricing-form';
-import { MediaForm } from '@/components/admin/products/media-form';
-import { VariantsForm } from '@/components/admin/products/variants-form';
 import { CategorizationForm } from '@/components/admin/products/categorization-form';
+import { MediaForm } from '@/components/admin/products/media-form';
+import { PricingForm } from '@/components/admin/products/pricing-form';
 import { SeoForm } from '@/components/admin/products/seo-form';
+import { VariantsForm } from '@/components/admin/products/variants-form';
+import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -63,6 +55,7 @@ interface Variant {
   stock: number;
   sku: string;
   isActive: boolean;
+  imageUrl?: string | null;
 }
 
 // ──────────────────────────────────────────────────────────
@@ -135,10 +128,7 @@ export default function AdminProductCreatePage() {
 
   // ─── Form Handlers ────────────────────────────────────────────────
 
-  const updateField = <K extends keyof ProductFormData>(
-    field: K,
-    value: ProductFormData[K],
-  ) => {
+  const updateField = <K extends keyof ProductFormData>(field: K, value: ProductFormData[K]) => {
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
 
@@ -162,40 +152,98 @@ export default function AdminProductCreatePage() {
 
   // ─── Validation ───────────────────────────────────────────────────
 
-  const validateBasicInfo = (): boolean => {
+  const validate = (): { ok: boolean; firstTab: TabId | null } => {
     const newErrors: Record<string, string> = {};
+    let firstTab: TabId | null = null;
+    const fail = (field: string, msg: string, tab: TabId) => {
+      newErrors[field] = msg;
+      if (!firstTab) {
+        firstTab = tab;
+      }
+    };
 
-    if (!formData.name.trim()) newErrors.name = 'Product name is required';
-    if (!formData.slug.trim()) newErrors.slug = 'Slug is required';
-    if (!formData.sku.trim()) newErrors.sku = 'SKU is required';
+    if (!formData.name.trim()) {
+      fail('name', 'Product name is required', 'basic');
+    } else if (formData.name.trim().length < 2) {
+      fail('name', 'Name must be at least 2 characters', 'basic');
+    }
+    if (!formData.description.trim()) {
+      fail('description', 'Description is required', 'basic');
+    } else if (formData.description.trim().length < 10) {
+      fail('description', 'Description must be at least 10 characters', 'basic');
+    }
+    if (!formData.price || formData.price <= 0) {
+      fail('price', 'Selling price is required', 'pricing');
+    }
+    if (!formData.categoryId) {
+      fail('categoryId', 'Please select a category', 'categorization');
+    }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return { ok: Object.keys(newErrors).length === 0, firstTab };
   };
 
   // ─── Save Handler ─────────────────────────────────────────────────
 
   const handleSave = async (publish = false) => {
-    if (!validateBasicInfo()) {
-      setActiveTab('basic');
+    const { ok, firstTab } = validate();
+    if (!ok) {
+      if (firstTab) {
+        setActiveTab(firstTab);
+      }
+      toast.error(
+        errors.categoryId && !formData.categoryId
+          ? 'Please select a category before saving'
+          : 'Please fix the errors before saving',
+      );
       return;
     }
 
     try {
       setIsSaving(true);
-      const { lowStockThreshold, ...rest } = formData;
       const payload = {
-        ...rest,
+        name: formData.name.trim(),
+        nameBn: formData.nameBn.trim() || undefined,
+        description: formData.description.trim(),
+        descriptionBn: formData.descriptionBn.trim() || undefined,
+        price: formData.price,
+        compareAtPrice: formData.compareAtPrice ?? undefined,
+        costPrice: formData.costPrice ?? undefined,
+        quantity: formData.quantity,
+        weight: formData.weight ?? undefined,
+        categoryId: formData.categoryId,
+        brandId: formData.brandId || undefined,
+        tags: formData.tags,
+        isFeatured: formData.isFeatured,
+        metaTitle: formData.metaTitle.trim() || undefined,
+        metaDescription: formData.metaDescription.trim() || undefined,
         status: publish ? 'ACTIVE' : 'DRAFT',
       };
 
       const { data } = await apiClient.post('/products', payload);
-      toast.success('Product created');
       const product = data.data ?? data;
+
+      if (formData.images.length > 0) {
+        await Promise.all(
+          formData.images.map((url, index) =>
+            apiClient
+              .post(`/products/${product.id}/images`, {
+                url,
+                isPrimary: index === 0,
+              })
+              .catch((err) => {
+                console.error(`Failed to attach image ${url}:`, err);
+              }),
+          ),
+        );
+      }
+
+      toast.success('Product created');
       router.push(`/admin/products/${product.id}/edit`);
     } catch (err) {
       console.error('Failed to create product:', err);
-      toast.error('Failed to create product');
+      const msg = err instanceof Error ? err.message : 'Failed to create product';
+      toast.error(msg);
     } finally {
       setIsSaving(false);
     }
@@ -213,12 +261,8 @@ export default function AdminProductCreatePage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Create Product
-            </h1>
-            <p className="text-sm text-gray-500">
-              Add a new product to your catalog
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Create Product</h1>
+            <p className="text-sm text-gray-500">Add a new product to your catalog</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -264,17 +308,12 @@ export default function AdminProductCreatePage() {
       {/* Tab Content: Basic Info */}
       {activeTab === 'basic' && (
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-6 text-lg font-semibold text-gray-900">
-            Basic Information
-          </h2>
+          <h2 className="mb-6 text-lg font-semibold text-gray-900">Basic Information</h2>
 
           <div className="space-y-6">
             {/* Product Name (English) */}
             <div>
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700">
                 Product Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -290,17 +329,12 @@ export default function AdminProductCreatePage() {
                     : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
                 )}
               />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-              )}
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
             </div>
 
             {/* Product Name (Bangla) */}
             <div>
-              <label
-                htmlFor="nameBn"
-                className="mb-1.5 block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="nameBn" className="mb-1.5 block text-sm font-medium text-gray-700">
                 Product Name (বাংলা)
               </label>
               <input
@@ -315,10 +349,7 @@ export default function AdminProductCreatePage() {
 
             {/* Slug */}
             <div>
-              <label
-                htmlFor="slug"
-                className="mb-1.5 block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="slug" className="mb-1.5 block text-sm font-medium text-gray-700">
                 URL Slug <span className="text-red-500">*</span>
               </label>
               <div className="flex rounded-lg border border-gray-300 focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500">
@@ -333,9 +364,7 @@ export default function AdminProductCreatePage() {
                   className="flex-1 rounded-r-lg px-4 py-2.5 text-sm focus:outline-none"
                 />
               </div>
-              {errors.slug && (
-                <p className="mt-1 text-sm text-red-600">{errors.slug}</p>
-              )}
+              {errors.slug && <p className="mt-1 text-sm text-red-600">{errors.slug}</p>}
             </div>
 
             {/* Description */}
@@ -376,19 +405,14 @@ export default function AdminProductCreatePage() {
 
             {/* SKU */}
             <div className="sm:max-w-xs">
-              <label
-                htmlFor="sku"
-                className="mb-1.5 block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="sku" className="mb-1.5 block text-sm font-medium text-gray-700">
                 SKU <span className="text-red-500">*</span>
               </label>
               <input
                 id="sku"
                 type="text"
                 value={formData.sku}
-                onChange={(e) =>
-                  updateField('sku', e.target.value.toUpperCase())
-                }
+                onChange={(e) => updateField('sku', e.target.value.toUpperCase())}
                 placeholder="e.g., RICE-BAS-001"
                 className={cn(
                   'w-full rounded-lg border px-4 py-2.5 text-sm uppercase focus:outline-none focus:ring-1',
@@ -397,9 +421,7 @@ export default function AdminProductCreatePage() {
                     : 'border-gray-300 focus:border-teal-500 focus:ring-teal-500',
                 )}
               />
-              {errors.sku && (
-                <p className="mt-1 text-sm text-red-600">{errors.sku}</p>
-              )}
+              {errors.sku && <p className="mt-1 text-sm text-red-600">{errors.sku}</p>}
             </div>
           </div>
         </div>
@@ -421,10 +443,7 @@ export default function AdminProductCreatePage() {
       )}
 
       {activeTab === 'media' && (
-        <MediaForm
-          images={formData.images}
-          onChange={(images) => updateField('images', images)}
-        />
+        <MediaForm images={formData.images} onChange={(images) => updateField('images', images)} />
       )}
 
       {activeTab === 'variants' && (
@@ -435,6 +454,7 @@ export default function AdminProductCreatePage() {
           onVariantsChange={(variants) => updateField('variants', variants)}
           basePrice={formData.price}
           baseSku={formData.sku}
+          productImages={formData.images}
         />
       )}
 

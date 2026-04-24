@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Put,
   Delete,
   Body,
   Param,
@@ -11,31 +12,25 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsNumber,
-  IsBoolean,
-  IsArray,
-} from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, IsArray } from 'class-validator';
 
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductFilterDto } from './dto/product-filter.dto';
-import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
 import {
   BulkUpdateStatusDto,
   BulkDeleteDto,
   BulkAssignCategoryDto,
 } from './dto/bulk-operation.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { CreateVariantDto, UpdateVariantDto } from './dto/create-variant.dto';
+import { ProductFilterDto } from './dto/product-filter.dto';
+import { ReplaceVariantsDto } from './dto/replace-variants.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductsService } from './products.service';
+import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
+import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Public } from '../auth/decorators/public.decorator';
-import { CurrentUser, AuthenticatedUser } from '../auth/decorators/current-user.decorator';
 
 /**
  * DTO for adding an image to a product.
@@ -101,7 +96,7 @@ export class ProductsController {
   @HttpCode(HttpStatus.OK)
   async bulkUpdateStatus(
     @Body() bulkUpdateStatusDto: BulkUpdateStatusDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.bulkUpdateStatus(bulkUpdateStatusDto);
   }
@@ -114,10 +109,7 @@ export class ProductsController {
   @Post('bulk/delete')
   @Roles('ADMIN', 'SUPER_ADMIN')
   @HttpCode(HttpStatus.OK)
-  async bulkDelete(
-    @Body() bulkDeleteDto: BulkDeleteDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
+  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteDto, @CurrentUser() _user: AuthenticatedUser) {
     return this.productsService.bulkDelete(bulkDeleteDto);
   }
 
@@ -130,7 +122,7 @@ export class ProductsController {
   @HttpCode(HttpStatus.OK)
   async bulkAssignCategory(
     @Body() bulkAssignCategoryDto: BulkAssignCategoryDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.bulkAssignCategory(bulkAssignCategoryDto);
   }
@@ -146,7 +138,7 @@ export class ProductsController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createProductDto: CreateProductDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.create(createProductDto);
   }
@@ -159,6 +151,16 @@ export class ProductsController {
   @Public()
   async findAll(@Query() filters: ProductFilterDto) {
     return this.productsService.findAll(filters);
+  }
+
+  /**
+   * Get a single product by ID — admin-only, used by the edit form.
+   * Declared before the public :slug route so Nest matches /by-id/:id first.
+   */
+  @Get('by-id/:id')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  async findById(@Param('id') id: string) {
+    return this.productsService.findById(id);
   }
 
   /**
@@ -180,7 +182,7 @@ export class ProductsController {
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.update(id, updateProductDto);
   }
@@ -196,10 +198,10 @@ export class ProductsController {
   async delete(
     @Param('id') id: string,
     @Query('permanent') permanent: string,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     if (permanent === 'true') {
-      if (user.role !== 'SUPER_ADMIN') {
+      if (_user.role !== 'SUPER_ADMIN') {
         throw new Error('Only SUPER_ADMIN can permanently delete products');
       }
       return this.productsService.permanentDelete(id);
@@ -211,6 +213,25 @@ export class ProductsController {
   // ─── Variant Endpoints ──────────────────────────────────────────────────────
 
   /**
+   * Bulk-replace variants for a product. The admin UI sends the full desired
+   * variant list; the server diffs against existing variants, upserts
+   * attributes, and creates/updates/deletes rows in one transaction.
+   *
+   * Declared BEFORE parametric :id/variants/:variantId routes so Nest
+   * matches the literal "replace" segment first.
+   */
+  @Put(':id/variants/replace')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  async replaceVariants(
+    @Param('id') productId: string,
+    @Body() dto: ReplaceVariantsDto,
+    @CurrentUser() _user: AuthenticatedUser,
+  ) {
+    return this.productsService.replaceVariants(productId, dto);
+  }
+
+  /**
    * Create a new variant for a product.
    */
   @Post(':id/variants')
@@ -219,7 +240,7 @@ export class ProductsController {
   async createVariant(
     @Param('id') productId: string,
     @Body() createVariantDto: CreateVariantDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.createVariant(productId, createVariantDto);
   }
@@ -233,7 +254,7 @@ export class ProductsController {
     @Param('id') productId: string,
     @Param('variantId') variantId: string,
     @Body() updateVariantDto: UpdateVariantDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.updateVariant(productId, variantId, updateVariantDto);
   }
@@ -247,7 +268,7 @@ export class ProductsController {
   async deleteVariant(
     @Param('id') productId: string,
     @Param('variantId') variantId: string,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.deleteVariant(productId, variantId);
   }
@@ -265,7 +286,7 @@ export class ProductsController {
   async addImage(
     @Param('id') productId: string,
     @Body() addImageDto: AddImageDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.addImage(productId, addImageDto);
   }
@@ -279,7 +300,7 @@ export class ProductsController {
   async removeImage(
     @Param('id') productId: string,
     @Param('imageId') imageId: string,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.removeImage(productId, imageId);
   }
@@ -293,7 +314,7 @@ export class ProductsController {
   async reorderImages(
     @Param('id') productId: string,
     @Body() reorderDto: ReorderImagesDto,
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() _user: AuthenticatedUser,
   ) {
     return this.productsService.reorderImages(productId, reorderDto.imageIds);
   }

@@ -91,6 +91,14 @@ function CartItemRow({ item }: CartItemRowProps) {
             {item.product.name}
           </Link>
 
+          {item.variant && Object.keys(item.variant.options).length > 0 && (
+            <p className="mt-0.5 text-xs text-gray-500">
+              {Object.entries(item.variant.options)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join(' · ')}
+            </p>
+          )}
+
           <p className="mt-0.5 text-sm text-gray-500">{formatPrice(item.price)}</p>
         </div>
 
@@ -98,7 +106,7 @@ function CartItemRow({ item }: CartItemRowProps) {
           <QuantitySelector
             itemId={item.id}
             quantity={item.quantity}
-            maxStock={item.product.stock}
+            maxStock={item.variant ? item.variant.quantity : item.product.stock}
           />
 
           <button

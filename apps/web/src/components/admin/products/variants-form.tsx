@@ -1,7 +1,19 @@
 'use client';
 
-import { Plus, X, Layers, GripVertical, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import {
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  ImageIcon,
+  Info,
+  Layers,
+  Plus,
+  Trash2,
+  X,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+import { useConfirm } from '@/components/admin/ui/confirm-dialog';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -20,6 +32,7 @@ interface Variant {
   stock: number;
   sku: string;
   isActive: boolean;
+  imageUrl?: string | null;
 }
 
 interface VariantsFormProps {
@@ -29,6 +42,8 @@ interface VariantsFormProps {
   onVariantsChange: (variants: Variant[]) => void;
   basePrice?: number;
   baseSku?: string;
+  /** Product-level image URLs (from the Media tab). Variants pick from this list. */
+  productImages?: string[];
 }
 
 // ──────────────────────────────────────────────────────────
@@ -39,50 +54,164 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** Canonical fingerprint for a variant's option tuple — used to match rows
+ *  across regenerations so user edits survive. */
+function fingerprint(options: Record<string, string>): string {
+  return JSON.stringify(
+    Object.fromEntries(Object.entries(options).sort(([a], [b]) => a.localeCompare(b))),
+  );
+}
+
 /**
- * Generate a variant matrix from option types.
- *
- * For example, given:
- *   Color: [Red, Blue]
- *   Size: [S, M, L]
- *
- * Produces 6 variants (Red-S, Red-M, Red-L, Blue-S, Blue-M, Blue-L).
+ * Generate a variant matrix from option types, preserving per-row edits
+ * from any `existing` variants whose option fingerprint matches.
  */
 function generateVariantMatrix(
   options: OptionType[],
   basePrice: number,
   baseSku: string,
+  existing: Variant[],
 ): Variant[] {
   if (options.length === 0 || options.every((o) => o.values.length === 0)) {
     return [];
   }
 
-  const validOptions = options.filter((o) => o.values.length > 0);
+  const validOptions = options.filter((o) => o.name.trim() && o.values.length > 0);
 
   const combinations: Record<string, string>[] = validOptions.reduce<Record<string, string>[]>(
     (acc, option) => {
       if (acc.length === 0) {
         return option.values.map((value) => ({ [option.name]: value }));
       }
-      const newCombinations: Record<string, string>[] = [];
-      for (const existing of acc) {
+      const next: Record<string, string>[] = [];
+      for (const row of acc) {
         for (const value of option.values) {
-          newCombinations.push({ ...existing, [option.name]: value });
+          next.push({ ...row, [option.name]: value });
         }
       }
-      return newCombinations;
+      return next;
     },
     [],
   );
 
-  return combinations.map((optionValues) => ({
-    id: generateId(),
-    options: optionValues,
-    price: basePrice || null,
-    stock: 0,
-    sku: `${baseSku}-${Object.values(optionValues).join('-').toUpperCase().replace(/\s+/g, '')}`,
-    isActive: true,
-  }));
+  const existingByFp = new Map<string, Variant>();
+  for (const v of existing) {
+    existingByFp.set(fingerprint(v.options), v);
+  }
+
+  return combinations.map((optionValues) => {
+    const fp = fingerprint(optionValues);
+    const prior = existingByFp.get(fp);
+    if (prior) {
+      return { ...prior, options: optionValues };
+    }
+    return {
+      id: generateId(),
+      options: optionValues,
+      price: basePrice || null,
+      stock: 0,
+      sku: `${baseSku}-${Object.values(optionValues).join('-').toUpperCase().replace(/\s+/g, '')}`,
+      isActive: true,
+      imageUrl: null,
+    };
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// Variant Image Picker
+// ──────────────────────────────────────────────────────────
+
+interface VariantImagePickerProps {
+  value: string | null | undefined;
+  productImages: string[];
+  onChange: (url: string | null) => void;
+}
+
+function VariantImagePicker({ value, productImages, onChange }: VariantImagePickerProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        title={value ? 'Change variant image' : 'Assign an image to this variant'}
+        className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-gray-50 hover:border-teal-400"
+      >
+        {value ? (
+          <img src={value} alt="Variant" className="h-full w-full object-cover" />
+        ) : (
+          <ImageIcon className="h-4 w-4 text-gray-400" />
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-11 z-20 w-64 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-medium text-gray-700">Pick a product image</span>
+            {value && (
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(null);
+                  setOpen(false);
+                }}
+                className="text-xs font-medium text-red-600 hover:underline"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          {productImages.length === 0 ? (
+            <p className="py-2 text-center text-xs text-gray-500">
+              Upload images in the Media tab first.
+            </p>
+          ) : (
+            <div className="grid max-h-48 grid-cols-3 gap-2 overflow-y-auto">
+              {productImages.map((url) => (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => {
+                    onChange(url);
+                    setOpen(false);
+                  }}
+                  className={`aspect-square overflow-hidden rounded-md border-2 ${
+                    url === value ? 'border-teal-500' : 'border-transparent hover:border-gray-300'
+                  }`}
+                >
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ──────────────────────────────────────────────────────────
@@ -207,8 +336,10 @@ export function VariantsForm({
   onVariantsChange,
   basePrice = 0,
   baseSku = '',
+  productImages = [],
 }: VariantsFormProps) {
   const [showVariants, setShowVariants] = useState(variants.length > 0);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   // ─── Option Handlers ──────────────────────────────────────────────
 
@@ -228,14 +359,14 @@ export function VariantsForm({
 
   // ─── Generate Variants ────────────────────────────────────────────
 
-  const handleGenerateVariants = () => {
-    const validOptions = options.filter((o) => o.name.trim() && o.values.length > 0);
+  const validOptions = options.filter((o) => o.name.trim() && o.values.length > 0);
+  const canGenerate = validOptions.length > 0;
 
-    if (validOptions.length === 0) {
+  const handleGenerateVariants = () => {
+    if (!canGenerate) {
       return;
     }
-
-    const generated = generateVariantMatrix(validOptions, basePrice, baseSku);
+    const generated = generateVariantMatrix(validOptions, basePrice, baseSku, variants);
     onVariantsChange(generated);
     setShowVariants(true);
   };
@@ -252,16 +383,46 @@ export function VariantsForm({
     onVariantsChange(updated);
   };
 
-  const totalVariants = options.reduce((acc, o) => acc * Math.max(o.values.length, 1), 1);
+  const deleteVariant = async (index: number) => {
+    const target = variants[index];
+    if (!target) {
+      return;
+    }
+    const label = Object.values(target.options).join(' / ') || 'this variant';
+    const ok = await confirm({
+      title: 'Delete variant?',
+      description: `Remove "${label}"? This takes effect when you click Save Changes.`,
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    });
+    if (!ok) {
+      return;
+    }
+    onVariantsChange(variants.filter((_, i) => i !== index));
+  };
+
+  const totalVariants = canGenerate ? validOptions.reduce((acc, o) => acc * o.values.length, 1) : 0;
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
+
+      {/* Explainer */}
+      <div className="flex gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+        <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500" />
+        <div>
+          Variants let you sell a product in several versions — like Small / Medium / Large or Red /
+          Blue. Add the options first, then generate the variant grid and set a price and stock for
+          each combination.
+        </div>
+      </div>
+
       {/* Option Types */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="h-5 w-5 text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900">Product Options</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Step 1 — Define options</h2>
           </div>
           <button
             onClick={addOption}
@@ -302,12 +463,25 @@ export function VariantsForm({
             {/* Generate Variants Button */}
             <div className="flex items-center justify-between rounded-lg bg-teal-50 px-4 py-3">
               <p className="text-sm text-teal-700">
-                This will generate <span className="font-semibold">{totalVariants}</span> variant
-                {totalVariants !== 1 ? 's' : ''}
+                {canGenerate ? (
+                  <>
+                    This will generate <span className="font-semibold">{totalVariants}</span>{' '}
+                    variant{totalVariants !== 1 ? 's' : ''}. Existing edits are preserved when you
+                    regenerate.
+                  </>
+                ) : (
+                  <>Add at least one option with a name and a value.</>
+                )}
               </p>
               <button
                 onClick={handleGenerateVariants}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+                disabled={!canGenerate}
+                title={
+                  canGenerate
+                    ? 'Generate the variant grid'
+                    : 'Add at least one option with a name and a value first'
+                }
+                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Generate Variants
               </button>
@@ -320,7 +494,9 @@ export function VariantsForm({
       {showVariants && variants.length > 0 && (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h3 className="text-lg font-semibold text-gray-900">Variants ({variants.length})</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Step 2 — Set price and stock ({variants.length})
+            </h3>
             <button
               onClick={() => setShowVariants(!showVariants)}
               className="text-gray-400 hover:text-gray-600"
@@ -337,6 +513,9 @@ export function VariantsForm({
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="w-14 px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Image
+                  </th>
                   {options
                     .filter((o) => o.name.trim())
                     .map((option) => (
@@ -359,11 +538,19 @@ export function VariantsForm({
                   <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                     Active
                   </th>
+                  <th className="w-10 px-2 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {variants.map((variant, index) => (
                   <tr key={variant.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">
+                      <VariantImagePicker
+                        value={variant.imageUrl}
+                        productImages={productImages}
+                        onChange={(url) => updateVariant(index, 'imageUrl', url)}
+                      />
+                    </td>
                     {options
                       .filter((o) => o.name.trim())
                       .map((option) => (
@@ -423,6 +610,16 @@ export function VariantsForm({
                         onChange={(e) => updateVariant(index, 'isActive', e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                       />
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <button
+                        onClick={() => deleteVariant(index)}
+                        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        title="Delete variant"
+                        type="button"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}

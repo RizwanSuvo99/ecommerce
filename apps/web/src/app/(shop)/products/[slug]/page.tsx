@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useCart } from '@/hooks/use-cart';
 import { apiClient } from '@/lib/api/client';
@@ -106,6 +106,7 @@ export default function ProductPage() {
   );
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function fetchProduct() {
@@ -114,12 +115,33 @@ export default function ProductPage() {
       try {
         const { data } = await apiClient.get(`/products/${slug}`);
         const raw = data.data ?? data;
-        setProduct({
+        const normalised: Product = {
           ...raw,
           price: Number(raw.price),
           compareAtPrice: raw.compareAtPrice ? Number(raw.compareAtPrice) : null,
           quantity: raw.quantity ?? 0,
-        });
+          variants: Array.isArray(raw.variants)
+            ? raw.variants.map((v: ProductVariant) => ({
+                ...v,
+                price: Number(v.price),
+                quantity: v.quantity ?? 0,
+              }))
+            : [],
+        };
+        setProduct(normalised);
+
+        // Pre-select the first in-stock variant, or the first variant if none
+        // are in stock, so the PDP opens in a working state.
+        if (normalised.variants.length > 0) {
+          const initial = normalised.variants.find((v) => v.quantity > 0) ?? normalised.variants[0];
+          if (initial) {
+            const opts: Record<string, string> = {};
+            for (const av of initial.attributeValues) {
+              opts[av.attribute.name] = av.value;
+            }
+            setSelectedOptions(opts);
+          }
+        }
       } catch {
         setError('Product not found');
       } finally {
@@ -131,14 +153,98 @@ export default function ProductPage() {
     }
   }, [slug]);
 
+  // ─── Variant lookup ───────────────────────────────────────────────
+
+  const hasVariants = (product?.variants?.length ?? 0) > 0;
+
+  /** Flatten a variant's attributeValues into { attrName: value }. */
+  const variantOptions = (v: ProductVariant): Record<string, string> => {
+    const out: Record<string, string> = {};
+    for (const av of v.attributeValues) {
+      out[av.attribute.name] = av.value;
+    }
+    return out;
+  };
+
+  const allOptionsSelected = useMemo(() => {
+    if (!product) {
+      return false;
+    }
+    if (!hasVariants) {
+      return true;
+    }
+    return product.attributes.every((a) => Boolean(selectedOptions[a.name]));
+  }, [product, hasVariants, selectedOptions]);
+
+  const selectedVariant = useMemo<ProductVariant | null>(() => {
+    if (!product || !hasVariants || !allOptionsSelected) {
+      return null;
+    }
+    return (
+      product.variants.find((v) => {
+        const opts = variantOptions(v);
+        return product.attributes.every((a) => selectedOptions[a.name] === opts[a.name]);
+      }) ?? null
+    );
+  }, [product, hasVariants, allOptionsSelected, selectedOptions]);
+
+  /**
+   * Is `value` for `attrName` reachable — i.e. does at least one variant
+   * match the current selection if we replace that attribute's pick with
+   * this value? Used to dim impossible combinations.
+   */
+  const isValueReachable = (attrName: string, value: string): boolean => {
+    if (!product) {
+      return false;
+    }
+    const hypothetical = { ...selectedOptions, [attrName]: value };
+    return product.variants.some((v) => {
+      const opts = variantOptions(v);
+      return Object.entries(hypothetical).every(([k, val]) => opts[k] === val);
+    });
+  };
+
+  const isValueInStock = (attrName: string, value: string): boolean => {
+    if (!product) {
+      return false;
+    }
+    const hypothetical = { ...selectedOptions, [attrName]: value };
+    return product.variants.some((v) => {
+      const opts = variantOptions(v);
+      return Object.entries(hypothetical).every(([k, val]) => opts[k] === val) && v.quantity > 0;
+    });
+  };
+
+  const handleSelectOption = (attrName: string, value: string) => {
+    setSelectedOptions((prev) => ({ ...prev, [attrName]: value }));
+    setQuantity(1);
+    setSelectedImage(0);
+  };
+
   const handleAddToCart = async () => {
-    if (!product || product.quantity <= 0) {
+    if (!product) {
+      return;
+    }
+    if (hasVariants) {
+      if (!selectedVariant) {
+        setCartError('Please select all options before adding to cart.');
+        return;
+      }
+      if (selectedVariant.quantity <= 0) {
+        setCartError('The selected combination is out of stock.');
+        return;
+      }
+    } else if (product.quantity <= 0) {
       return;
     }
     setAddingToCart(true);
     setCartError(null);
     try {
-      await addItem({ productId: product.id, quantity });
+      await addItem({
+        productId: product.id,
+        variantId: selectedVariant?.id,
+        quantity,
+      });
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || 'Failed to add to cart';
       setCartError(msg);
@@ -188,14 +294,46 @@ export default function ProductPage() {
     );
   }
 
+  // Display fields come from the selected variant when present, otherwise
+  // from the base product. `compareAtPrice` stays product-level since the
+  // admin form doesn't capture a per-variant compare price.
+  const displayPrice = selectedVariant ? Number(selectedVariant.price) : product.price;
+  const displayStock = selectedVariant ? selectedVariant.quantity : product.quantity;
+  const displaySku = selectedVariant?.sku ?? product.sku;
+
   const discount =
-    product.compareAtPrice && product.compareAtPrice > product.price
-      ? Math.round((1 - product.price / Number(product.compareAtPrice)) * 100)
+    product.compareAtPrice && product.compareAtPrice > displayPrice
+      ? Math.round((1 - displayPrice / Number(product.compareAtPrice)) * 100)
       : 0;
 
-  const inStock = product.quantity > 0;
-  const lowStock = product.quantity > 0 && product.quantity <= 10;
-  const primaryImage = product.images[selectedImage]?.url || product.images[0]?.url;
+  const inStock = hasVariants
+    ? selectedVariant
+      ? selectedVariant.quantity > 0
+      : false
+    : product.quantity > 0;
+  const lowStock = inStock && displayStock <= 10;
+
+  // Gallery: when the selected variant has its own image, show it first.
+  // Prepend to product images (deduped by URL) so the admin's chosen image
+  // becomes the hero while existing gallery thumbnails remain accessible.
+  const galleryImages: ProductImage[] = (() => {
+    const variantImgs = selectedVariant?.images ?? [];
+    if (variantImgs.length === 0) {
+      return product.images;
+    }
+    const seen = new Set<string>();
+    const combined: ProductImage[] = [];
+    for (const img of [...variantImgs, ...product.images]) {
+      if (seen.has(img.url)) {
+        continue;
+      }
+      seen.add(img.url);
+      combined.push(img);
+    }
+    return combined;
+  })();
+
+  const primaryImage = galleryImages[selectedImage]?.url || galleryImages[0]?.url;
   const rating = product.reviewSummary?.averageRating ?? 0;
   const totalReviews = product.reviewSummary?.totalReviews ?? 0;
 
@@ -240,7 +378,7 @@ export default function ProductPage() {
               {primaryImage ? (
                 <img
                   src={primaryImage}
-                  alt={product.images[selectedImage]?.alt || product.name}
+                  alt={galleryImages[selectedImage]?.alt || product.name}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -257,9 +395,9 @@ export default function ProductPage() {
             </div>
 
             {/* Thumbnails */}
-            {product.images.length > 1 && (
+            {galleryImages.length > 1 && (
               <div className="grid grid-cols-5 gap-2">
-                {product.images.map((img, i) => (
+                {galleryImages.map((img, i) => (
                   <button
                     key={img.id}
                     onClick={() => setSelectedImage(i)}
@@ -295,7 +433,7 @@ export default function ProductPage() {
                   <span className="text-gray-300">|</span>
                 </>
               )}
-              <span className="text-sm text-gray-500">SKU: {product.sku}</span>
+              <span className="text-sm text-gray-500">SKU: {displaySku}</span>
             </div>
 
             {/* Title */}
@@ -325,8 +463,8 @@ export default function ProductPage() {
 
             {/* Price */}
             <div className="mb-6 flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-primary">{formatBDT(product.price)}</span>
-              {product.compareAtPrice && Number(product.compareAtPrice) > product.price && (
+              <span className="text-3xl font-bold text-primary">{formatBDT(displayPrice)}</span>
+              {product.compareAtPrice && Number(product.compareAtPrice) > displayPrice && (
                 <>
                   <span className="text-lg text-gray-400 line-through">
                     {formatBDT(Number(product.compareAtPrice))}
@@ -343,24 +481,59 @@ export default function ProductPage() {
               <p className="mb-6 text-gray-600">{product.shortDescription}</p>
             )}
 
-            {/* Variant attributes display */}
-            {product.attributes.length > 0 && (
+            {/* Variant attribute picker */}
+            {hasVariants && product.attributes.length > 0 && (
               <div className="mb-6 space-y-4">
-                {product.attributes.map((attr) => (
-                  <div key={attr.id}>
-                    <h3 className="mb-2 text-sm font-medium text-gray-700">{attr.name}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {(Array.isArray(attr.values) ? attr.values : []).map((val: string) => (
-                        <span
-                          key={val}
-                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700"
-                        >
-                          {val}
-                        </span>
-                      ))}
+                {product.attributes.map((attr) => {
+                  const current = selectedOptions[attr.name];
+                  const values = Array.isArray(attr.values) ? attr.values : [];
+                  return (
+                    <div key={attr.id}>
+                      <h3 className="mb-2 text-sm font-medium text-gray-700">
+                        {attr.name}
+                        {current && (
+                          <span className="ml-2 font-normal text-gray-500">: {current}</span>
+                        )}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {values.map((val: string) => {
+                          const selected = current === val;
+                          const reachable = isValueReachable(attr.name, val);
+                          const inStockCombo = isValueInStock(attr.name, val);
+                          return (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => handleSelectOption(attr.name, val)}
+                              disabled={!reachable}
+                              title={
+                                !reachable
+                                  ? 'Not available with the current selection'
+                                  : !inStockCombo
+                                    ? 'Out of stock'
+                                    : undefined
+                              }
+                              className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                                selected
+                                  ? 'border-primary bg-primary text-white'
+                                  : reachable
+                                    ? 'border-gray-200 bg-white text-gray-700 hover:border-primary'
+                                    : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 line-through'
+                              } ${reachable && !inStockCombo ? 'opacity-60' : ''}`}
+                            >
+                              {val}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+                {allOptionsSelected && !selectedVariant && (
+                  <p className="text-sm text-red-600">
+                    This combination is not available. Try a different selection.
+                  </p>
+                )}
               </div>
             )}
 
@@ -377,8 +550,8 @@ export default function ProductPage() {
                 </button>
                 <span className="w-12 text-center font-medium tabular-nums">{quantity}</span>
                 <button
-                  onClick={() => setQuantity((q) => Math.min(product.quantity, q + 1))}
-                  disabled={quantity >= product.quantity || !inStock}
+                  onClick={() => setQuantity((q) => Math.min(displayStock, q + 1))}
+                  disabled={quantity >= displayStock || !inStock}
                   className="px-3 py-3 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-r-lg"
                 >
                   <Plus className="h-4 w-4" />
@@ -413,7 +586,7 @@ export default function ProductPage() {
               {inStock ? (
                 lowStock ? (
                   <p className="text-sm font-medium text-orange-600">
-                    Only {product.quantity} left in stock - order soon!
+                    Only {displayStock} left in stock - order soon!
                   </p>
                 ) : (
                   <p className="text-sm font-medium text-green-600">In Stock</p>
@@ -499,7 +672,7 @@ export default function ProductPage() {
                   <tbody>
                     <tr className="border-b">
                       <td className="py-3 pr-4 text-sm font-medium text-gray-500 w-40">SKU</td>
-                      <td className="py-3 text-sm text-gray-900">{product.sku}</td>
+                      <td className="py-3 text-sm text-gray-900">{displaySku}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-3 pr-4 text-sm font-medium text-gray-500">Category</td>
@@ -524,7 +697,7 @@ export default function ProductPage() {
                       <td className="py-3 text-sm text-gray-900">
                         {inStock ? (
                           <span className="text-green-600">
-                            In Stock ({product.quantity} available)
+                            In Stock ({displayStock} available)
                           </span>
                         ) : (
                           <span className="text-red-600">Out of Stock</span>

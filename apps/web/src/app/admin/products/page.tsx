@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Plus,
   Search,
@@ -17,11 +14,14 @@ import {
   X,
   ArrowUpDown,
 } from 'lucide-react';
-
-import { apiClient } from '@/lib/api/client';
-import { formatBDT } from '@/lib/api/admin';
-import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+
+import { formatBDT } from '@/lib/api/admin';
+import { apiClient } from '@/lib/api/client';
+import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -75,11 +75,7 @@ function StatusBadge({ status }: { status: string }) {
         bg,
       )}
     >
-      {status === 'ACTIVE' ? (
-        <Check className="h-3 w-3" />
-      ) : (
-        <X className="h-3 w-3" />
-      )}
+      {status === 'ACTIVE' ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
       {label}
     </span>
   );
@@ -91,16 +87,14 @@ function StatusBadge({ status }: { status: string }) {
 
 function StockBadge({ stock }: { stock: number }) {
   let color = 'bg-green-100 text-green-700';
-  if (stock <= 0) color = 'bg-red-100 text-red-700';
-  else if (stock <= 10) color = 'bg-yellow-100 text-yellow-700';
+  if (stock <= 0) {
+    color = 'bg-red-100 text-red-700';
+  } else if (stock <= 10) {
+    color = 'bg-yellow-100 text-yellow-700';
+  }
 
   return (
-    <span
-      className={cn(
-        'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
-        color,
-      )}
-    >
+    <span className={cn('inline-flex rounded-full px-2 py-0.5 text-xs font-medium', color)}>
       {stock <= 0 ? 'Out of stock' : `${stock} in stock`}
     </span>
   );
@@ -119,9 +113,7 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [statusFilter, setStatusFilter] = useState<string>(
-    searchParams.get('status') ?? 'all',
-  );
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') ?? 'all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -135,14 +127,16 @@ export default function AdminProductsPage() {
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', '20');
-      if (searchQuery) params.set('search', searchQuery);
-      if (statusFilter !== 'all') params.set('status', statusFilter.toUpperCase());
+      if (searchQuery) {
+        params.set('search', searchQuery);
+      }
+      if (statusFilter !== 'all') {
+        params.set('status', statusFilter.toUpperCase());
+      }
       params.set('sortBy', sortBy);
       params.set('sortOrder', sortOrder);
 
-      const { data: res } = await apiClient.get(
-        `/products?${params.toString()}`,
-      );
+      const { data: res } = await apiClient.get(`/products?${params.toString()}`);
       setProducts(res.data ?? res ?? []);
       setMeta(res.meta ?? { total: 0, page: 1, limit: 20, totalPages: 0 });
     } catch (err) {
@@ -180,10 +174,12 @@ export default function AdminProductsPage() {
   // ─── Bulk Actions ─────────────────────────────────────────────────
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedIds.size} selected products?`)) return;
+    if (!confirm(`Delete ${selectedIds.size} selected products?`)) {
+      return;
+    }
     try {
       await apiClient.post('/products/bulk/delete', {
-        ids: Array.from(selectedIds),
+        productIds: Array.from(selectedIds),
       });
       setSelectedIds(new Set());
       fetchProducts();
@@ -191,6 +187,20 @@ export default function AdminProductsPage() {
     } catch (err) {
       console.error('Bulk delete failed:', err);
       toast.error('Failed to delete products');
+    }
+  };
+
+  const handleDeleteOne = async (id: string, name: string) => {
+    if (!confirm(`Delete "${name}"? Products with order history will be archived instead.`)) {
+      return;
+    }
+    try {
+      await apiClient.delete(`/products/${id}`);
+      toast.success('Product deleted');
+      fetchProducts();
+    } catch (err) {
+      console.error('Delete failed:', err);
+      toast.error('Failed to delete product');
     }
   };
 
@@ -268,9 +278,7 @@ export default function AdminProductsPage() {
           {/* Bulk Actions */}
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
-                {selectedIds.size} selected
-              </span>
+              <span className="text-sm text-gray-600">{selectedIds.size} selected</span>
               <button
                 onClick={handleBulkDelete}
                 className="rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
@@ -291,10 +299,7 @@ export default function AdminProductsPage() {
                 <th className="w-10 px-4 py-3">
                   <input
                     type="checkbox"
-                    checked={
-                      products.length > 0 &&
-                      selectedIds.size === products.length
-                    }
+                    checked={products.length > 0 && selectedIds.size === products.length}
                     onChange={toggleSelectAll}
                     className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
@@ -342,10 +347,7 @@ export default function AdminProductsPage() {
                 ))
               ) : products.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={8}
-                    className="px-4 py-12 text-center text-sm text-gray-500"
-                  >
+                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-500">
                     No products found. Create your first product to get started.
                   </td>
                 </tr>
@@ -353,10 +355,7 @@ export default function AdminProductsPage() {
                 products.map((product) => (
                   <tr
                     key={product.id}
-                    className={cn(
-                      'hover:bg-gray-50',
-                      selectedIds.has(product.id) && 'bg-teal-50',
-                    )}
+                    className={cn('hover:bg-gray-50', selectedIds.has(product.id) && 'bg-teal-50')}
                   >
                     <td className="px-4 py-3">
                       <input
@@ -387,9 +386,7 @@ export default function AdminProductsPage() {
                             {product.name}
                           </Link>
                           {product.brand && (
-                            <p className="text-xs text-gray-500">
-                              {product.brand.name}
-                            </p>
+                            <p className="text-xs text-gray-500">{product.brand.name}</p>
                           )}
                         </div>
                       </div>
@@ -436,6 +433,7 @@ export default function AdminProductsPage() {
                           <Edit className="h-4 w-4" />
                         </Link>
                         <button
+                          onClick={() => handleDeleteOne(product.id, product.name)}
                           className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
                           title="Delete"
                         >
@@ -455,8 +453,7 @@ export default function AdminProductsPage() {
           <div className="flex items-center justify-between border-t border-gray-200 px-6 py-3">
             <p className="text-sm text-gray-600">
               Showing {(meta.page - 1) * meta.limit + 1} to{' '}
-              {Math.min(meta.page * meta.limit, meta.total)} of {meta.total}{' '}
-              products
+              {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} products
             </p>
             <div className="flex items-center gap-2">
               <button
