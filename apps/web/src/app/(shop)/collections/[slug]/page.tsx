@@ -30,8 +30,10 @@ export default function CollectionPage() {
     .join(' ');
 
   useEffect(() => {
+    // Server has no Collection model — use the slug as a product tag,
+    // which the products list endpoint does support.
     apiClient
-      .get(`/products?collection=${slug}&limit=30`)
+      .get(`/products?tag=${encodeURIComponent(slug)}&limit=30`)
       .then(({ data }) => {
         const items: Product[] = data.data?.products ?? data.data ?? [];
         setProducts(items);

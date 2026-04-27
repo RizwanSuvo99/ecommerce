@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { CheckoutDto } from './dto/checkout.dto';
+import { CheckoutDto, PaymentMethod } from './dto/checkout.dto';
 import {
   UpdateOrderStatusDto,
   OrderStatus,
@@ -201,7 +201,7 @@ export class OrdersService {
         errors.push('This coupon is no longer active');
       } else if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
         errors.push('This coupon has expired');
-      } else if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+      } else if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
         errors.push('This coupon has reached its usage limit');
       } else if (coupon.minOrderAmount && subtotal < Number(coupon.minOrderAmount)) {
         errors.push(`Minimum order of ৳${String(coupon.minOrderAmount)} required for this coupon`);
@@ -218,7 +218,21 @@ export class OrdersService {
       }
     }
 
-    const shippingCost = 0;
+    // Resolve shipping cost from the chosen method so the persisted
+    // order matches what the customer saw at the shipping step.
+    let shippingCost = 0;
+    if (dto.shippingMethodId) {
+      const method = await this.prisma.shippingMethod.findUnique({
+        where: { id: dto.shippingMethodId },
+        select: { id: true, price: true, isActive: true },
+      });
+      if (!method || !method.isActive) {
+        errors.push('Selected shipping method is not available');
+      } else {
+        shippingCost = Number(method.price);
+      }
+    }
+
     const total = Math.max(0, subtotal - discount + shippingCost);
 
     return {
@@ -252,7 +266,19 @@ export class OrdersService {
       where: cartWhere,
       include: {
         items: {
-          include: { product: true },
+          // Pull the first product image too so we can snapshot it on
+          // OrderItem.productImage at order-creation time.
+          include: {
+            product: {
+              include: {
+                images: {
+                  orderBy: { sortOrder: 'asc' },
+                  take: 1,
+                  select: { url: true },
+                },
+              },
+            },
+          },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -339,6 +365,17 @@ export class OrdersService {
         },
       });
 
+      // Persist a Payment row so admin views can read a real
+      // method/status pair instead of falling back to 'PENDING' / ''.
+      await tx.payment.create({
+        data: {
+          orderId: createdOrder.id,
+          method: this.mapPaymentMethod(dto.paymentMethod),
+          status: 'PENDING',
+          amount: validation.total,
+        },
+      });
+
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
       await tx.cart.update({
         where: { id: cart.id },
@@ -348,7 +385,7 @@ export class OrdersService {
       if (dto.couponCode) {
         await tx.coupon.update({
           where: { code: dto.couponCode.toUpperCase() },
-          data: { usedCount: { increment: 1 } },
+          data: { usageCount: { increment: 1 } },
         });
       }
 
@@ -826,34 +863,78 @@ export class OrdersService {
       );
     }
 
-    const updateData: any = {
+    const updateData: {
+      status: OrderStatus;
+      deliveredAt?: Date;
+      cancelledAt?: Date;
+      notes?: string;
+    } = {
       status: dto.status,
     };
 
-    if (dto.status === OrderStatus.CONFIRMED) {
-      updateData.confirmedAt = new Date();
-    } else if (dto.status === OrderStatus.SHIPPED) {
-      updateData.shippedAt = new Date();
-    } else if (dto.status === OrderStatus.DELIVERED) {
+    // Order schema only carries deliveredAt and cancelledAt timestamps —
+    // CONFIRMED / PROCESSING / SHIPPED transitions update the status
+    // column without a dedicated stamp.
+    if (dto.status === OrderStatus.DELIVERED) {
       updateData.deliveredAt = new Date();
-      updateData.paymentStatus = 'PAID';
     } else if (dto.status === OrderStatus.CANCELLED) {
       updateData.cancelledAt = new Date();
     }
 
     if (dto.note) {
-      updateData.statusNote = dto.note;
+      // Append a timestamped status note to the Order.notes field —
+      // the schema's general-purpose place for free-text remarks.
+      const stamp = new Date().toISOString();
+      const prefix = order.notes ? `${order.notes}\n` : '';
+      updateData.notes = `${prefix}[${stamp}] ${dto.status}: ${dto.note}`;
     }
 
-    const updatedOrder = await this.prisma.order.update({
-      where: { id: orderId },
-      data: updateData,
-      include: { items: true },
+    const updatedOrder = await this.prisma.$transaction(async (tx) => {
+      const next = await tx.order.update({
+        where: { id: orderId },
+        data: updateData,
+        include: { items: true },
+      });
+
+      // When the order completes, also mark the latest Payment row as
+      // PAID so the admin list reflects post-delivery payment state.
+      if (dto.status === OrderStatus.DELIVERED) {
+        const latestPayment = await tx.payment.findFirst({
+          where: { orderId },
+          orderBy: { createdAt: 'desc' },
+        });
+        if (latestPayment && latestPayment.status !== 'PAID') {
+          await tx.payment.update({
+            where: { id: latestPayment.id },
+            data: { status: 'PAID', paidAt: new Date() },
+          });
+        }
+      }
+
+      return next;
     });
 
     this.logger.log(`Order ${order.orderNumber} status updated: ${order.status} → ${dto.status}`);
 
     return updatedOrder;
+  }
+
+  /**
+   * Translate the narrow checkout PaymentMethod enum (CARD/COD/BKASH)
+   * into the wider DB enum the Payment row stores. Adding new options
+   * means extending both the DTO and this map.
+   */
+  private mapPaymentMethod(method: PaymentMethod): 'CREDIT_CARD' | 'CASH_ON_DELIVERY' | 'BKASH' {
+    switch (method) {
+      case PaymentMethod.CARD:
+        return 'CREDIT_CARD';
+      case PaymentMethod.COD:
+        return 'CASH_ON_DELIVERY';
+      case PaymentMethod.BKASH:
+        return 'BKASH';
+      default:
+        return 'CASH_ON_DELIVERY';
+    }
   }
 
   // ─── Order Cancellation ───────────────────────────────────────────────────────
@@ -937,7 +1018,7 @@ export class OrdersService {
       for (const item of order.items) {
         await tx.product.update({
           where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
+          data: { quantity: { increment: item.quantity } },
         });
       }
 
@@ -945,27 +1026,42 @@ export class OrdersService {
       if (order.couponCode) {
         await tx.coupon.update({
           where: { code: order.couponCode },
-          data: { usedCount: { decrement: 1 } },
+          data: { usageCount: { decrement: 1 } },
         });
       }
 
-      // 3. Determine refund status
-      const needsRefund = order.paymentStatus === 'PAID';
-      const paymentStatus = needsRefund ? 'REFUND_PENDING' : 'CANCELLED';
+      // 3. Latest payment status drives whether we need a refund
+      const latestPayment = await tx.payment.findFirst({
+        where: { orderId: order.id },
+        orderBy: { createdAt: 'desc' },
+      });
+      const needsRefund = latestPayment?.status === 'PAID';
 
-      // 4. Update the order status
+      // 4. Update the order status — append a free-text cancellation
+      //    note to Order.notes (Order has no statusNote / paymentStatus columns).
+      const cancellationNote = reason
+        ? `Cancelled by ${cancelledBy}: ${reason}`
+        : `Cancelled by ${cancelledBy}`;
       const updated = await tx.order.update({
         where: { id: order.id },
         data: {
           status: OrderStatus.CANCELLED,
-          paymentStatus,
           cancelledAt: new Date(),
-          statusNote: reason
-            ? `Cancelled by ${cancelledBy}: ${reason}`
-            : `Cancelled by ${cancelledBy}`,
+          notes: order.notes ? `${order.notes}\n${cancellationNote}` : cancellationNote,
         },
         include: { items: true },
       });
+
+      // 5. Reflect the cancellation on the Payment row for admin views.
+      //    Already-PAID payments stay PAID until admin issues an
+      //    explicit refund (which flips them to REFUNDED) — there is
+      //    no REFUND_PENDING status in the schema.
+      if (latestPayment && !needsRefund) {
+        await tx.payment.update({
+          where: { id: latestPayment.id },
+          data: { status: 'CANCELLED' },
+        });
+      }
 
       return updated;
     });
