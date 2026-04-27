@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface TaxSettings {
@@ -44,8 +46,8 @@ export default function TaxSettingsPage() {
     try {
       await updateSettings('tax', form as unknown as Record<string, string>);
       toast.success('Tax settings saved');
-    } catch {
-      toast.error('Failed to save tax settings');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save tax settings'));
     } finally {
       setSaving(false);
     }
@@ -134,9 +136,7 @@ export default function TaxSettingsPage() {
             onChange={(e) => handleChange('show_tax_breakdown', String(e.target.checked))}
             className="rounded border-gray-300 text-teal-600"
           />
-          <span className="text-sm text-gray-700">
-            Show tax breakdown on invoices and checkout
-          </span>
+          <span className="text-sm text-gray-700">Show tax breakdown on invoices and checkout</span>
         </label>
       </div>
 

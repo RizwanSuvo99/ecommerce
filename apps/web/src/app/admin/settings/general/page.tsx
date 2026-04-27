@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface GeneralSettings {
@@ -60,8 +62,8 @@ export default function GeneralSettingsPage() {
     try {
       await updateSettings('general', form as unknown as Record<string, string>);
       toast.success('General settings saved');
-    } catch {
-      toast.error('Failed to save settings');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save settings'));
     } finally {
       setSaving(false);
     }
@@ -77,9 +79,7 @@ export default function GeneralSettingsPage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Site Name (English)
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Site Name (English)</label>
           <input
             type="text"
             value={form.site_name}
@@ -90,9 +90,7 @@ export default function GeneralSettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            সাইটের নাম (বাংলা)
-          </label>
+          <label className="block text-sm font-medium text-gray-700">সাইটের নাম (বাংলা)</label>
           <input
             type="text"
             value={form.site_name_bn}
@@ -103,9 +101,7 @@ export default function GeneralSettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Tagline (English)
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Tagline (English)</label>
           <input
             type="text"
             value={form.site_tagline}
@@ -115,9 +111,7 @@ export default function GeneralSettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            ট্যাগলাইন (বাংলা)
-          </label>
+          <label className="block text-sm font-medium text-gray-700">ট্যাগলাইন (বাংলা)</label>
           <input
             type="text"
             value={form.site_tagline_bn}
@@ -137,9 +131,7 @@ export default function GeneralSettingsPage() {
               <option value="BDT">BDT - Bangladeshi Taka</option>
               <option value="USD">USD - US Dollar</option>
             </select>
-            <span className="text-lg font-semibold text-gray-600">
-              {form.currency_symbol}
-            </span>
+            <span className="text-lg font-semibold text-gray-600">{form.currency_symbol}</span>
           </div>
         </div>
 

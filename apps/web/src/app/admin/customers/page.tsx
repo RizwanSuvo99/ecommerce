@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface Customer {
   id: string;
@@ -39,7 +40,9 @@ const STATUS_BADGES: Record<string, { label: string; className: string }> = {
 
 function Badge({ label, className }: { label: string; className: string }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}
+    >
       {label}
     </span>
   );
@@ -63,8 +66,12 @@ export default function AdminCustomersPage() {
       const params = new URLSearchParams();
       params.set('page', pagination.page.toString());
       params.set('limit', pagination.limit.toString());
-      if (search) params.set('search', search);
-      if (roleFilter) params.set('role', roleFilter);
+      if (search) {
+        params.set('search', search);
+      }
+      if (roleFilter) {
+        params.set('role', roleFilter);
+      }
 
       const { data } = await apiClient.get(`/admin/users?${params.toString()}`);
       const result = data.data ?? data;
@@ -93,7 +100,7 @@ export default function AdminCustomersPage() {
       }));
     } catch (error) {
       console.error('Error fetching customers:', error);
-      toast.error('Failed to load customers');
+      toast.error(getApiErrorMessage(err, 'Failed to load customers'));
     } finally {
       setLoading(false);
     }
@@ -108,8 +115,8 @@ export default function AdminCustomersPage() {
       await apiClient.patch(`/admin/users/${id}/toggle-active`);
       toast.success('User status updated');
       fetchCustomers();
-    } catch {
-      toast.error('Failed to update user status');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update user status'));
     }
   };
 
@@ -122,17 +129,25 @@ export default function AdminCustomersPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {pagination.total} total users
-        </p>
+        <p className="text-sm text-gray-500 mt-1">{pagination.total} total users</p>
       </div>
 
       {/* Search and Filters */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
-            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             <input
               type="text"
@@ -167,14 +182,30 @@ export default function AdminCustomersPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Orders
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Joined
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Login
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -182,7 +213,7 @@ export default function AdminCustomersPage() {
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
                       <span className="ml-3 text-gray-500">Loading customers...</span>
                     </div>
                   </td>
@@ -195,14 +226,21 @@ export default function AdminCustomersPage() {
                 </tr>
               ) : (
                 customers.map((customer) => {
-                  const roleBadge = ROLE_BADGES[customer.role] ?? { label: customer.role, className: 'bg-gray-100 text-gray-700 border-gray-200' };
-                  const statusBadge = STATUS_BADGES[customer.status] ?? { label: customer.status, className: 'bg-gray-100 text-gray-700 border-gray-200' };
+                  const roleBadge = ROLE_BADGES[customer.role] ?? {
+                    label: customer.role,
+                    className: 'bg-gray-100 text-gray-700 border-gray-200',
+                  };
+                  const statusBadge = STATUS_BADGES[customer.status] ?? {
+                    label: customer.status,
+                    className: 'bg-gray-100 text-gray-700 border-gray-200',
+                  };
                   return (
                     <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 text-sm font-medium text-teal-700">
-                            {customer.firstName.charAt(0)}{customer.lastName.charAt(0)}
+                            {customer.firstName.charAt(0)}
+                            {customer.lastName.charAt(0)}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-900">
@@ -223,9 +261,7 @@ export default function AdminCustomersPage() {
                       <td className="px-4 py-3">
                         <Badge label={statusBadge.label} className={statusBadge.className} />
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">
-                        {customer.orders}
-                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{customer.orders}</td>
                       <td className="px-4 py-3 text-sm text-gray-500">
                         {new Date(customer.createdAt).toLocaleDateString('en-BD', {
                           day: 'numeric',
@@ -234,13 +270,15 @@ export default function AdminCustomersPage() {
                         })}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">
-                        {customer.lastLoginAt
-                          ? new Date(customer.lastLoginAt).toLocaleDateString('en-BD', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })
-                          : <span className="text-gray-400">Never</span>}
+                        {customer.lastLoginAt ? (
+                          new Date(customer.lastLoginAt).toLocaleDateString('en-BD', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                        ) : (
+                          <span className="text-gray-400">Never</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
@@ -269,7 +307,8 @@ export default function AdminCustomersPage() {
           <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between bg-gray-50">
             <div className="text-sm text-gray-500">
               Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-              {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} customers
+              {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}{' '}
+              customers
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -282,7 +321,9 @@ export default function AdminCustomersPage() {
               {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
                 const startPage = Math.max(1, pagination.page - 2);
                 const p = startPage + i;
-                if (p > pagination.pages) return null;
+                if (p > pagination.pages) {
+                  return null;
+                }
                 return (
                   <button
                     key={p}

@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 
 import { formatBDT } from '@/lib/api/admin';
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -141,7 +142,7 @@ export default function AdminProductsPage() {
       setMeta(res.meta ?? { total: 0, page: 1, limit: 20, totalPages: 0 });
     } catch (err) {
       console.error('Failed to load products:', err);
-      toast.error('Failed to load products');
+      toast.error(getApiErrorMessage(err, 'Failed to load products'));
     } finally {
       setIsLoading(false);
     }
@@ -186,7 +187,7 @@ export default function AdminProductsPage() {
       toast.success('Products deleted');
     } catch (err) {
       console.error('Bulk delete failed:', err);
-      toast.error('Failed to delete products');
+      toast.error(getApiErrorMessage(err, 'Failed to delete products'));
     }
   };
 
@@ -200,7 +201,7 @@ export default function AdminProductsPage() {
       fetchProducts();
     } catch (err) {
       console.error('Delete failed:', err);
-      toast.error('Failed to delete product');
+      toast.error(getApiErrorMessage(err, 'Failed to delete product'));
     }
   };
 

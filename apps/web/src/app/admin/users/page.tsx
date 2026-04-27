@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
-import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface User {
   id: string;
@@ -37,8 +38,12 @@ export default function AdminUsersPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      if (roleFilter) params.set('role', roleFilter);
+      if (search) {
+        params.set('search', search);
+      }
+      if (roleFilter) {
+        params.set('role', roleFilter);
+      }
       params.set('page', String(page));
       params.set('limit', '20');
 
@@ -46,8 +51,8 @@ export default function AdminUsersPage() {
       const result = data.data ?? data;
       setUsers(result.users ?? result ?? []);
       setPagination(result.pagination ?? { total: 0, page: 1, limit: 20, pages: 0 });
-    } catch {
-      toast.error('Failed to load users');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to load users'));
     } finally {
       setLoading(false);
     }
@@ -68,8 +73,8 @@ export default function AdminUsersPage() {
       await apiClient.patch(`/admin/users/${id}/toggle-active`);
       toast.success('User status updated');
       fetchUsers();
-    } catch {
-      toast.error('Failed to update user status');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update user status'));
     }
   };
 
@@ -81,7 +86,9 @@ export default function AdminUsersPage() {
       CUSTOMER: 'bg-gray-100 text-gray-700',
     };
     return (
-      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[role] ?? colors.CUSTOMER}`}>
+      <span
+        className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[role] ?? colors.CUSTOMER}`}
+      >
         {role}
       </span>
     );
@@ -124,7 +131,10 @@ export default function AdminUsersPage() {
 
         <select
           value={roleFilter}
-          onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setRoleFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border-gray-300 text-sm shadow-sm"
         >
           <option value="">All Roles</option>
@@ -140,12 +150,24 @@ export default function AdminUsersPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Name</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Role</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Orders</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-              <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Name
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Email
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Role
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Orders
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Status
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
@@ -167,7 +189,9 @@ export default function AdminUsersPage() {
                   <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
                     {user.firstName} {user.lastName}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{user.email}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                    {user.email}
+                  </td>
                   <td className="whitespace-nowrap px-4 py-3">{roleBadge(user.role)}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
                     {user._count.orders}

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -136,7 +137,7 @@ export function CategorizationForm({
         setCategories(data.data ?? data ?? []);
       } catch (err) {
         console.error('Failed to load categories:', err);
-        toast.error('Failed to load categories');
+        toast.error(getApiErrorMessage(err, 'Failed to load categories'));
       } finally {
         setIsLoadingCategories(false);
       }
@@ -153,7 +154,7 @@ export function CategorizationForm({
         setBrands(data.data ?? data ?? []);
       } catch (err) {
         console.error('Failed to load brands:', err);
-        toast.error('Failed to load brands');
+        toast.error(getApiErrorMessage(err, 'Failed to load brands'));
       } finally {
         setIsLoadingBrands(false);
       }

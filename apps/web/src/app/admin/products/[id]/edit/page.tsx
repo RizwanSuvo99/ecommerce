@@ -22,6 +22,7 @@ import { PricingForm } from '@/components/admin/products/pricing-form';
 import { SeoForm } from '@/components/admin/products/seo-form';
 import { VariantsForm } from '@/components/admin/products/variants-form';
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -262,7 +263,7 @@ export default function AdminProductEditPage() {
       } catch (err) {
         console.error('Failed to load product:', err);
         setErrors({ _form: 'Failed to load product data.' });
-        toast.error('Failed to load product');
+        toast.error(getApiErrorMessage(err, 'Failed to load product'));
       } finally {
         setIsLoading(false);
       }
@@ -452,7 +453,7 @@ export default function AdminProductEditPage() {
       router.push('/admin/products');
     } catch (err) {
       console.error('Failed to delete product:', err);
-      toast.error('Failed to delete product');
+      toast.error(getApiErrorMessage(err, 'Failed to delete product'));
     } finally {
       setIsDeleting(false);
     }

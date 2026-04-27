@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '@/lib/api/client';
 import { toast } from 'sonner';
+
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 type BannerPosition = 'HERO' | 'SIDEBAR' | 'FOOTER' | 'POPUP';
 
@@ -73,7 +75,7 @@ export default function AdminBannersPage() {
       setBanners(result.banners ?? result ?? []);
     } catch (error) {
       console.error('Fetch banners error:', error);
-      toast.error('Failed to load banners');
+      toast.error(getApiErrorMessage(err, 'Failed to load banners'));
     } finally {
       setLoading(false);
     }
@@ -126,21 +128,23 @@ export default function AdminBannersPage() {
       fetchBanners();
     } catch (error) {
       console.error('Save banner error:', error);
-      toast.error('Failed to save banner');
+      toast.error(getApiErrorMessage(err, 'Failed to save banner'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this banner?')) return;
+    if (!confirm('Are you sure you want to delete this banner?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/banners/${id}`);
       setBanners((prev) => prev.filter((b) => b.id !== id));
       toast.success('Banner deleted');
     } catch (error) {
       console.error('Delete banner error:', error);
-      toast.error('Failed to delete banner');
+      toast.error(getApiErrorMessage(err, 'Failed to delete banner'));
     }
   };
 
@@ -153,7 +157,7 @@ export default function AdminBannersPage() {
       toast.success(banner.isActive ? 'Banner deactivated' : 'Banner activated');
     } catch (error) {
       console.error('Toggle active error:', error);
-      toast.error('Failed to update banner');
+      toast.error(getApiErrorMessage(err, 'Failed to update banner'));
     }
   };
 
@@ -163,22 +167,30 @@ export default function AdminBannersPage() {
 
   const handleDragOver = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
-    if (!draggedId || draggedId === targetId) return;
+    if (!draggedId || draggedId === targetId) {
+      return;
+    }
 
     const draggedIndex = banners.findIndex((b) => b.id === draggedId);
     const targetIndex = banners.findIndex((b) => b.id === targetId);
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
+    if (draggedIndex === -1 || targetIndex === -1) {
+      return;
+    }
 
     const newBanners = [...banners];
     const dragged = newBanners.splice(draggedIndex, 1)[0];
-    if (!dragged) return;
+    if (!dragged) {
+      return;
+    }
     newBanners.splice(targetIndex, 0, dragged);
     setBanners(newBanners);
   };
 
   const handleDragEnd = async () => {
-    if (!draggedId) return;
+    if (!draggedId) {
+      return;
+    }
     setDraggedId(null);
 
     try {
@@ -186,7 +198,7 @@ export default function AdminBannersPage() {
       await apiClient.post('/admin/banners/reorder', { positions });
     } catch (error) {
       console.error('Reorder error:', error);
-      toast.error('Failed to reorder banners');
+      toast.error(getApiErrorMessage(err, 'Failed to reorder banners'));
       fetchBanners(); // Revert on error
     }
   };
@@ -236,16 +248,30 @@ export default function AdminBannersPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-12 h-12"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </div>
                 )}
                 <div className="absolute top-2 right-2 flex gap-2">
                   {banner.isActive ? (
-                    <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">Active</span>
+                    <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                      Active
+                    </span>
                   ) : (
-                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">Inactive</span>
+                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                      Inactive
+                    </span>
                   )}
                 </div>
                 <div className="absolute top-2 left-2">
@@ -258,9 +284,7 @@ export default function AdminBannersPage() {
               {/* Banner Info */}
               <div className="p-4">
                 <h3 className="text-sm font-semibold text-gray-900">{banner.title}</h3>
-                {banner.titleBn && (
-                  <p className="text-xs text-gray-500 mt-0.5">{banner.titleBn}</p>
-                )}
+                {banner.titleBn && <p className="text-xs text-gray-500 mt-0.5">{banner.titleBn}</p>}
                 {banner.link && (
                   <p className="text-xs text-teal-600 mt-1 truncate">{banner.link}</p>
                 )}
@@ -285,8 +309,18 @@ export default function AdminBannersPage() {
                       Delete
                     </button>
                   </div>
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 8h16M4 16h16"
+                    />
                   </svg>
                 </div>
               </div>
@@ -304,9 +338,17 @@ export default function AdminBannersPage() {
               <h2 className="text-lg font-semibold text-gray-900">
                 {editingId ? 'Edit Banner' : 'Create Banner'}
               </h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -314,7 +356,9 @@ export default function AdminBannersPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title (English)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Title (English)
+                  </label>
                   <input
                     type="text"
                     value={formData.title}
@@ -324,7 +368,9 @@ export default function AdminBannersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">শিরোনাম (বাংলা)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    শিরোনাম (বাংলা)
+                  </label>
                   <input
                     type="text"
                     value={formData.titleBn}
@@ -345,18 +391,24 @@ export default function AdminBannersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">সাবটাইটেল (বাংলা)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    সাবটাইটেল (বাংলা)
+                  </label>
                   <input
                     type="text"
                     value={formData.subtitleBn}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, subtitleBn: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, subtitleBn: e.target.value }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Desktop Image URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Desktop Image URL
+                </label>
                 <input
                   type="text"
                   value={formData.image}
@@ -368,11 +420,15 @@ export default function AdminBannersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Image URL (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Image URL (optional)
+                </label>
                 <input
                   type="text"
                   value={formData.imageMobile}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, imageMobile: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, imageMobile: e.target.value }))
+                  }
                   placeholder="https://..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />
@@ -391,20 +447,28 @@ export default function AdminBannersPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Button Text
+                  </label>
                   <input
                     type="text"
                     value={formData.buttonText}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, buttonText: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, buttonText: e.target.value }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">বাটন টেক্সট (বাংলা)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    বাটন টেক্সট (বাংলা)
+                  </label>
                   <input
                     type="text"
                     value={formData.buttonTextBn}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, buttonTextBn: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, buttonTextBn: e.target.value }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
@@ -416,7 +480,9 @@ export default function AdminBannersPage() {
                   <input
                     type="date"
                     value={formData.startDate}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, startDate: e.target.value }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
@@ -433,11 +499,15 @@ export default function AdminBannersPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Background Color
+                  </label>
                   <input
                     type="color"
                     value={formData.backgroundColor}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, backgroundColor: e.target.value }))
+                    }
                     className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>
@@ -446,7 +516,9 @@ export default function AdminBannersPage() {
                   <input
                     type="color"
                     value={formData.textColor}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, textColor: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, textColor: e.target.value }))
+                    }
                     className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>

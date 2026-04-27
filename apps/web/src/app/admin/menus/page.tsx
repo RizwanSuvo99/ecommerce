@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '@/lib/api/client';
 import { toast } from 'sonner';
+
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface MenuItem {
   id: string;
@@ -79,14 +81,27 @@ function MenuItemNode({
         } ${!item.isVisible ? 'opacity-60' : ''}`}
       >
         {/* Drag Handle */}
-        <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg
+          className="w-4 h-4 text-gray-400 flex-shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
         </svg>
 
         {/* Expand/Collapse */}
         {item.children.length > 0 ? (
-          <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-gray-600">
-            <svg className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg
+              className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -101,12 +116,17 @@ function MenuItemNode({
             {item.labelBn && <span className="text-xs text-gray-500">({item.labelBn})</span>}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className={`text-xs px-1.5 py-0.5 rounded ${
-              item.type === 'category' ? 'bg-teal-100 text-teal-700' :
-              item.type === 'page' ? 'bg-green-100 text-green-700' :
-              item.type === 'link' ? 'bg-purple-100 text-purple-700' :
-              'bg-gray-100 text-gray-700'
-            }`}>
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded ${
+                item.type === 'category'
+                  ? 'bg-teal-100 text-teal-700'
+                  : item.type === 'page'
+                    ? 'bg-green-100 text-green-700'
+                    : item.type === 'link'
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'bg-gray-100 text-gray-700'
+              }`}
+            >
               {item.type}
             </span>
             <span className="text-xs text-gray-400 truncate">{item.url}</span>
@@ -126,7 +146,12 @@ function MenuItemNode({
             title="Edit"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
             </svg>
           </button>
           <button
@@ -135,7 +160,12 @@ function MenuItemNode({
             title="Delete"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
             </svg>
           </button>
         </div>
@@ -183,7 +213,7 @@ export default function AdminMenusPage() {
       }
     } catch (error) {
       console.error('Fetch menus error:', error);
-      toast.error('Failed to load menus');
+      toast.error(getApiErrorMessage(err, 'Failed to load menus'));
     } finally {
       setLoading(false);
     }
@@ -231,21 +261,23 @@ export default function AdminMenusPage() {
       fetchMenus();
     } catch (error) {
       console.error('Save item error:', error);
-      toast.error('Failed to save menu item');
+      toast.error(getApiErrorMessage(err, 'Failed to save menu item'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    if (!confirm('Delete this menu item and all its children?')) return;
+    if (!confirm('Delete this menu item and all its children?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/menus/${activeMenuId}/items/${itemId}`);
       toast.success('Menu item deleted');
       fetchMenus();
     } catch (error) {
       console.error('Delete item error:', error);
-      toast.error('Failed to delete menu item');
+      toast.error(getApiErrorMessage(err, 'Failed to delete menu item'));
     }
   };
 
@@ -263,11 +295,14 @@ export default function AdminMenusPage() {
     }
 
     try {
-      await apiClient.post(`/admin/menus/${activeMenuId}/items/${draggedId}/move`, { targetId, position: 'after' });
+      await apiClient.post(`/admin/menus/${activeMenuId}/items/${draggedId}/move`, {
+        targetId,
+        position: 'after',
+      });
       fetchMenus();
     } catch (error) {
       console.error('Move item error:', error);
-      toast.error('Failed to reorder menu');
+      toast.error(getApiErrorMessage(err, 'Failed to reorder menu'));
     }
 
     setDraggedId(null);
@@ -275,10 +310,14 @@ export default function AdminMenusPage() {
 
   const handleCreateMenu = async () => {
     const name = prompt('Enter menu name (e.g., Main Navigation):');
-    if (!name) return;
+    if (!name) {
+      return;
+    }
 
     const location = prompt('Enter location (header/footer/sidebar/mobile):');
-    if (!location) return;
+    if (!location) {
+      return;
+    }
 
     try {
       const { data } = await apiClient.post('/admin/menus', { name, location });
@@ -287,7 +326,7 @@ export default function AdminMenusPage() {
       setActiveMenuId(data.data?.id ?? data.id);
     } catch (error) {
       console.error('Create menu error:', error);
-      toast.error('Failed to create menu');
+      toast.error(getApiErrorMessage(err, 'Failed to create menu'));
     }
   };
 
@@ -341,7 +380,9 @@ export default function AdminMenusPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">{activeMenu.name}</h2>
-                  <p className="text-sm text-gray-500 capitalize">Location: {activeMenu.location}</p>
+                  <p className="text-sm text-gray-500 capitalize">
+                    Location: {activeMenu.location}
+                  </p>
                 </div>
                 <button
                   onClick={handleAddItem}
@@ -399,7 +440,9 @@ export default function AdminMenusPage() {
 
             <form onSubmit={handleSaveItem} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Label (English)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Label (English)
+                </label>
                 <input
                   type="text"
                   value={itemForm.label}
@@ -409,7 +452,9 @@ export default function AdminMenusPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">লেবেল (বাংলা)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  লেবেল (বাংলা)
+                </label>
                 <input
                   type="text"
                   value={itemForm.labelBn}
@@ -421,7 +466,9 @@ export default function AdminMenusPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                 <select
                   value={itemForm.type}
-                  onChange={(e) => setItemForm((prev) => ({ ...prev, type: e.target.value as any }))}
+                  onChange={(e) =>
+                    setItemForm((prev) => ({ ...prev, type: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
                   <option value="custom">Custom Link</option>
@@ -444,7 +491,9 @@ export default function AdminMenusPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Target</label>
                 <select
                   value={itemForm.target}
-                  onChange={(e) => setItemForm((prev) => ({ ...prev, target: e.target.value as any }))}
+                  onChange={(e) =>
+                    setItemForm((prev) => ({ ...prev, target: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
                   <option value="_self">Same Window</option>
@@ -452,7 +501,9 @@ export default function AdminMenusPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Icon (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Icon (optional)
+                </label>
                 <input
                   type="text"
                   value={itemForm.icon}
@@ -465,7 +516,9 @@ export default function AdminMenusPage() {
                 <input
                   type="checkbox"
                   checked={itemForm.isVisible}
-                  onChange={(e) => setItemForm((prev) => ({ ...prev, isVisible: e.target.checked }))}
+                  onChange={(e) =>
+                    setItemForm((prev) => ({ ...prev, isVisible: e.target.checked }))
+                  }
                   className="rounded border-gray-300 text-teal-600"
                 />
                 <span className="text-sm text-gray-700">Visible</span>

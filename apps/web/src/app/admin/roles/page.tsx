@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
-import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface Permission {
   key: string;
@@ -32,25 +33,19 @@ export default function AdminRolesPage() {
   });
 
   useEffect(() => {
-    Promise.all([
-      apiClient.get('/admin/roles'),
-      apiClient.get('/admin/roles/permissions'),
-    ])
+    Promise.all([apiClient.get('/admin/roles'), apiClient.get('/admin/roles/permissions')])
       .then(([rolesRes, permRes]) => {
         setRoles(rolesRes.data.data ?? rolesRes.data ?? []);
         setPermissions(permRes.data.data ?? permRes.data ?? []);
       })
-      .catch(() => toast.error('Failed to load roles'))
+      .catch(() => toast.error(getApiErrorMessage(err, 'Failed to load roles')))
       .finally(() => setLoading(false));
   }, []);
 
-  const permissionGroups = permissions.reduce<Record<string, Permission[]>>(
-    (acc, p) => {
-      (acc[p.group] ??= []).push(p);
-      return acc;
-    },
-    {},
-  );
+  const permissionGroups = permissions.reduce<Record<string, Permission[]>>((acc, p) => {
+    (acc[p.group] ??= []).push(p);
+    return acc;
+  }, {});
 
   const togglePermission = (value: string) => {
     setForm((prev) => ({
@@ -89,23 +84,27 @@ export default function AdminRolesPage() {
       setShowForm(false);
       toast.success('Role saved');
     } catch (err: any) {
-      const msg = err?.response?.status === 501
-        ? 'Custom roles are not yet supported'
-        : 'Failed to save role';
+      const msg =
+        err?.response?.status === 501
+          ? 'Custom roles are not yet supported'
+          : 'Failed to save role';
       toast.error(msg);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this role?')) return;
+    if (!confirm('Delete this role?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/roles/${id}`);
       setRoles((prev) => prev.filter((r) => r.id !== id));
       toast.success('Role deleted');
     } catch (err: any) {
-      const msg = err?.response?.status === 501
-        ? 'Built-in roles cannot be deleted'
-        : 'Cannot delete role with assigned users';
+      const msg =
+        err?.response?.status === 501
+          ? 'Built-in roles cannot be deleted'
+          : 'Cannot delete role with assigned users';
       toast.error(msg);
     }
   };
@@ -200,9 +199,7 @@ export default function AdminRolesPage() {
                 <h3 className="text-sm font-medium text-gray-700">Permissions</h3>
                 {Object.entries(permissionGroups).map(([group, perms]) => (
                   <div key={group}>
-                    <h4 className="mb-1 text-xs font-semibold uppercase text-gray-500">
-                      {group}
-                    </h4>
+                    <h4 className="mb-1 text-xs font-semibold uppercase text-gray-500">{group}</h4>
                     <div className="flex flex-wrap gap-2">
                       {perms.map((p) => (
                         <label key={p.value} className="flex items-center gap-1">

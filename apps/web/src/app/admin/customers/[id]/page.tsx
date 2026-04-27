@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 import { useConfirm } from '@/components/admin/ui/confirm-dialog';
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 /**
  * Admin detail view for a single customer. Backfills the gap the audit
@@ -63,7 +64,7 @@ export default function AdminCustomerDetailPage() {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to load customer:', err);
-      toast.error('Failed to load customer');
+      toast.error(getApiErrorMessage(err, 'Failed to load customer'));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 /**
  * Admin-controlled layout of the public home page.
@@ -129,14 +130,14 @@ export default function AdminHomeSectionsPage() {
       if (typeof raw === 'string' && raw.length > 0) {
         try {
           setSections(parseSections(JSON.parse(raw) as unknown));
-        } catch {
+        } catch (err) {
           setSections(DEFAULT_SECTIONS);
         }
       }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to load home sections:', err);
-      toast.error('Failed to load home sections');
+      toast.error(getApiErrorMessage(err, 'Failed to load home sections'));
     } finally {
       setLoading(false);
     }

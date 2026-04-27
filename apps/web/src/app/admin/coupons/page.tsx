@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import {
   Plus,
   Search,
@@ -14,11 +13,12 @@ import {
   ChevronRight,
   Loader2,
 } from 'lucide-react';
-
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
-import { apiClient } from '@/lib/api/client';
 import { formatBDT } from '@/lib/api/admin';
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -107,11 +107,7 @@ function CopyCodeButton({ code }: { code: string }) {
       className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
       title="Copy code"
     >
-      {copied ? (
-        <Check className="h-3.5 w-3.5 text-green-500" />
-      ) : (
-        <Copy className="h-3.5 w-3.5" />
-      )}
+      {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
     </button>
   );
 }
@@ -127,12 +123,7 @@ interface CouponFormDialogProps {
   editCoupon?: Coupon | null;
 }
 
-function CouponFormDialog({
-  isOpen,
-  onClose,
-  onSuccess,
-  editCoupon,
-}: CouponFormDialogProps) {
+function CouponFormDialog({ isOpen, onClose, onSuccess, editCoupon }: CouponFormDialogProps) {
   const isEditing = !!editCoupon;
 
   const [formData, setFormData] = useState<CouponFormData>({
@@ -195,12 +186,13 @@ function CouponFormDialog({
 
   const handleSave = async () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.code.trim()) newErrors.code = 'Coupon code is required';
-    if (formData.discountValue <= 0) newErrors.discountValue = 'Discount must be greater than 0';
-    if (
-      formData.discountType === 'PERCENTAGE' &&
-      formData.discountValue > 100
-    ) {
+    if (!formData.code.trim()) {
+      newErrors.code = 'Coupon code is required';
+    }
+    if (formData.discountValue <= 0) {
+      newErrors.discountValue = 'Discount must be greater than 0';
+    }
+    if (formData.discountType === 'PERCENTAGE' && formData.discountValue > 100) {
       newErrors.discountValue = 'Percentage cannot exceed 100%';
     }
 
@@ -221,7 +213,7 @@ function CouponFormDialog({
       };
 
       if (isEditing) {
-        await apiClient.patch(`/admin/coupons/${editCoupon!.id}`, payload);
+        await apiClient.patch(`/admin/coupons/${editCoupon.id}`, payload);
       } else {
         await apiClient.post('/admin/coupons', payload);
       }
@@ -230,14 +222,16 @@ function CouponFormDialog({
       onSuccess();
       onClose();
     } catch (err) {
-      toast.error('Failed to save coupon');
+      toast.error(getApiErrorMessage(err, 'Failed to save coupon'));
       console.error('Failed to save coupon:', err);
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto">
@@ -298,9 +292,7 @@ function CouponFormDialog({
             <input
               type="text"
               value={formData.description}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, description: e.target.value }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
               placeholder="e.g., 20% off on all electronics"
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
             />
@@ -367,9 +359,7 @@ function CouponFormDialog({
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    minimumOrderAmount: e.target.value
-                      ? parseFloat(e.target.value)
-                      : null,
+                    minimumOrderAmount: e.target.value ? parseFloat(e.target.value) : null,
                   }))
                 }
                 placeholder="No minimum"
@@ -388,9 +378,7 @@ function CouponFormDialog({
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      maximumDiscount: e.target.value
-                        ? parseFloat(e.target.value)
-                        : null,
+                      maximumDiscount: e.target.value ? parseFloat(e.target.value) : null,
                     }))
                   }
                   placeholder="No cap"
@@ -413,9 +401,7 @@ function CouponFormDialog({
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    usageLimit: e.target.value
-                      ? parseInt(e.target.value, 10)
-                      : null,
+                    usageLimit: e.target.value ? parseInt(e.target.value, 10) : null,
                   }))
                 }
                 placeholder="Unlimited"
@@ -450,22 +436,16 @@ function CouponFormDialog({
               <input
                 type="date"
                 value={formData.startDate}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, startDate: e.target.value }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                End Date
-              </label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">End Date</label>
               <input
                 type="date"
                 value={formData.endDate}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, endDate: e.target.value }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
@@ -476,9 +456,7 @@ function CouponFormDialog({
             <input
               type="checkbox"
               checked={formData.isActive}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, isActive: e.target.checked }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
               className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
             />
             <span className="text-sm font-medium text-gray-700">Active</span>
@@ -526,8 +504,12 @@ export default function AdminCouponsPage() {
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', '20');
-      if (searchQuery) params.set('search', searchQuery);
-      if (statusFilter !== 'all') params.set('status', statusFilter);
+      if (searchQuery) {
+        params.set('search', searchQuery);
+      }
+      if (statusFilter !== 'all') {
+        params.set('status', statusFilter);
+      }
 
       const { data } = await apiClient.get(`/admin/coupons?${params.toString()}`);
       setCoupons(data.data ?? data ?? []);
@@ -549,13 +531,15 @@ export default function AdminCouponsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this coupon?')) return;
+    if (!confirm('Delete this coupon?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/coupons/${id}`);
       toast.success('Coupon deleted');
       fetchCoupons();
     } catch (err) {
-      toast.error('Failed to delete coupon');
+      toast.error(getApiErrorMessage(err, 'Failed to delete coupon'));
       console.error('Failed to delete coupon:', err);
     }
   };
@@ -568,7 +552,7 @@ export default function AdminCouponsPage() {
       toast.success(coupon.isActive ? 'Coupon deactivated' : 'Coupon activated');
       fetchCoupons();
     } catch (err) {
-      toast.error('Failed to toggle coupon');
+      toast.error(getApiErrorMessage(err, 'Failed to toggle coupon'));
       console.error('Failed to toggle coupon:', err);
     }
   };
@@ -579,9 +563,7 @@ export default function AdminCouponsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Coupons</h1>
-          <p className="text-sm text-gray-500">
-            Manage discount coupons — all amounts in BDT (৳)
-          </p>
+          <p className="text-sm text-gray-500">Manage discount coupons — all amounts in BDT (৳)</p>
         </div>
         <button
           onClick={() => {
@@ -685,9 +667,7 @@ export default function AdminCouponsPage() {
                           <CopyCodeButton code={coupon.code} />
                         </div>
                         {coupon.description && (
-                          <p className="mt-0.5 text-xs text-gray-500">
-                            {coupon.description}
-                          </p>
+                          <p className="mt-0.5 text-xs text-gray-500">{coupon.description}</p>
                         )}
                       </td>
                       <td className="whitespace-nowrap px-6 py-3">
@@ -715,16 +695,12 @@ export default function AdminCouponsPage() {
                           {coupon.usageCount ?? 0}
                           {coupon.usageLimit ? ` / ${coupon.usageLimit}` : ''}
                         </span>
-                        <p className="text-xs text-gray-400">
-                          {coupon.usageLimitPerUser} per user
-                        </p>
+                        <p className="text-xs text-gray-400">{coupon.usageLimitPerUser} per user</p>
                       </td>
                       <td className="whitespace-nowrap px-6 py-3 text-xs text-gray-600">
                         <p>{formatDate(coupon.startDate)}</p>
                         {coupon.endDate && (
-                          <p className="text-gray-400">
-                            to {formatDate(coupon.endDate)}
-                          </p>
+                          <p className="text-gray-400">to {formatDate(coupon.endDate)}</p>
                         )}
                       </td>
                       <td className="whitespace-nowrap px-6 py-3">

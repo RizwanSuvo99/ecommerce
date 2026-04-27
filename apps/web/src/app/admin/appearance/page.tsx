@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '@/lib/api/client';
 import { toast } from 'sonner';
-import ColorSettings from '../../../components/admin/appearance/color-settings';
-import TypographySettings from '../../../components/admin/appearance/typography-settings';
+
 import BorderSettings from '../../../components/admin/appearance/border-settings';
-import LayoutSettings from '../../../components/admin/appearance/layout-settings';
+import ColorSettings from '../../../components/admin/appearance/color-settings';
 import CustomCSSEditor from '../../../components/admin/appearance/custom-css-editor';
+import LayoutSettings from '../../../components/admin/appearance/layout-settings';
+import TypographySettings from '../../../components/admin/appearance/typography-settings';
+
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 type SettingsTab = 'colors' | 'typography' | 'borders' | 'layout' | 'custom-css';
 
@@ -42,7 +45,7 @@ export default function AdminAppearancePage() {
       setTheme(data.data || data);
     } catch (error) {
       console.error('Fetch theme error:', error);
-      toast.error('Failed to load theme settings');
+      toast.error(getApiErrorMessage(err, 'Failed to load theme settings'));
     } finally {
       setLoading(false);
     }
@@ -53,7 +56,9 @@ export default function AdminAppearancePage() {
   }, [fetchTheme]);
 
   const handleSave = async () => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setSaving(true);
 
     try {
@@ -63,14 +68,16 @@ export default function AdminAppearancePage() {
       toast.success('Theme saved');
     } catch (error) {
       console.error('Save theme error:', error);
-      toast.error('Failed to save theme');
+      toast.error(getApiErrorMessage(err, 'Failed to save theme'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleReset = async () => {
-    if (!confirm('Are you sure you want to reset all appearance settings to defaults?')) return;
+    if (!confirm('Are you sure you want to reset all appearance settings to defaults?')) {
+      return;
+    }
 
     try {
       const { data } = await apiClient.post('/admin/theme/reset');
@@ -79,12 +86,14 @@ export default function AdminAppearancePage() {
       toast.success('Theme reset to defaults');
     } catch (error) {
       console.error('Reset theme error:', error);
-      toast.error('Failed to reset theme');
+      toast.error(getApiErrorMessage(err, 'Failed to reset theme'));
     }
   };
 
   const updateTheme = (section: string, value: any) => {
-    if (!theme) return;
+    if (!theme) {
+      return;
+    }
     setTheme({ ...theme, [section]: value });
     setHasChanges(true);
   };
@@ -92,7 +101,7 @@ export default function AdminAppearancePage() {
   if (loading || !theme) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
       </div>
     );
   }
@@ -126,7 +135,10 @@ export default function AdminAppearancePage() {
       {hasChanges && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-yellow-800">You have unsaved changes.</span>
-          <button onClick={handleSave} className="text-sm font-medium text-yellow-800 hover:text-yellow-900">
+          <button
+            onClick={handleSave}
+            className="text-sm font-medium text-yellow-800 hover:text-yellow-900"
+          >
             Save now
           </button>
         </div>

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
-import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface AuditLog {
   id: string;
@@ -25,8 +26,16 @@ interface Pagination {
 }
 
 const ENTITY_TYPES = [
-  'user', 'product', 'order', 'category', 'coupon',
-  'settings', 'role', 'page', 'banner', 'menu',
+  'user',
+  'product',
+  'order',
+  'category',
+  'coupon',
+  'settings',
+  'role',
+  'page',
+  'banner',
+  'menu',
 ];
 
 export default function AdminAuditLogPage() {
@@ -44,15 +53,19 @@ export default function AdminAuditLogPage() {
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', '30');
-      if (entity) params.set('entity', entity);
-      if (action) params.set('action', action);
+      if (entity) {
+        params.set('entity', entity);
+      }
+      if (action) {
+        params.set('action', action);
+      }
 
       const { data } = await apiClient.get(`/admin/audit-logs?${params}`);
       const result = data.data ?? data;
       setLogs(result.logs ?? result ?? []);
       setPagination(result.pagination ?? null);
-    } catch {
-      toast.error('Failed to load audit logs');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to load audit logs'));
     } finally {
       setLoading(false);
     }
@@ -71,17 +84,21 @@ export default function AdminAuditLogPage() {
     };
     const key = Object.keys(colors).find((k) => act.toLowerCase().includes(k));
     return (
-      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[key ?? ''] ?? 'bg-gray-100 text-gray-700'}`}>
+      <span
+        className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[key ?? ''] ?? 'bg-gray-100 text-gray-700'}`}
+      >
         {act}
       </span>
     );
   };
 
   const formatJson = (json: string | null) => {
-    if (!json) return null;
+    if (!json) {
+      return null;
+    }
     try {
       return JSON.stringify(JSON.parse(json), null, 2);
-    } catch {
+    } catch (err) {
       return json;
     }
   };
@@ -99,12 +116,17 @@ export default function AdminAuditLogPage() {
       <div className="flex flex-wrap gap-4">
         <select
           value={entity}
-          onChange={(e) => { setEntity(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setEntity(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border-gray-300 text-sm shadow-sm"
         >
           <option value="">All Entities</option>
           {ENTITY_TYPES.map((t) => (
-            <option key={t} value={t}>{t}</option>
+            <option key={t} value={t}>
+              {t}
+            </option>
           ))}
         </select>
         <input
@@ -122,12 +144,24 @@ export default function AdminAuditLogPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Time</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">User</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Action</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Entity</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Entity ID</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">IP</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Time
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                User
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Action
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Entity
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Entity ID
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                IP
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
@@ -156,9 +190,7 @@ export default function AdminAuditLogPage() {
                     <td className="whitespace-nowrap px-4 py-3 text-sm">
                       {log.user ? `${log.user.firstName} ${log.user.lastName}` : 'System'}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      {actionBadge(log.action)}
-                    </td>
+                    <td className="whitespace-nowrap px-4 py-3">{actionBadge(log.action)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
                       {log.entity}
                     </td>
@@ -185,9 +217,7 @@ export default function AdminAuditLogPage() {
                           )}
                           {log.newValues && (
                             <div>
-                              <h4 className="mb-1 text-xs font-medium text-gray-500">
-                                New Values
-                              </h4>
+                              <h4 className="mb-1 text-xs font-medium text-gray-500">New Values</h4>
                               <pre className="max-h-40 overflow-auto rounded bg-white p-2 text-xs">
                                 {formatJson(log.newValues)}
                               </pre>

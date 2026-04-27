@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface MenuItem {
   id: string;
@@ -75,8 +76,8 @@ export default function AdminNavigationPage() {
       if (!selectedMenuId && (result.menus ?? result)?.length > 0) {
         setSelectedMenuId((result.menus ?? result)[0].id);
       }
-    } catch {
-      toast.error('Failed to load menus');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to load menus'));
     } finally {
       setLoading(false);
     }
@@ -91,51 +92,76 @@ export default function AdminNavigationPage() {
   // ─── Menu CRUD ────────────────────────────────────────────
 
   const createMenu = async () => {
-    if (!newMenu.name.trim()) return;
+    if (!newMenu.name.trim()) {
+      return;
+    }
     try {
       await apiClient.post('/admin/menus', newMenu);
       toast.success('Menu created');
       setShowAddMenu(false);
       setNewMenu({ name: '', location: 'header' });
       fetchMenus();
-    } catch {
-      toast.error('Failed to create menu');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to create menu'));
     }
   };
 
   const deleteMenu = async (menuId: string) => {
-    if (!confirm('Delete this menu and all its items?')) return;
+    if (!confirm('Delete this menu and all its items?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/menus/${menuId}`);
       toast.success('Menu deleted');
-      if (selectedMenuId === menuId) setSelectedMenuId(null);
+      if (selectedMenuId === menuId) {
+        setSelectedMenuId(null);
+      }
       fetchMenus();
-    } catch {
-      toast.error('Failed to delete menu');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to delete menu'));
     }
   };
 
   // ─── Menu Item CRUD ───────────────────────────────────────
 
   const addMenuItem = async () => {
-    if (!selectedMenuId || !newItem.label.trim()) return;
+    if (!selectedMenuId || !newItem.label.trim()) {
+      return;
+    }
     try {
       const payload: any = { ...newItem };
-      if (!payload.parentId) delete payload.parentId;
-      if (!payload.labelBn) delete payload.labelBn;
-      if (!payload.icon) delete payload.icon;
+      if (!payload.parentId) {
+        delete payload.parentId;
+      }
+      if (!payload.labelBn) {
+        delete payload.labelBn;
+      }
+      if (!payload.icon) {
+        delete payload.icon;
+      }
       await apiClient.post(`/admin/menus/${selectedMenuId}/items`, payload);
       toast.success('Item added');
       setShowAddItem(false);
-      setNewItem({ label: '', labelBn: '', url: '', type: 'custom', target: '_self', icon: '', isVisible: true, parentId: '' });
+      setNewItem({
+        label: '',
+        labelBn: '',
+        url: '',
+        type: 'custom',
+        target: '_self',
+        icon: '',
+        isVisible: true,
+        parentId: '',
+      });
       fetchMenus();
-    } catch {
-      toast.error('Failed to add item');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to add item'));
     }
   };
 
   const updateMenuItem = async () => {
-    if (!selectedMenuId || !editingItem) return;
+    if (!selectedMenuId || !editingItem) {
+      return;
+    }
     try {
       await apiClient.patch(`/admin/menus/${selectedMenuId}/items/${editingItem.id}`, {
         label: editingItem.label,
@@ -149,38 +175,42 @@ export default function AdminNavigationPage() {
       toast.success('Item updated');
       setEditingItem(null);
       fetchMenus();
-    } catch {
-      toast.error('Failed to update item');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update item'));
     }
   };
 
   const deleteMenuItem = async (itemId: string) => {
-    if (!selectedMenuId || !confirm('Delete this menu item?')) return;
+    if (!selectedMenuId || !confirm('Delete this menu item?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/menus/${selectedMenuId}/items/${itemId}`);
       toast.success('Item deleted');
       fetchMenus();
-    } catch {
-      toast.error('Failed to delete item');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to delete item'));
     }
   };
 
   const toggleVisibility = async (item: MenuItem) => {
-    if (!selectedMenuId) return;
+    if (!selectedMenuId) {
+      return;
+    }
     try {
       await apiClient.patch(`/admin/menus/${selectedMenuId}/items/${item.id}`, {
         isVisible: !item.isVisible,
       });
       fetchMenus();
-    } catch {
-      toast.error('Failed to update visibility');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update visibility'));
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
       </div>
     );
   }
@@ -191,7 +221,9 @@ export default function AdminNavigationPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Navigation Menus</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage header, footer, and other navigation menus</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage header, footer, and other navigation menus
+          </p>
         </div>
         <button
           onClick={() => setShowAddMenu(true)}
@@ -231,8 +263,18 @@ export default function AdminNavigationPage() {
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <button onClick={createMenu} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700">Create</button>
-            <button onClick={() => setShowAddMenu(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+            <button
+              onClick={createMenu}
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700"
+            >
+              Create
+            </button>
+            <button
+              onClick={() => setShowAddMenu(false)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -258,15 +300,31 @@ export default function AdminNavigationPage() {
                   >
                     <div>
                       <div className="text-sm font-medium">{menu.name}</div>
-                      <div className="text-xs text-gray-500">{LOCATION_LABELS[menu.location] ?? menu.location} &middot; {menu.items.length} items</div>
+                      <div className="text-xs text-gray-500">
+                        {LOCATION_LABELS[menu.location] ?? menu.location} &middot;{' '}
+                        {menu.items.length} items
+                      </div>
                     </div>
                     <button
-                      onClick={(e) => { e.stopPropagation(); deleteMenu(menu.id); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteMenu(menu.id);
+                      }}
                       className="text-gray-400 hover:text-red-500 p-1"
                       title="Delete menu"
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
                       </svg>
                     </button>
                   </button>
@@ -283,7 +341,9 @@ export default function AdminNavigationPage() {
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{selectedMenu.name}</h3>
-                  <p className="text-xs text-gray-500">{LOCATION_LABELS[selectedMenu.location] ?? selectedMenu.location} menu</p>
+                  <p className="text-xs text-gray-500">
+                    {LOCATION_LABELS[selectedMenu.location] ?? selectedMenu.location} menu
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowAddItem(true)}
@@ -324,14 +384,22 @@ export default function AdminNavigationPage() {
                       onChange={(e) => setNewItem({ ...newItem, type: e.target.value })}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     >
-                      {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {TYPE_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
                     </select>
                     <select
                       value={newItem.target}
                       onChange={(e) => setNewItem({ ...newItem, target: e.target.value })}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                     >
-                      {TARGET_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {TARGET_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
                     </select>
                     <select
                       value={newItem.parentId}
@@ -340,13 +408,25 @@ export default function AdminNavigationPage() {
                     >
                       <option value="">Top Level</option>
                       {selectedMenu.items.map((item) => (
-                        <option key={item.id} value={item.id}>{item.label}</option>
+                        <option key={item.id} value={item.id}>
+                          {item.label}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={addMenuItem} className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700">Add</button>
-                    <button onClick={() => setShowAddItem(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
+                    <button
+                      onClick={addMenuItem}
+                      className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700"
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => setShowAddItem(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               )}
@@ -354,7 +434,9 @@ export default function AdminNavigationPage() {
               {/* Items List */}
               <div className="divide-y divide-gray-100">
                 {selectedMenu.items.length === 0 ? (
-                  <p className="px-6 py-12 text-sm text-gray-400 text-center">No items in this menu. Click &quot;Add Item&quot; to get started.</p>
+                  <p className="px-6 py-12 text-sm text-gray-400 text-center">
+                    No items in this menu. Click &quot;Add Item&quot; to get started.
+                  </p>
                 ) : (
                   selectedMenu.items.map((item) => (
                     <MenuItemRow
@@ -409,10 +491,11 @@ function MenuItemRow({
 
   return (
     <>
-      <div className={`px-6 py-3 flex items-center gap-3 ${!item.isVisible ? 'opacity-50' : ''}`} style={{ paddingLeft: `${level * 24 + 24}px` }}>
-        {level > 0 && (
-          <span className="text-gray-300 text-xs">&#x2514;</span>
-        )}
+      <div
+        className={`px-6 py-3 flex items-center gap-3 ${!item.isVisible ? 'opacity-50' : ''}`}
+        style={{ paddingLeft: `${level * 24 + 24}px` }}
+      >
+        {level > 0 && <span className="text-gray-300 text-xs">&#x2514;</span>}
         {isEditing ? (
           <div className="flex-1 grid grid-cols-3 gap-2">
             <input
@@ -428,8 +511,18 @@ function MenuItemRow({
               className="px-2 py-1 border border-gray-300 rounded text-sm"
             />
             <div className="flex gap-1">
-              <button onClick={onSave} className="px-3 py-1 bg-teal-600 text-white rounded text-xs hover:bg-teal-700">Save</button>
-              <button onClick={onCancelEdit} className="px-3 py-1 border rounded text-xs hover:bg-gray-50">Cancel</button>
+              <button
+                onClick={onSave}
+                className="px-3 py-1 bg-teal-600 text-white rounded text-xs hover:bg-teal-700"
+              >
+                Save
+              </button>
+              <button
+                onClick={onCancelEdit}
+                className="px-3 py-1 border rounded text-xs hover:bg-gray-50"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         ) : (
@@ -439,7 +532,9 @@ function MenuItemRow({
               {item.labelBn && <span className="text-xs text-gray-400 ml-2">{item.labelBn}</span>}
               <span className="text-xs text-gray-400 ml-2">{item.url || '—'}</span>
             </div>
-            <span className="text-xs text-gray-400 border border-gray-200 rounded px-1.5 py-0.5">{item.type}</span>
+            <span className="text-xs text-gray-400 border border-gray-200 rounded px-1.5 py-0.5">
+              {item.type}
+            </span>
             <button
               onClick={() => onToggleVisibility(item)}
               className={`p-1 rounded ${item.isVisible ? 'text-green-600 hover:bg-green-50' : 'text-gray-400 hover:bg-gray-100'}`}
@@ -447,9 +542,19 @@ function MenuItemRow({
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {item.isVisible ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
                 )}
               </svg>
             </button>
@@ -459,7 +564,12 @@ function MenuItemRow({
               title="Edit"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
             </button>
             <button
@@ -468,7 +578,12 @@ function MenuItemRow({
               title="Delete"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </>

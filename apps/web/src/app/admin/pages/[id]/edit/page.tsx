@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { apiClient } from '@/lib/api/client';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 export default function AdminEditPagePage() {
   const params = useParams();
@@ -47,7 +49,7 @@ export default function AdminEditPagePage() {
         });
       } catch (error) {
         console.error('Fetch page error:', error);
-        toast.error('Failed to load page');
+        toast.error(getApiErrorMessage(err, 'Failed to load page'));
       } finally {
         setLoading(false);
       }
@@ -64,7 +66,7 @@ export default function AdminEditPagePage() {
       toast.success('Page updated');
     } catch (error) {
       console.error('Update page error:', error);
-      toast.error('Failed to update page');
+      toast.error(getApiErrorMessage(err, 'Failed to update page'));
     } finally {
       setSaving(false);
     }
@@ -73,7 +75,7 @@ export default function AdminEditPagePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
       </div>
     );
   }
@@ -84,7 +86,12 @@ export default function AdminEditPagePage() {
         <div className="flex items-center gap-4">
           <a href="/admin/pages" className="text-gray-500 hover:text-gray-700">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </a>
           <h1 className="text-2xl font-bold text-gray-900">Edit Page</h1>
@@ -137,16 +144,22 @@ export default function AdminEditPagePage() {
                       <input
                         type="text"
                         value={formData.title}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, title: e.target.value }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Content
+                      </label>
                       <textarea
                         value={formData.content}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, content: e.target.value }))
+                        }
                         rows={20}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
                       />
@@ -155,19 +168,27 @@ export default function AdminEditPagePage() {
                 ) : (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">শিরোনাম</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        শিরোনাম
+                      </label>
                       <input
                         type="text"
                         value={formData.titleBn}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, titleBn: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, titleBn: e.target.value }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">বিষয়বস্তু</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        বিষয়বস্তু
+                      </label>
                       <textarea
                         value={formData.contentBn}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, contentBn: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, contentBn: e.target.value }))
+                        }
                         rows={20}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
@@ -194,13 +215,16 @@ export default function AdminEditPagePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meta Description
+                </label>
                 <textarea
                   value={activeTab === 'en' ? formData.metaDescription : formData.metaDescriptionBn}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      [activeTab === 'en' ? 'metaDescription' : 'metaDescriptionBn']: e.target.value,
+                      [activeTab === 'en' ? 'metaDescription' : 'metaDescriptionBn']:
+                        e.target.value,
                     }))
                   }
                   rows={3}
@@ -229,7 +253,9 @@ export default function AdminEditPagePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as any }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, status: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
                   <option value="draft">Draft</option>
@@ -251,11 +277,15 @@ export default function AdminEditPagePage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Featured Image</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Featured Image
+                </label>
                 <input
                   type="text"
                   value={formData.featuredImage}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, featuredImage: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, featuredImage: e.target.value }))
+                  }
                   placeholder="https://..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />

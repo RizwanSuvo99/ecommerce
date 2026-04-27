@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Plus,
   Search,
@@ -15,9 +14,11 @@ import {
   Loader2,
   Package,
 } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
-import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
@@ -76,11 +77,7 @@ function BrandCard({ brand, onEdit, onDelete }: BrandCardProps) {
         {/* Logo */}
         <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
           {brand.logo ? (
-            <img
-              src={brand.logo}
-              alt={brand.name}
-              className="h-full w-full object-contain p-1"
-            />
+            <img src={brand.logo} alt={brand.name} className="h-full w-full object-contain p-1" />
           ) : (
             <Building2 className="h-6 w-6 text-gray-300" />
           )}
@@ -104,9 +101,7 @@ function BrandCard({ brand, onEdit, onDelete }: BrandCardProps) {
       </div>
 
       <h3 className="text-sm font-semibold text-gray-900">{brand.name}</h3>
-      {brand.nameBn && (
-        <p className="text-xs text-gray-500">{brand.nameBn}</p>
-      )}
+      {brand.nameBn && <p className="text-xs text-gray-500">{brand.nameBn}</p>}
       <p className="mt-1 line-clamp-2 text-xs text-gray-500">
         {brand.description || 'No description'}
       </p>
@@ -119,9 +114,7 @@ function BrandCard({ brand, onEdit, onDelete }: BrandCardProps) {
         <span
           className={cn(
             'rounded-full px-2 py-0.5 text-xs font-medium',
-            brand.isActive
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-500',
+            brand.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500',
           )}
         >
           {brand.isActive ? 'Active' : 'Draft'}
@@ -140,11 +133,7 @@ function BrandRow({ brand, onEdit, onDelete }: BrandCardProps) {
     <div className="flex items-center gap-4 border-b border-gray-100 px-6 py-3 last:border-0 hover:bg-gray-50">
       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
         {brand.logo ? (
-          <img
-            src={brand.logo}
-            alt={brand.name}
-            className="h-full w-full object-contain p-0.5"
-          />
+          <img src={brand.logo} alt={brand.name} className="h-full w-full object-contain p-0.5" />
         ) : (
           <Building2 className="h-5 w-5 text-gray-300" />
         )}
@@ -153,9 +142,7 @@ function BrandRow({ brand, onEdit, onDelete }: BrandCardProps) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-900">{brand.name}</span>
-          {brand.nameBn && (
-            <span className="text-xs text-gray-500">({brand.nameBn})</span>
-          )}
+          {brand.nameBn && <span className="text-xs text-gray-500">({brand.nameBn})</span>}
         </div>
         <p className="truncate text-xs text-gray-500">
           /{brand.slug}
@@ -183,9 +170,7 @@ function BrandRow({ brand, onEdit, onDelete }: BrandCardProps) {
       <span
         className={cn(
           'rounded-full px-2 py-0.5 text-xs font-medium',
-          brand.isActive
-            ? 'bg-green-100 text-green-700'
-            : 'bg-gray-100 text-gray-500',
+          brand.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500',
         )}
       >
         {brand.isActive ? 'Active' : 'Draft'}
@@ -220,12 +205,7 @@ interface BrandFormDialogProps {
   editBrand?: Brand | null;
 }
 
-function BrandFormDialog({
-  isOpen,
-  onClose,
-  onSuccess,
-  editBrand,
-}: BrandFormDialogProps) {
+function BrandFormDialog({ isOpen, onClose, onSuccess, editBrand }: BrandFormDialogProps) {
   const isEditing = !!editBrand;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -289,7 +269,7 @@ function BrandFormDialog({
       setFormData((prev) => ({ ...prev, logo: result.url }));
     } catch (err) {
       console.error('Logo upload failed:', err);
-      toast.error('Failed to upload logo');
+      toast.error(getApiErrorMessage(err, 'Failed to upload logo'));
     } finally {
       setIsUploading(false);
     }
@@ -310,7 +290,7 @@ function BrandFormDialog({
       };
 
       if (isEditing) {
-        await apiClient.patch(`/brands/${editBrand!.id}`, payload);
+        await apiClient.patch(`/brands/${editBrand.id}`, payload);
       } else {
         await apiClient.post('/brands', payload);
       }
@@ -320,13 +300,15 @@ function BrandFormDialog({
       onClose();
     } catch (err) {
       console.error('Failed to save brand:', err);
-      toast.error('Failed to save brand');
+      toast.error(getApiErrorMessage(err, 'Failed to save brand'));
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -357,7 +339,11 @@ function BrandFormDialog({
                 disabled={isUploading}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
-                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {isUploading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
                 {isUploading ? 'Uploading...' : 'Upload Logo'}
               </button>
               {formData.logo && (
@@ -390,7 +376,9 @@ function BrandFormDialog({
               placeholder="e.g., Samsung"
               className={cn(
                 'w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-1',
-                errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-teal-500',
+                errors.name
+                  ? 'border-red-300 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-teal-500',
               )}
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -455,7 +443,10 @@ function BrandFormDialog({
         </div>
 
         <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
-          <button onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
             Cancel
           </button>
           <button
@@ -507,14 +498,16 @@ export default function AdminBrandsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this brand? Products under this brand will be unbranded.')) return;
+    if (!confirm('Delete this brand? Products under this brand will be unbranded.')) {
+      return;
+    }
     try {
       await apiClient.delete(`/brands/${id}`);
       fetchBrands();
       toast.success('Brand deleted');
     } catch (err) {
       console.error('Failed to delete brand:', err);
-      toast.error('Failed to delete brand');
+      toast.error(getApiErrorMessage(err, 'Failed to delete brand'));
     }
   };
 
@@ -564,9 +557,7 @@ export default function AdminBrandsPage() {
             onClick={() => setViewMode('grid')}
             className={cn(
               'rounded-l-lg p-2',
-              viewMode === 'grid'
-                ? 'bg-teal-600 text-white'
-                : 'text-gray-500 hover:bg-gray-50',
+              viewMode === 'grid' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50',
             )}
           >
             <LayoutGrid className="h-4 w-4" />
@@ -575,9 +566,7 @@ export default function AdminBrandsPage() {
             onClick={() => setViewMode('list')}
             className={cn(
               'rounded-r-lg p-2',
-              viewMode === 'list'
-                ? 'bg-teal-600 text-white'
-                : 'text-gray-500 hover:bg-gray-50',
+              viewMode === 'list' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50',
             )}
           >
             <List className="h-4 w-4" />
@@ -600,23 +589,13 @@ export default function AdminBrandsPage() {
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredBrands.map((brand) => (
-            <BrandCard
-              key={brand.id}
-              brand={brand}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <BrandCard key={brand.id} brand={brand} onEdit={handleEdit} onDelete={handleDelete} />
           ))}
         </div>
       ) : (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           {filteredBrands.map((brand) => (
-            <BrandRow
-              key={brand.id}
-              brand={brand}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <BrandRow key={brand.id} brand={brand} onEdit={handleEdit} onDelete={handleDelete} />
           ))}
         </div>
       )}

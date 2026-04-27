@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface ShippingMethod {
@@ -20,8 +22,14 @@ interface ShippingZone {
 }
 
 const BD_DIVISIONS = [
-  'Dhaka', 'Chattogram', 'Rajshahi', 'Khulna',
-  'Barishal', 'Sylhet', 'Rangpur', 'Mymensingh',
+  'Dhaka',
+  'Chattogram',
+  'Rajshahi',
+  'Khulna',
+  'Barishal',
+  'Sylhet',
+  'Rangpur',
+  'Mymensingh',
 ];
 
 const DEFAULT_METHODS: ShippingMethod[] = [
@@ -32,7 +40,13 @@ const DEFAULT_METHODS: ShippingMethod[] = [
 
 const DEFAULT_ZONES: ShippingZone[] = [
   { name: 'Inside Dhaka', divisions: ['Dhaka'], flatRate: 60, freeAbove: 2000, estimatedDays: 2 },
-  { name: 'Outside Dhaka', divisions: BD_DIVISIONS.filter((d) => d !== 'Dhaka'), flatRate: 120, freeAbove: 3000, estimatedDays: 5 },
+  {
+    name: 'Outside Dhaka',
+    divisions: BD_DIVISIONS.filter((d) => d !== 'Dhaka'),
+    flatRate: 120,
+    freeAbove: 3000,
+    estimatedDays: 5,
+  },
 ];
 
 export default function ShippingSettingsPage() {
@@ -48,14 +62,28 @@ export default function ShippingSettingsPage() {
     getSettingsByGroup('shipping')
       .then((data) => {
         if (data.methods) {
-          try { setMethods(JSON.parse(data.methods)); } catch { /* keep defaults */ }
+          try {
+            setMethods(JSON.parse(data.methods));
+          } catch {
+            /* keep defaults */
+          }
         }
         if (data.zones) {
-          try { setZones(JSON.parse(data.zones)); } catch { /* keep defaults */ }
+          try {
+            setZones(JSON.parse(data.zones));
+          } catch {
+            /* keep defaults */
+          }
         }
-        if (data.enable_free_shipping) setEnableFreeShipping(data.enable_free_shipping === 'true');
-        if (data.free_shipping_threshold) setFreeThreshold(Number(data.free_shipping_threshold));
-        if (data.default_weight_unit) setDefaultWeightUnit(data.default_weight_unit);
+        if (data.enable_free_shipping) {
+          setEnableFreeShipping(data.enable_free_shipping === 'true');
+        }
+        if (data.free_shipping_threshold) {
+          setFreeThreshold(Number(data.free_shipping_threshold));
+        }
+        if (data.default_weight_unit) {
+          setDefaultWeightUnit(data.default_weight_unit);
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -85,8 +113,8 @@ export default function ShippingSettingsPage() {
         default_weight_unit: defaultWeightUnit,
       });
       toast.success('Shipping settings saved');
-    } catch {
-      toast.error('Failed to save shipping settings');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save shipping settings'));
     } finally {
       setSaving(false);
     }
@@ -105,7 +133,10 @@ export default function ShippingSettingsPage() {
         <h3 className="font-medium text-gray-800">Shipping Methods</h3>
         <div className="space-y-3">
           {methods.map((method) => (
-            <div key={method.id} className="flex items-center gap-4 rounded-md border border-gray-200 p-3">
+            <div
+              key={method.id}
+              className="flex items-center gap-4 rounded-md border border-gray-200 p-3"
+            >
               <input
                 type="checkbox"
                 checked={method.enabled}
@@ -145,9 +176,7 @@ export default function ShippingSettingsPage() {
                   />
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Divisions: {zone.divisions.join(', ')}
-              </p>
+              <p className="mt-1 text-xs text-gray-500">Divisions: {zone.divisions.join(', ')}</p>
               {zone.estimatedDays && (
                 <p className="text-xs text-gray-500">
                   Estimated delivery: {zone.estimatedDays} days

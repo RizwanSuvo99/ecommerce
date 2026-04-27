@@ -1,13 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { apiClient } from '@/lib/api/client';
 import StatusUpdateDialog from '@/components/admin/orders/status-update-dialog';
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
-type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'RETURNED';
+type OrderStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'PROCESSING'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'CANCELLED'
+  | 'RETURNED';
 type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
 
 interface OrderItem {
@@ -100,7 +108,9 @@ function formatBDT(amount: number): string {
 
 function Badge({ label, color }: { label: string; color: string }) {
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${color}-100 text-${color}-800 border border-${color}-200`}>
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${color}-100 text-${color}-800 border border-${color}-200`}
+    >
       {label}
     </span>
   );
@@ -124,9 +134,30 @@ export default function AdminOrderDetailPage() {
           ...raw,
           items: raw.items ?? [],
           timeline: raw.timeline ?? [],
-          customer: raw.customer ?? { id: '', name: 'Unknown', email: '', phone: '', totalOrders: 0 },
-          shippingAddress: raw.shippingAddress ?? { name: '', phone: '', address: '', city: '', area: '', postalCode: '' },
-          billingAddress: raw.billingAddress ?? raw.shippingAddress ?? { name: '', phone: '', address: '', city: '', area: '', postalCode: '' },
+          customer: raw.customer ?? {
+            id: '',
+            name: 'Unknown',
+            email: '',
+            phone: '',
+            totalOrders: 0,
+          },
+          shippingAddress: raw.shippingAddress ?? {
+            name: '',
+            phone: '',
+            address: '',
+            city: '',
+            area: '',
+            postalCode: '',
+          },
+          billingAddress: raw.billingAddress ??
+            raw.shippingAddress ?? {
+              name: '',
+              phone: '',
+              address: '',
+              city: '',
+              area: '',
+              postalCode: '',
+            },
           tax: raw.tax ?? 0,
           discount: raw.discount ?? 0,
         });
@@ -134,11 +165,13 @@ export default function AdminOrderDetailPage() {
         console.error('Error fetching order:', err);
         const status = err?.response?.status;
         if (status === 404) {
-          setError('This order could not be found. The admin order detail endpoint may not be available yet.');
+          setError(
+            'This order could not be found. The admin order detail endpoint may not be available yet.',
+          );
         } else {
           setError('Failed to load order details. Please try again later.');
         }
-        toast.error('Failed to load order details');
+        toast.error(getApiErrorMessage(err, 'Failed to load order details'));
       } finally {
         setLoading(false);
       }
@@ -148,7 +181,7 @@ export default function AdminOrderDetailPage() {
 
   const handleStatusUpdated = (newStatus: string) => {
     const upperStatus = newStatus.toUpperCase() as OrderStatus;
-    setOrder((prev) => prev ? { ...prev, status: upperStatus } : prev);
+    setOrder((prev) => (prev ? { ...prev, status: upperStatus } : prev));
     setShowStatusDialog(false);
     toast.success(`Order status updated to ${newStatus}`);
   };
@@ -171,14 +204,14 @@ export default function AdminOrderDetailPage() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Invoice download error:', error);
-      toast.error('Failed to download invoice');
+      toast.error(getApiErrorMessage(err, 'Failed to download invoice'));
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
       </div>
     );
   }
@@ -187,8 +220,18 @@ export default function AdminOrderDetailPage() {
     return (
       <div className="text-center py-12">
         <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-          <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          <svg
+            className="w-8 h-8 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-gray-900">
@@ -197,7 +240,10 @@ export default function AdminOrderDetailPage() {
         <p className="text-gray-500 mt-2 max-w-md mx-auto">
           {error ?? 'The order you are looking for does not exist.'}
         </p>
-        <a href="/admin/orders" className="inline-flex items-center mt-4 text-teal-600 hover:text-teal-800">
+        <a
+          href="/admin/orders"
+          className="inline-flex items-center mt-4 text-teal-600 hover:text-teal-800"
+        >
           &larr; Back to Orders
         </a>
       </div>
@@ -205,7 +251,10 @@ export default function AdminOrderDetailPage() {
   }
 
   const statusConfig = STATUS_CONFIG[order.status] ?? { label: order.status, color: 'gray' };
-  const paymentConfig = PAYMENT_CONFIG[order.paymentStatus] ?? { label: order.paymentStatus, color: 'gray' };
+  const paymentConfig = PAYMENT_CONFIG[order.paymentStatus] ?? {
+    label: order.paymentStatus,
+    color: 'gray',
+  };
 
   return (
     <div className="space-y-6">
@@ -214,15 +263,19 @@ export default function AdminOrderDetailPage() {
         <div className="flex items-center gap-4">
           <a href="/admin/orders" className="text-gray-500 hover:text-gray-700">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </a>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Order #{order.orderNumber}
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Order #{order.orderNumber}</h1>
             <p className="text-sm text-gray-500 mt-1">
-              Placed on {new Date(order.createdAt).toLocaleDateString('en-BD', {
+              Placed on{' '}
+              {new Date(order.createdAt).toLocaleDateString('en-BD', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
@@ -278,25 +331,45 @@ export default function AdminOrderDetailPage() {
                 <div key={item.id} className="px-6 py-4 flex items-center gap-4">
                   <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                     {item.image ? (
-                      <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
+                      <img
+                        src={item.image}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-8 h-8"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">{item.productName}</h3>
+                    <h3 className="text-sm font-medium text-gray-900 truncate">
+                      {item.productName}
+                    </h3>
                     <p className="text-xs text-gray-500">{item.productNameBn}</p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       SKU: {item.sku} {item.variant && `| ${item.variant}`}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-900">{formatBDT(item.unitPrice)} × {item.quantity}</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-1">{formatBDT(item.totalPrice)}</p>
+                    <p className="text-sm text-gray-900">
+                      {formatBDT(item.unitPrice)} × {item.quantity}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">
+                      {formatBDT(item.totalPrice)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -319,7 +392,10 @@ export default function AdminOrderDetailPage() {
               {order.discount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">
-                    Discount {order.couponCode && <span className="text-xs text-green-600">({order.couponCode})</span>}
+                    Discount{' '}
+                    {order.couponCode && (
+                      <span className="text-xs text-green-600">({order.couponCode})</span>
+                    )}
                   </span>
                   <span className="text-green-600">-{formatBDT(order.discount)}</span>
                 </div>
@@ -348,8 +424,18 @@ export default function AdminOrderDetailPage() {
                         <div className="relative flex space-x-3">
                           <div>
                             <span className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center ring-4 ring-white">
-                              <svg className="w-4 h-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              <svg
+                                className="w-4 h-4 text-teal-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 13l4 4L19 7"
+                                />
                               </svg>
                             </span>
                           </div>
@@ -357,7 +443,8 @@ export default function AdminOrderDetailPage() {
                             <div className="text-sm font-medium text-gray-900">{event.status}</div>
                             <p className="text-sm text-gray-500">{event.message}</p>
                             <p className="text-xs text-gray-400 mt-1">
-                              {new Date(event.createdAt).toLocaleString('en-BD')} by {event.createdBy}
+                              {new Date(event.createdAt).toLocaleString('en-BD')} by{' '}
+                              {event.createdBy}
                             </p>
                           </div>
                         </div>
@@ -383,9 +470,7 @@ export default function AdminOrderDetailPage() {
                 <p className="text-sm text-gray-500">{order.customer.email}</p>
                 <p className="text-sm text-gray-500">{order.customer.phone}</p>
               </div>
-              <div className="text-xs text-gray-400">
-                {order.customer.totalOrders} total orders
-              </div>
+              <div className="text-xs text-gray-400">{order.customer.totalOrders} total orders</div>
               <a
                 href={`/admin/customers/${order.customer.id}`}
                 className="inline-flex items-center text-sm text-teal-600 hover:text-teal-800"
@@ -404,8 +489,10 @@ export default function AdminOrderDetailPage() {
               <p className="text-sm font-medium text-gray-900">{order.shippingAddress.name}</p>
               <p className="text-sm text-gray-600">{order.shippingAddress.phone}</p>
               <p className="text-sm text-gray-600 mt-2">
-                {order.shippingAddress.address}<br />
-                {order.shippingAddress.area}, {order.shippingAddress.city}<br />
+                {order.shippingAddress.address}
+                <br />
+                {order.shippingAddress.area}, {order.shippingAddress.city}
+                <br />
                 {order.shippingAddress.postalCode}
               </p>
             </div>
@@ -420,8 +507,10 @@ export default function AdminOrderDetailPage() {
               <p className="text-sm font-medium text-gray-900">{order.billingAddress.name}</p>
               <p className="text-sm text-gray-600">{order.billingAddress.phone}</p>
               <p className="text-sm text-gray-600 mt-2">
-                {order.billingAddress.address}<br />
-                {order.billingAddress.area}, {order.billingAddress.city}<br />
+                {order.billingAddress.address}
+                <br />
+                {order.billingAddress.area}, {order.billingAddress.city}
+                <br />
                 {order.billingAddress.postalCode}
               </p>
             </div>
@@ -472,7 +561,16 @@ export default function AdminOrderDetailPage() {
       <StatusUpdateDialog
         orderId={orderId}
         orderNumber={order.orderNumber}
-        currentStatus={order.status.toLowerCase() as 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned'}
+        currentStatus={
+          order.status.toLowerCase() as
+            | 'pending'
+            | 'confirmed'
+            | 'processing'
+            | 'shipped'
+            | 'delivered'
+            | 'cancelled'
+            | 'returned'
+        }
         isOpen={showStatusDialog}
         onClose={() => setShowStatusDialog(false)}
         onStatusUpdated={handleStatusUpdated}

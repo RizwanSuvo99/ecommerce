@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface ThemeColors {
   primary: string;
@@ -113,8 +114,8 @@ export default function AdminThemePage() {
       try {
         const { data } = await apiClient.get('/theme');
         setTheme(data.data ?? data);
-      } catch {
-        toast.error('Failed to load theme');
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'Failed to load theme'));
       } finally {
         setLoading(false);
       }
@@ -131,8 +132,8 @@ export default function AdminThemePage() {
       const { data } = await apiClient.patch('/admin/theme', theme);
       setTheme(data.data ?? data);
       toast.success('Theme saved successfully');
-    } catch {
-      toast.error('Failed to save theme');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save theme'));
     } finally {
       setSaving(false);
     }
@@ -147,8 +148,8 @@ export default function AdminThemePage() {
       const { data } = await apiClient.post('/admin/theme/reset');
       setTheme(data.data ?? data);
       toast.success('Theme reset to defaults');
-    } catch {
-      toast.error('Failed to reset theme');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to reset theme'));
     } finally {
       setSaving(false);
     }
@@ -200,8 +201,8 @@ export default function AdminThemePage() {
         prev ? { ...prev, [kind === 'logo' ? 'logoUrl' : 'faviconUrl']: url } : prev,
       );
       toast.success(`${kind === 'logo' ? 'Logo' : 'Favicon'} uploaded — don't forget to save`);
-    } catch {
-      toast.error(`Failed to upload ${kind}`);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, `Failed to upload ${kind}`));
     } finally {
       setUploading(false);
     }

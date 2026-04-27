@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface EmailSettings {
@@ -54,8 +56,8 @@ export default function EmailSettingsPage() {
     try {
       await updateSettings('email', form as unknown as Record<string, string>);
       toast.success('Email settings saved');
-    } catch {
-      toast.error('Failed to save email settings');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save email settings'));
     } finally {
       setSaving(false);
     }

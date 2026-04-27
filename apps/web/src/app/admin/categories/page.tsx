@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import {
   Plus,
   FolderTree,
@@ -13,11 +12,13 @@ import {
   Search,
   Loader2,
 } from 'lucide-react';
-
-import { apiClient } from '@/lib/api/client';
-import { cn } from '@/lib/utils';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+
 import { CategoryFormDialog } from '@/components/admin/categories/category-form-dialog';
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
+import { cn } from '@/lib/utils';
 
 // ──────────────────────────────────────────────────────────
 // Types
@@ -107,11 +108,7 @@ function CategoryTreeNode({
         {/* Category Image */}
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
           {category.image ? (
-            <img
-              src={category.image}
-              alt={category.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={category.image} alt={category.name} className="h-full w-full object-cover" />
           ) : (
             <FolderTree className="h-4 w-4 text-gray-300" />
           )}
@@ -120,23 +117,15 @@ function CategoryTreeNode({
         {/* Category Info */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900">
-              {category.name}
-            </span>
-            {category.nameBn && (
-              <span className="text-xs text-gray-500">
-                ({category.nameBn})
-              </span>
-            )}
+            <span className="text-sm font-medium text-gray-900">{category.name}</span>
+            {category.nameBn && <span className="text-xs text-gray-500">({category.nameBn})</span>}
             {!category.isActive && (
               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                 Draft
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-500">
-            /{category.slug}
-          </p>
+          <p className="text-xs text-gray-500">/{category.slug}</p>
         </div>
 
         {/* Product Count */}
@@ -221,7 +210,7 @@ export default function AdminCategoriesPage() {
       setCategories(data.data ?? data);
     } catch (err) {
       console.error('Failed to load categories:', err);
-      toast.error('Failed to load categories');
+      toast.error(getApiErrorMessage(err, 'Failed to load categories'));
     } finally {
       setIsLoading(false);
     }
@@ -254,7 +243,7 @@ export default function AdminCategoriesPage() {
       toast.success('Category deleted');
     } catch (err) {
       console.error('Failed to delete category:', err);
-      toast.error('Failed to delete category');
+      toast.error(getApiErrorMessage(err, 'Failed to delete category'));
     }
   };
 
@@ -281,7 +270,7 @@ export default function AdminCategoriesPage() {
       fetchCategories();
     } catch (err) {
       console.error('Failed to reorder categories:', err);
-      toast.error('Failed to reorder categories');
+      toast.error(getApiErrorMessage(err, 'Failed to reorder categories'));
     } finally {
       setDraggedId(null);
     }
@@ -290,10 +279,7 @@ export default function AdminCategoriesPage() {
   // ─── Count totals ─────────────────────────────────────────────────
 
   function countCategories(cats: Category[]): number {
-    return cats.reduce(
-      (sum, cat) => sum + 1 + countCategories(cat.children || []),
-      0,
-    );
+    return cats.reduce((sum, cat) => sum + 1 + countCategories(cat.children || []), 0);
   }
 
   const totalCategories = countCategories(categories);
@@ -301,7 +287,9 @@ export default function AdminCategoriesPage() {
   // ─── Filter categories by search ──────────────────────────────────
 
   function filterCategories(cats: Category[], query: string): Category[] {
-    if (!query) return cats;
+    if (!query) {
+      return cats;
+    }
     const lowerQuery = query.toLowerCase();
 
     return cats
@@ -359,9 +347,7 @@ export default function AdminCategoriesPage() {
       {/* Category Tree */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-sm font-medium text-gray-700">
-            Category Hierarchy
-          </h2>
+          <h2 className="text-sm font-medium text-gray-700">Category Hierarchy</h2>
           <p className="text-xs text-gray-500">
             Drag categories to reorder. Click the arrow to expand/collapse.
           </p>

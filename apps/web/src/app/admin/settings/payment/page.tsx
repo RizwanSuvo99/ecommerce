@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface PaymentSettings {
@@ -56,8 +58,8 @@ export default function PaymentSettingsPage() {
     try {
       await updateSettings('payment', form as unknown as Record<string, string>);
       toast.success('Payment settings saved');
-    } catch {
-      toast.error('Failed to save payment settings');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save payment settings'));
     } finally {
       setSaving(false);
     }

@@ -2,9 +2,10 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
-import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface UserDetail {
   id: string;
@@ -51,9 +52,15 @@ export default function AdminUserDetailPage() {
       .then(({ data }) => {
         const u = data.data ?? data;
         setUser(u);
-        setForm({ firstName: u.firstName, lastName: u.lastName, email: u.email, phone: u.phone ?? '', role: u.role });
+        setForm({
+          firstName: u.firstName,
+          lastName: u.lastName,
+          email: u.email,
+          phone: u.phone ?? '',
+          role: u.role,
+        });
       })
-      .catch(() => toast.error('Failed to load user'))
+      .catch(() => toast.error(getApiErrorMessage(err, 'Failed to load user')))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -65,21 +72,23 @@ export default function AdminUserDetailPage() {
       setEditing(false);
       const { data } = await apiClient.get(`/admin/users/${id}`);
       setUser(data.data ?? data);
-    } catch {
-      toast.error('Failed to update user');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update user'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/users/${id}`);
       toast.success('User deleted');
       router.push('/admin/users');
-    } catch {
-      toast.error('Failed to delete user');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to delete user'));
     }
   };
 
@@ -96,7 +105,9 @@ export default function AdminUserDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {user.firstName} {user.lastName}
+          </h1>
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
         <div className="flex gap-2">
@@ -163,7 +174,9 @@ export default function AdminUserDetailPage() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             >
               {ROLES.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r}>
+                  {r}
+                </option>
               ))}
             </select>
           </div>
@@ -186,7 +199,9 @@ export default function AdminUserDetailPage() {
           <div>
             <dt className="text-xs text-gray-500">Status</dt>
             <dd className="mt-1">
-              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+              >
                 {user.status === 'ACTIVE' ? 'Active' : user.status}
               </span>
             </dd>
@@ -222,10 +237,18 @@ export default function AdminUserDetailPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Order #</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Total</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Date</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                    Order #
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                    Total
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                    Date
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y bg-white">

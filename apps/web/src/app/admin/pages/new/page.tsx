@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api/client';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
+
+import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 export default function AdminNewPagePage() {
   const router = useRouter();
@@ -51,7 +53,7 @@ export default function AdminNewPagePage() {
       router.push(`/admin/pages/${data.data?.id || data.id}/edit`);
     } catch (error) {
       console.error('Create page error:', error);
-      toast.error('Failed to create page');
+      toast.error(getApiErrorMessage(err, 'Failed to create page'));
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,12 @@ export default function AdminNewPagePage() {
         <div className="flex items-center gap-4">
           <a href="/admin/pages" className="text-gray-500 hover:text-gray-700">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </a>
           <h1 className="text-2xl font-bold text-gray-900">Create New Page</h1>
@@ -117,34 +124,48 @@ export default function AdminNewPagePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Content
+                      </label>
                       <textarea
                         value={formData.content}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, content: e.target.value }))
+                        }
                         placeholder="Write your page content here... (HTML supported)"
                         rows={20}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
                       />
-                      <p className="text-xs text-gray-500 mt-1">HTML and rich text content supported</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        HTML and rich text content supported
+                      </p>
                     </div>
                   </>
                 ) : (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">শিরোনাম (Title)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        শিরোনাম (Title)
+                      </label>
                       <input
                         type="text"
                         value={formData.titleBn}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, titleBn: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, titleBn: e.target.value }))
+                        }
                         placeholder="পৃষ্ঠার শিরোনাম"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">বিষয়বস্তু (Content)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        বিষয়বস্তু (Content)
+                      </label>
                       <textarea
                         value={formData.contentBn}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, contentBn: e.target.value }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, contentBn: e.target.value }))
+                        }
                         placeholder="এখানে আপনার পৃষ্ঠার বিষয়বস্তু লিখুন..."
                         rows={20}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -174,13 +195,16 @@ export default function AdminNewPagePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meta Description
+                </label>
                 <textarea
                   value={activeTab === 'en' ? formData.metaDescription : formData.metaDescriptionBn}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      [activeTab === 'en' ? 'metaDescription' : 'metaDescriptionBn']: e.target.value,
+                      [activeTab === 'en' ? 'metaDescription' : 'metaDescriptionBn']:
+                        e.target.value,
                     }))
                   }
                   placeholder="Meta description for search engines"
@@ -212,7 +236,9 @@ export default function AdminNewPagePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as any }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, status: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 >
                   <option value="draft">Draft</option>
@@ -233,11 +259,15 @@ export default function AdminNewPagePage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Featured Image URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Featured Image URL
+                </label>
                 <input
                   type="text"
                   value={formData.featuredImage}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, featuredImage: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, featuredImage: e.target.value }))
+                  }
                   placeholder="https://..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />

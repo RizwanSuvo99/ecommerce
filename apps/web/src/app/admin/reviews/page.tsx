@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
-import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 interface Review {
   id: string;
@@ -41,14 +42,16 @@ export default function AdminReviewsPage() {
       const params = new URLSearchParams();
       params.set('page', String(page));
       params.set('limit', '20');
-      if (status !== 'ALL') params.set('status', status);
+      if (status !== 'ALL') {
+        params.set('status', status);
+      }
 
       const { data } = await apiClient.get(`/admin/reviews?${params}`);
       const result = data.data ?? data;
       setReviews(result.reviews ?? result ?? []);
       setPagination(result.pagination ?? null);
-    } catch {
-      toast.error('Failed to load reviews');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to load reviews'));
     } finally {
       setLoading(false);
     }
@@ -62,38 +65,45 @@ export default function AdminReviewsPage() {
     try {
       await apiClient.patch(`/admin/reviews/${id}/moderate`, { status: newStatus });
       fetchReviews();
-    } catch {
-      toast.error('Failed to update review status');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update review status'));
     }
   };
 
   const submitResponse = async (id: string) => {
-    if (!responseText.trim()) return;
+    if (!responseText.trim()) {
+      return;
+    }
     try {
       await apiClient.post(`/admin/reviews/${id}/respond`, { response: responseText });
       setRespondingId(null);
       setResponseText('');
       fetchReviews();
-    } catch {
-      toast.error('Failed to submit response');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to submit response'));
     }
   };
 
   const deleteReview = async (id: string) => {
-    if (!confirm('Permanently delete this review?')) return;
+    if (!confirm('Permanently delete this review?')) {
+      return;
+    }
     try {
       await apiClient.delete(`/admin/reviews/${id}`);
       fetchReviews();
-    } catch {
-      toast.error('Failed to delete review');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to delete review'));
     }
   };
 
   const statusColor = (s: string) => {
     switch (s) {
-      case 'APPROVED': return 'bg-green-100 text-green-700';
-      case 'REJECTED': return 'bg-red-100 text-red-700';
-      default: return 'bg-yellow-100 text-yellow-700';
+      case 'APPROVED':
+        return 'bg-green-100 text-green-700';
+      case 'REJECTED':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-yellow-100 text-yellow-700';
     }
   };
 
@@ -111,7 +121,10 @@ export default function AdminReviewsPage() {
         {STATUS_TABS.map((tab) => (
           <button
             key={tab}
-            onClick={() => { setStatus(tab); setPage(1); }}
+            onClick={() => {
+              setStatus(tab);
+              setPage(1);
+            }}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               status === tab
                 ? 'bg-teal-600 text-white'
@@ -146,9 +159,7 @@ export default function AdminReviewsPage() {
                     />
                   )}
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {review.product.name}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{review.product.name}</p>
                     <p className="text-xs text-gray-500">
                       by {review.user.firstName} {review.user.lastName} ({review.user.email})
                     </p>
@@ -169,17 +180,16 @@ export default function AdminReviewsPage() {
               <div className="mt-3">
                 <div className="flex gap-0.5 text-sm">
                   {[1, 2, 3, 4, 5].map((s) => (
-                    <span key={s} className={s <= review.rating ? 'text-yellow-400' : 'text-gray-300'}>
+                    <span
+                      key={s}
+                      className={s <= review.rating ? 'text-yellow-400' : 'text-gray-300'}
+                    >
                       ★
                     </span>
                   ))}
                 </div>
-                {review.title && (
-                  <p className="mt-1 font-medium text-gray-800">{review.title}</p>
-                )}
-                {review.comment && (
-                  <p className="mt-1 text-sm text-gray-600">{review.comment}</p>
-                )}
+                {review.title && <p className="mt-1 font-medium text-gray-800">{review.title}</p>}
+                {review.comment && <p className="mt-1 text-sm text-gray-600">{review.comment}</p>}
               </div>
 
               {review.adminReply && (

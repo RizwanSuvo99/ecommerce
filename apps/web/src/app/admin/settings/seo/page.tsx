@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { getApiErrorMessage } from '@/lib/api/errors';
 import { getSettingsByGroup, updateSettings } from '@/lib/api/settings';
 
 interface SeoSettings {
@@ -52,8 +54,8 @@ export default function SeoSettingsPage() {
     try {
       await updateSettings('seo', form as unknown as Record<string, string>);
       toast.success('SEO settings saved');
-    } catch {
-      toast.error('Failed to save SEO settings');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to save SEO settings'));
     } finally {
       setSaving(false);
     }
@@ -94,7 +96,9 @@ export default function SeoSettingsPage() {
             <p className="mt-1 text-xs text-gray-400">{form.meta_title_bn.length}/70 characters</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Meta Description (English)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Meta Description (English)
+            </label>
             <textarea
               maxLength={160}
               rows={3}
@@ -102,7 +106,9 @@ export default function SeoSettingsPage() {
               onChange={(e) => handleChange('meta_description', e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             />
-            <p className="mt-1 text-xs text-gray-400">{form.meta_description.length}/160 characters</p>
+            <p className="mt-1 text-xs text-gray-400">
+              {form.meta_description.length}/160 characters
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">মেটা বিবরণ (বাংলা)</label>
@@ -113,7 +119,9 @@ export default function SeoSettingsPage() {
               onChange={(e) => handleChange('meta_description_bn', e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500"
             />
-            <p className="mt-1 text-xs text-gray-400">{form.meta_description_bn.length}/160 characters</p>
+            <p className="mt-1 text-xs text-gray-400">
+              {form.meta_description_bn.length}/160 characters
+            </p>
           </div>
         </div>
         <div>

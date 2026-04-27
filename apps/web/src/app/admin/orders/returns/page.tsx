@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 import { apiClient } from '@/lib/api/client';
+import { getApiErrorMessage } from '@/lib/api/errors';
 
 type ReturnStatus = 'RETURNED' | 'CANCELLED' | 'REFUNDED';
 
@@ -42,7 +43,10 @@ const PAYMENT_BADGES: Record<string, { label: string; className: string }> = {
   PENDING: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
   PAID: { label: 'Paid', className: 'bg-green-100 text-green-800 border-green-200' },
   REFUNDED: { label: 'Refunded', className: 'bg-purple-100 text-purple-800 border-purple-200' },
-  PARTIALLY_REFUNDED: { label: 'Partial Refund', className: 'bg-amber-100 text-amber-800 border-amber-200' },
+  PARTIALLY_REFUNDED: {
+    label: 'Partial Refund',
+    className: 'bg-amber-100 text-amber-800 border-amber-200',
+  },
   FAILED: { label: 'Failed', className: 'bg-red-100 text-red-800 border-red-200' },
   CANCELLED: { label: 'Cancelled', className: 'bg-gray-100 text-gray-800 border-gray-200' },
 };
@@ -53,7 +57,9 @@ function formatBDT(amount: number): string {
 
 function Badge({ label, className }: { label: string; className: string }) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${className}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${className}`}
+    >
       {label}
     </span>
   );
@@ -98,10 +104,15 @@ export default function AdminReturnsPage() {
         // Fetch all return-type statuses in parallel
         const results = await Promise.all(
           statuses.map((s) =>
-            apiClient.get(`/admin/orders?page=1&limit=100&status=${s}`).then(({ data }) => {
-              const result = data.data ?? data;
-              return (result.orders ?? result.data ?? (Array.isArray(result) ? result : [])).map(mapOrder);
-            }).catch(() => [] as ReturnOrder[]),
+            apiClient
+              .get(`/admin/orders?page=1&limit=100&status=${s}`)
+              .then(({ data }) => {
+                const result = data.data ?? data;
+                return (result.orders ?? result.data ?? (Array.isArray(result) ? result : [])).map(
+                  mapOrder,
+                );
+              })
+              .catch(() => [] as ReturnOrder[]),
           ),
         );
         for (const batch of results) {
@@ -130,7 +141,7 @@ export default function AdminReturnsPage() {
       }));
     } catch (error) {
       console.error('Error fetching returns:', error);
-      toast.error('Failed to load returns');
+      toast.error(getApiErrorMessage(err, 'Failed to load returns'));
     } finally {
       setLoading(false);
     }
@@ -212,8 +223,18 @@ export default function AdminReturnsPage() {
       {/* Search */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <input
             type="text"
@@ -231,15 +252,33 @@ export default function AdminReturnsPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason / Notes</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Order
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Items
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Payment
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Reason / Notes
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -247,7 +286,7 @@ export default function AdminReturnsPage() {
                 <tr>
                   <td colSpan={9} className="px-4 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
                       <span className="ml-3 text-gray-500">Loading returns...</span>
                     </div>
                   </td>
@@ -260,17 +299,28 @@ export default function AdminReturnsPage() {
                 </tr>
               ) : (
                 orders.map((order) => {
-                  const statusBadge = STATUS_BADGES[order.status] ?? { label: order.status, className: 'bg-gray-100 text-gray-800 border-gray-200' };
-                  const paymentBadge = PAYMENT_BADGES[order.paymentStatus] ?? { label: order.paymentStatus, className: 'bg-gray-100 text-gray-800 border-gray-200' };
+                  const statusBadge = STATUS_BADGES[order.status] ?? {
+                    label: order.status,
+                    className: 'bg-gray-100 text-gray-800 border-gray-200',
+                  };
+                  const paymentBadge = PAYMENT_BADGES[order.paymentStatus] ?? {
+                    label: order.paymentStatus,
+                    className: 'bg-gray-100 text-gray-800 border-gray-200',
+                  };
                   return (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
-                        <a href={`/admin/orders/${order.id}`} className="text-sm font-medium text-teal-600 hover:text-teal-800">
+                        <a
+                          href={`/admin/orders/${order.id}`}
+                          className="text-sm font-medium text-teal-600 hover:text-teal-800"
+                        >
                           #{order.orderNumber}
                         </a>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-gray-900">{order.customer.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {order.customer.name}
+                        </div>
                         <div className="text-xs text-gray-500">{order.customer.email}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700">
@@ -286,7 +336,10 @@ export default function AdminReturnsPage() {
                         <Badge label={paymentBadge.label} className={paymentBadge.className} />
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-sm text-gray-600 max-w-[200px] truncate" title={order.notes ?? ''}>
+                        <p
+                          className="text-sm text-gray-600 max-w-[200px] truncate"
+                          title={order.notes ?? ''}
+                        >
                           {order.notes || <span className="text-gray-400 italic">No notes</span>}
                         </p>
                       </td>
@@ -298,7 +351,10 @@ export default function AdminReturnsPage() {
                         })}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <a href={`/admin/orders/${order.id}`} className="text-sm text-teal-600 hover:text-teal-800 font-medium">
+                        <a
+                          href={`/admin/orders/${order.id}`}
+                          className="text-sm text-teal-600 hover:text-teal-800 font-medium"
+                        >
                           View
                         </a>
                       </td>
